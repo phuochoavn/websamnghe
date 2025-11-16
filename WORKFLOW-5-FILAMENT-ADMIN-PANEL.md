@@ -1,7 +1,7 @@
-# 🎨 WORKFLOW 4: FILAMENT ADMIN PANEL
+# 🎨 WORKFLOW 5: FILAMENT ADMIN PANEL
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 4.0 Modular
+> **Version:** 3.0 Reorganized
 > **Thời gian thực tế:** 10-15 phút
 > **Mục tiêu:** Filament v3 + Admin user + Dashboard working
 
@@ -12,9 +12,10 @@
 ### ✅ Must Complete First
 
 ```
-✅ WORKFLOW-1: Git Foundation
-✅ WORKFLOW-2: VPS Infrastructure
-✅ WORKFLOW-3: Laravel Installation
+✅ WORKFLOW-1: VPS Infrastructure
+✅ WORKFLOW-2: Laravel Installation
+✅ WORKFLOW-3: Git Workflow Setup
+✅ WORKFLOW-4: Deployment Automation
 ✅ Laravel working at: https://samnghethaycu.com
 ```
 
@@ -357,7 +358,7 @@ Password: Admin@123456
 ### Next Steps:
 
 ```
-→ WORKFLOW-5-DATABASE-SCHEMA.md
+→ WORKFLOW-6-DATABASE-SCHEMA.md
   Create database tables and basic models
   Generate Filament resources for CRUD operations
 ```

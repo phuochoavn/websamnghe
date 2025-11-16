@@ -1,9 +1,9 @@
-# 🚀 WORKFLOW 3: LARAVEL INSTALLATION
+# 🚀 WORKFLOW 2: LARAVEL INSTALLATION
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 3.0 Modular
+> **Version:** 3.0 Reorganized
 > **Thời gian thực tế:** 15-20 phút
-> **Mục tiêu:** Laravel 12 via Git + Nginx configured
+> **Mục tiêu:** Laravel 12 via Composer + Nginx configured
 
 ---
 
@@ -12,10 +12,10 @@
 ### ✅ Must Complete First
 
 ```
-✅ WORKFLOW-1-GIT-FOUNDATION.md (Git setup)
-✅ WORKFLOW-2-VPS-INFRASTRUCTURE.md (LEMP + SSL)
-✅ Infrastructure ready (Nginx, MySQL, PHP, Composer)
+✅ WORKFLOW-1: VPS Infrastructure (LEMP + SSL)
+✅ Infrastructure ready (Nginx, MySQL, PHP 8.4, Composer)
 ✅ SSL certificate obtained
+✅ Domain accessible: https://samnghethaycu.com
 ```
 
 ### ✅ Quick Verification
@@ -571,8 +571,8 @@ curl https://samnghethaycu.com/health
 ### Next Step:
 
 ```
-→ WORKFLOW-4-FILAMENT-ADMIN-PANEL.md
-  Install Filament v3 and create admin user
+→ WORKFLOW-3-GIT-WORKFLOW-SETUP.md
+  Setup Git version control (Local → GitHub → VPS)
 ```
 
 ---

@@ -1,7 +1,7 @@
-# 🖥️ WORKFLOW 2: VPS INFRASTRUCTURE
+# 🖥️ WORKFLOW 1: VPS INFRASTRUCTURE
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 2.0 Modular
+> **Version:** 3.0 Reorganized
 > **Thời gian thực tế:** 20-25 phút
 > **Mục tiêu:** LEMP Stack + SSL Certificate
 
@@ -9,14 +9,16 @@
 
 ## 📋 PREREQUISITES
 
-### ✅ Must Complete First
+### ✅ Must Have
 
 ```
-✅ WORKFLOW-1-GIT-FOUNDATION.md completed
-✅ Git working: Local → GitHub → VPS
-✅ deploy-sam command ready
-✅ Repository exists at: /var/www/samnghethaycu.com
+✅ Ubuntu VPS (24.04 LTS recommended)
+✅ Root access or sudo user
+✅ Public IP address (example: 69.62.82.145)
+✅ Domain name pointed to VPS IP (example: samnghethaycu.com)
 ```
+
+**Note:** This is now the FIRST workflow. No previous workflows required.
 
 ### ✅ Quick Verification
 
@@ -572,8 +574,8 @@ cat ~/credentials/database.txt
 ### Next Step:
 
 ```
-→ WORKFLOW-3-LARAVEL-INSTALLATION.md
-  Install Laravel 12 via Git
+→ WORKFLOW-2-LARAVEL-INSTALLATION.md
+  Install Laravel 12 on VPS
 ```
 
 ---

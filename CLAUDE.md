@@ -201,20 +201,11 @@ samnghethaycu.com/
 
 ## 🚀 Development Phases
 
-### ✅ Backend Complete (100%) - Following 8 Modular Workflows
+### ✅ Backend Complete (100%) - Following 9 Modular Workflows
 
-All backend development has been completed following a professional, Git-first approach with 8 modular workflows:
+All backend development has been completed following a professional, infrastructure-first approach with 9 modular workflows:
 
-#### **WORKFLOW-1: Git Foundation** ✅ (15-20 min)
-- [x] SSH key setup for GitHub
-- [x] Repository initialization
-- [x] deploy-sam automation script (8-step deployment)
-- [x] Git-driven development workflow established
-- [x] Common issues handled (SSH known_hosts, etc.)
-
-**See:** `WORKFLOW-1-GIT-FOUNDATION.md`
-
-#### **WORKFLOW-2: VPS Infrastructure** ✅ (20-25 min)
+#### **WORKFLOW-1: VPS Infrastructure** ✅ (20-25 min)
 - [x] LEMP stack (Nginx, MySQL 8, PHP 8.4)
 - [x] Redis 7 cache
 - [x] Composer, Node.js 20
@@ -222,9 +213,9 @@ All backend development has been completed following a professional, Git-first a
 - [x] Firewall & security (UFW)
 - [x] Database credentials saved
 
-**See:** `WORKFLOW-2-VPS-INFRASTRUCTURE.md`
+**See:** `WORKFLOW-1-VPS-INFRASTRUCTURE.md`
 
-#### **WORKFLOW-3: Laravel Installation** ✅ (15-20 min)
+#### **WORKFLOW-2: Laravel Installation** ✅ (15-20 min)
 - [x] Laravel 12 via Git deployment
 - [x] Nginx virtual host configuration
 - [x] Storage symlink setup
@@ -232,27 +223,46 @@ All backend development has been completed following a professional, Git-first a
 - [x] Health check endpoint
 - [x] Permissions with ACL
 
-**See:** `WORKFLOW-3-LARAVEL-INSTALLATION.md`
+**See:** `WORKFLOW-2-LARAVEL-INSTALLATION.md`
 
-#### **WORKFLOW-4: Filament Admin Panel** ✅ (10-15 min)
+#### **WORKFLOW-3: Git Workflow Setup** ✅ (15-20 min)
+- [x] Local Git configuration
+- [x] GitHub repository setup
+- [x] Personal Access Token authentication
+- [x] VPS Git setup with SSH keys
+- [x] Repository cloned to VPS
+- [x] Git workflow: Local → GitHub → VPS
+
+**See:** `WORKFLOW-3-GIT-WORKFLOW-SETUP.md`
+
+#### **WORKFLOW-4: Deployment Automation** ✅ (10-15 min)
+- [x] deploy-sam automation script (8-step deployment)
+- [x] One-command deployment workflow
+- [x] Sudo configuration for deploy user
+- [x] Deployment alias setup
+- [x] End-to-end workflow tested
+
+**See:** `WORKFLOW-4-DEPLOYMENT-AUTOMATION.md`
+
+#### **WORKFLOW-5: Filament Admin Panel** ✅ (10-15 min)
 - [x] Filament v3 installation
 - [x] Admin panel at /admin
 - [x] Admin user creation
 - [x] User model with FilamentUser interface
 - [x] Dashboard accessible
 
-**See:** `WORKFLOW-4-FILAMENT-ADMIN-PANEL.md`
+**See:** `WORKFLOW-5-FILAMENT-ADMIN-PANEL.md`
 
-#### **WORKFLOW-5: Database Schema** ✅ (25-35 min)
+#### **WORKFLOW-6: Database Schema** ✅ (25-35 min)
 - [x] 15 migrations (23 tables total)
 - [x] 15 Eloquent models with fillable & casts
 - [x] 9 Filament resources auto-generated
 - [x] CRUD operations working
 - [x] Deployed to production
 
-**See:** `WORKFLOW-5-DATABASE-SCHEMA.md`
+**See:** `WORKFLOW-6-DATABASE-SCHEMA.md`
 
-#### **WORKFLOW-6: Model Business Logic** ✅ (30-40 min)
+#### **WORKFLOW-7: Model Business Logic** ✅ (30-40 min)
 - [x] 50+ relationships (belongsTo, hasMany, etc.)
 - [x] 30+ scopes for filtering
 - [x] 40+ accessors & mutators
@@ -260,9 +270,9 @@ All backend development has been completed following a professional, Git-first a
 - [x] Helper methods (URLs, labels, calculations)
 - [x] All models production-ready
 
-**See:** `WORKFLOW-6-MODEL-BUSINESS-LOGIC.md`
+**See:** `WORKFLOW-7-MODEL-BUSINESS-LOGIC.md`
 
-#### **WORKFLOW-7: Filament Professional** ✅ (35-45 min)
+#### **WORKFLOW-8: Filament Professional** ✅ (35-45 min)
 - [x] ProductResource: Tabs, filters, bulk actions
 - [x] OrderResource: Custom actions, status management
 - [x] Dashboard widgets (stats + latest orders)
@@ -270,9 +280,9 @@ All backend development has been completed following a professional, Git-first a
 - [x] Coupon validity tracking
 - [x] Professional UI with badges and colors
 
-**See:** `WORKFLOW-7-FILAMENT-PROFESSIONAL.md`
+**See:** `WORKFLOW-8-FILAMENT-PROFESSIONAL.md`
 
-#### **WORKFLOW-8: Seeders & Sample Data** ✅ (20-30 min)
+#### **WORKFLOW-9: Seeders & Sample Data** ✅ (20-30 min)
 - [x] 9 categories (Vietnamese health products)
 - [x] 5 brands (Vietnamese brands)
 - [x] 5 realistic products
@@ -281,16 +291,17 @@ All backend development has been completed following a professional, Git-first a
 - [x] 3 active coupons
 - [x] All data in Vietnamese
 
-**See:** `WORKFLOW-8-SEEDERS-SAMPLE-DATA.md`
+**See:** `WORKFLOW-9-SEEDERS-SAMPLE-DATA.md`
 
 ---
 
 ### 📊 Current Project Status
 
 ```
-✅ Git-First Development Workflow
 ✅ VPS Infrastructure (LEMP + SSL)
 ✅ Laravel 12 Application
+✅ Git Workflow Setup (Local → GitHub → VPS)
+✅ Deployment Automation (One-command deployment)
 ✅ Filament v3 Admin Panel
 ✅ 23 Database Tables
 ✅ 15 Eloquent Models (with full relationships)
@@ -300,8 +311,8 @@ All backend development has been completed following a professional, Git-first a
 ✅ Production Deployment Working
 ```
 
-**Total Backend Time:** ~2.5-3 hours (following workflows)
-**Actual Time (experienced):** ~90-120 minutes
+**Total Backend Time:** ~3-3.5 hours (following 9 workflows)
+**Actual Time (experienced):** ~2-2.5 hours
 
 ---
 

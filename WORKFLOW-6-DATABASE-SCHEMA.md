@@ -1,7 +1,7 @@
-# 🗄️ WORKFLOW 5: DATABASE SCHEMA
+# 🗄️ WORKFLOW 6: DATABASE SCHEMA
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 5.0 Modular
+> **Version:** 3.0 Reorganized
 > **Thời gian thực tế:** 25-35 phút
 > **Mục tiêu:** 23 tables + 15 models + 9 Filament resources
 
@@ -12,10 +12,11 @@
 ### ✅ Must Complete First
 
 ```
-✅ WORKFLOW-1: Git Foundation
-✅ WORKFLOW-2: VPS Infrastructure
-✅ WORKFLOW-3: Laravel Installation
-✅ WORKFLOW-4: Filament Admin Panel
+✅ WORKFLOW-1: VPS Infrastructure
+✅ WORKFLOW-2: Laravel Installation
+✅ WORKFLOW-3: Git Workflow Setup
+✅ WORKFLOW-4: Deployment Automation
+✅ WORKFLOW-5: Filament Admin Panel
 ✅ Admin panel working at: https://samnghethaycu.com/admin
 ```
 
@@ -879,7 +880,7 @@ php artisan make:model Post
 php artisan make:model PostCategory
 ```
 
-**Note:** We'll add relationships in WORKFLOW-6. For now, just basic models with fillable fields.
+**Note:** We'll add relationships in WORKFLOW-7. For now, just basic models with fillable fields.
 
 ### 2.1. Category Model
 
@@ -1525,7 +1526,7 @@ App\Models\Brand::count()
 // Fetch product with relationships
 $product = App\Models\Product::with('category', 'brand')->first();
 $product->name
-// Error expected: relationships not defined yet (WORKFLOW-6 will fix)
+// Error expected: relationships not defined yet (WORKFLOW-7 will fix)
 
 exit
 ```
@@ -1594,7 +1595,7 @@ Admin Panel Resources:
 ### Next Step:
 
 ```
-→ WORKFLOW-6-MODEL-BUSINESS-LOGIC.md
+→ WORKFLOW-7-MODEL-BUSINESS-LOGIC.md
   Add relationships, business logic, and methods to all 15 models
 ```
 
@@ -1682,7 +1683,7 @@ tail -50 storage/logs/laravel.log
 
 ### Issue: Auto-generated Forms Look Wrong
 
-**This is normal!** Filament --generate creates basic forms. We'll customize in WORKFLOW-7.
+**This is normal!** Filament --generate creates basic forms. We'll customize in WORKFLOW-8.
 
 **For now:** Just verify CRUD works, don't worry about UI.
 

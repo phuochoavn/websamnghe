@@ -1,7 +1,7 @@
-# 🧠 WORKFLOW 6: MODEL BUSINESS LOGIC
+# 🧠 WORKFLOW 7: MODEL BUSINESS LOGIC
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 6.0 Modular
+> **Version:** 3.0 Reorganized
 > **Thời gian thực tế:** 30-40 phút
 > **Mục tiêu:** Inject relationships + business logic into 15 models
 
@@ -12,11 +12,12 @@
 ### ✅ Must Complete First
 
 ```
-✅ WORKFLOW-1: Git Foundation
-✅ WORKFLOW-2: VPS Infrastructure
-✅ WORKFLOW-3: Laravel Installation
-✅ WORKFLOW-4: Filament Admin Panel
-✅ WORKFLOW-5: Database Schema
+✅ WORKFLOW-1: VPS Infrastructure
+✅ WORKFLOW-2: Laravel Installation
+✅ WORKFLOW-3: Git Workflow Setup
+✅ WORKFLOW-4: Deployment Automation
+✅ WORKFLOW-5: Filament Admin Panel
+✅ WORKFLOW-6: Database Schema
 ✅ 23 tables created in database
 ✅ 15 basic models exist
 ```
@@ -1658,7 +1659,7 @@ Post::published()
 ### Next Step:
 
 ```
-→ WORKFLOW-7-FILAMENT-PROFESSIONAL.md
+→ WORKFLOW-8-FILAMENT-PROFESSIONAL.md
   Customize Filament resources with tabs, filters, actions, widgets
 ```
 
