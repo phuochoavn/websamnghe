@@ -201,77 +201,111 @@ samnghethaycu.com/
 
 ## 🚀 Development Phases
 
-### ✅ Phase 0: Infrastructure Setup (COMPLETE - 100%)
+### ✅ Backend Complete (100%) - Following 8 Modular Workflows
 
-**Time**: ~3 hours
+All backend development has been completed following a professional, Git-first approach with 8 modular workflows:
 
-- [x] VPS provisioning (Ubuntu 24.04)
-- [x] LEMP stack installation (Nginx, MySQL 8, PHP 8.4)
-- [x] Redis 7 setup
+#### **WORKFLOW-1: Git Foundation** ✅ (15-20 min)
+- [x] SSH key setup for GitHub
+- [x] Repository initialization
+- [x] deploy-sam automation script (8-step deployment)
+- [x] Git-driven development workflow established
+- [x] Common issues handled (SSH known_hosts, etc.)
+
+**See:** `WORKFLOW-1-GIT-FOUNDATION.md`
+
+#### **WORKFLOW-2: VPS Infrastructure** ✅ (20-25 min)
+- [x] LEMP stack (Nginx, MySQL 8, PHP 8.4)
+- [x] Redis 7 cache
+- [x] Composer, Node.js 20
 - [x] SSL certificate (Let's Encrypt)
-- [x] Firewall & security (UFW, Fail2ban)
-- [x] Deploy user with correct permissions
-- [x] Domain configuration (samnghethaycu.com)
+- [x] Firewall & security (UFW)
+- [x] Database credentials saved
 
-### ✅ Phase 1: Laravel Deployment (COMPLETE - 100%)
+**See:** `WORKFLOW-2-VPS-INFRASTRUCTURE.md`
 
-**Time**: ~25 minutes
+#### **WORKFLOW-3: Laravel Installation** ✅ (15-20 min)
+- [x] Laravel 12 via Git deployment
+- [x] Nginx virtual host configuration
+- [x] Storage symlink setup
+- [x] .env production configuration
+- [x] Health check endpoint
+- [x] Permissions with ACL
 
-- [x] Laravel 12 installation
-- [x] Environment configuration
-- [x] Database connection
-- [x] Nginx virtual host
-- [x] Storage symlink
-- [x] Permissions setup (ACL for deploy user)
+**See:** `WORKFLOW-3-LARAVEL-INSTALLATION.md`
 
-### ✅ Phase 2: Backend Complete (COMPLETE - 100%)
-
-**Time**: ~60 minutes
-
-- [x] Database schema (23 tables created)
-- [x] Eloquent models (15 models with relationships)
+#### **WORKFLOW-4: Filament Admin Panel** ✅ (10-15 min)
 - [x] Filament v3 installation
-- [x] Admin panel resources (9 resources)
+- [x] Admin panel at /admin
 - [x] Admin user creation
+- [x] User model with FilamentUser interface
+- [x] Dashboard accessible
+
+**See:** `WORKFLOW-4-FILAMENT-ADMIN-PANEL.md`
+
+#### **WORKFLOW-5: Database Schema** ✅ (25-35 min)
+- [x] 15 migrations (23 tables total)
+- [x] 15 Eloquent models with fillable & casts
+- [x] 9 Filament resources auto-generated
 - [x] CRUD operations working
+- [x] Deployed to production
 
-**Database**: 23 tables
-**Models**: 15 Eloquent models
-**Admin Resources**: 9 Filament resources
+**See:** `WORKFLOW-5-DATABASE-SCHEMA.md`
 
-### 🔄 Phase 3: Backend Customization (IN PROGRESS)
+#### **WORKFLOW-6: Model Business Logic** ✅ (30-40 min)
+- [x] 50+ relationships (belongsTo, hasMany, etc.)
+- [x] 30+ scopes for filtering
+- [x] 40+ accessors & mutators
+- [x] 25+ business logic methods
+- [x] Helper methods (URLs, labels, calculations)
+- [x] All models production-ready
 
-**Target Time**: ~2 hours 45 minutes
+**See:** `WORKFLOW-6-MODEL-BUSINESS-LOGIC.md`
 
-#### 3.1: Customize User Model & Permissions (30 min)
-- [ ] Update User migration with additional fields
-- [ ] Add relationships (orders, reviews, addresses)
-- [ ] Implement soft deletes
-- [ ] Add last login tracking
-- [ ] Configure Filament authentication
+#### **WORKFLOW-7: Filament Professional** ✅ (35-45 min)
+- [x] ProductResource: Tabs, filters, bulk actions
+- [x] OrderResource: Custom actions, status management
+- [x] Dashboard widgets (stats + latest orders)
+- [x] Review approve/reject workflow
+- [x] Coupon validity tracking
+- [x] Professional UI with badges and colors
 
-#### 3.2: Inject Model Code (45 min)
-- [ ] Complete all model relationships
-- [ ] Add accessors and mutators
-- [ ] Implement scopes
-- [ ] Add business logic methods
-- [ ] Test relationships in tinker
+**See:** `WORKFLOW-7-FILAMENT-PROFESSIONAL.md`
 
-#### 3.3: Customize Filament Resources (60 min)
-- [ ] ProductResource: forms, tables, filters, actions
-- [ ] CategoryResource: nested tree, drag-drop
-- [ ] OrderResource: status workflow, timeline
-- [ ] ReviewResource: approve/reject system
-- [ ] Dashboard widgets (stats, charts)
+#### **WORKFLOW-8: Seeders & Sample Data** ✅ (20-30 min)
+- [x] 9 categories (Vietnamese health products)
+- [x] 5 brands (Vietnamese brands)
+- [x] 5 realistic products
+- [x] 3 blog posts
+- [x] 9 product reviews
+- [x] 3 active coupons
+- [x] All data in Vietnamese
 
-#### 3.4: Seeding & Testing (30 min)
-- [ ] Create seeders for all models
-- [ ] Generate fake data (categories, brands, products)
-- [ ] Test CRUD operations
-- [ ] Verify relationships
-- [ ] Admin panel testing with real data
+**See:** `WORKFLOW-8-SEEDERS-SAMPLE-DATA.md`
 
-### 📅 Phase 4: Frontend Development (PLANNED)
+---
+
+### 📊 Current Project Status
+
+```
+✅ Git-First Development Workflow
+✅ VPS Infrastructure (LEMP + SSL)
+✅ Laravel 12 Application
+✅ Filament v3 Admin Panel
+✅ 23 Database Tables
+✅ 15 Eloquent Models (with full relationships)
+✅ 9 Professional Filament Resources
+✅ Dashboard with Widgets
+✅ Realistic Vietnamese Sample Data
+✅ Production Deployment Working
+```
+
+**Total Backend Time:** ~2.5-3 hours (following workflows)
+**Actual Time (experienced):** ~90-120 minutes
+
+---
+
+### 📅 Next Phases: Frontend Development (PLANNED)
 
 **Target Time**: TBD
 
@@ -284,7 +318,7 @@ samnghethaycu.com/
 - [ ] Blog listing and detail pages
 - [ ] Responsive design (mobile-first)
 
-### 📅 Phase 5: Payment Integration (PLANNED)
+### 📅 Payment Integration (PLANNED)
 
 - [ ] VNPay integration
 - [ ] COD (Cash on Delivery) workflow
@@ -292,7 +326,7 @@ samnghethaycu.com/
 - [ ] Payment webhook handling
 - [ ] Order confirmation emails
 
-### 📅 Phase 6: Testing & Optimization (PLANNED)
+### 📅 Testing & Optimization (PLANNED)
 
 - [ ] Unit tests for models
 - [ ] Feature tests for user flows
