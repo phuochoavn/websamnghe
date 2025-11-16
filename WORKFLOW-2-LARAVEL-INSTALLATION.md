@@ -148,11 +148,16 @@ php -v
 
 **Thời gian:** 3 phút
 
+⚠️ **LƯU Ý:** Tất cả lệnh trong PHẦN 2 phải chạy ở thư mục `C:\Projects\samnghethaycu`
+
 ### 2.1. Tạo File .env
 
 **Trên Windows PowerShell:**
 
 ```powershell
+# Đảm bảo đang ở thư mục Laravel
+cd C:\Projects\samnghethaycu
+
 # Copy .env.example thành .env
 Copy-Item .env.example .env
 
@@ -308,9 +313,18 @@ CACHE_STORE=file     →  CACHE_STORE=redis
 
 ### 3.1. Khởi Tạo Git Repository
 
+⚠️ **QUAN TRỌNG:** Phải chạy Git ở đúng thư mục Laravel!
+
 **Trên Windows PowerShell:**
 
 ```powershell
+# Di chuyển vào thư mục Laravel (nếu chưa ở đó)
+cd C:\Projects\samnghethaycu
+
+# Kiểm tra đúng thư mục chưa
+dir
+# Phải thấy: app, bootstrap, config, public, storage, artisan, etc.
+
 # Khởi tạo Git
 git init
 
