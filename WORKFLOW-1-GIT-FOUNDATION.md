@@ -198,6 +198,54 @@ Test-NetConnection -ComputerName 69.62.82.145 -Port 22
 
 ---
 
+### Issue 5: GitHub Email Privacy (GH007 Error)
+
+**Error:**
+
+```
+remote: error: GH007: Your push would publish a private email address.
+remote: You can make your email public or disable this protection by visiting:
+remote: https://github.com/settings/emails
+```
+
+**Nguyên nhân:**
+- GitHub account có setting "Keep my email addresses private"
+- Commit đang dùng email thật thay vì GitHub noreply email
+
+**Fix NGAY:**
+
+```powershell
+# Use GitHub noreply email instead
+git config --global user.email "YOUR_GITHUB_USERNAME@users.noreply.github.com"
+
+# Example:
+git config --global user.email "phuochoavn@users.noreply.github.com"
+
+# Verify
+git config --global user.email
+```
+
+**If already committed with wrong email:**
+
+```powershell
+# Amend last commit with new email
+git commit --amend --reset-author --no-edit
+
+# Verify
+git log --format="%an %ae" -1
+
+# Push again
+git push -u origin main --force
+```
+
+**Alternative (not recommended):**
+- Go to https://github.com/settings/emails
+- Uncheck "Keep my email addresses private"
+
+✅ **Use noreply email for privacy!**
+
+---
+
 ## PART 1: LOCAL GIT SETUP
 
 **Time:** 5 phút
@@ -210,8 +258,9 @@ Test-NetConnection -ComputerName 69.62.82.145 -Port 22
 # Set your name
 git config --global user.name "Your Name"
 
-# Set your email (same as GitHub email)
-git config --global user.email "your.email@example.com"
+# Set your email - IMPORTANT: Use GitHub noreply email for privacy!
+# Format: YOUR_GITHUB_USERNAME@users.noreply.github.com
+git config --global user.email "phuochoavn@users.noreply.github.com"
 
 # Verify
 git config --global --list
@@ -221,9 +270,15 @@ git config --global --list
 
 ```
 user.name=Your Name
-user.email=your.email@example.com
+user.email=phuochoavn@users.noreply.github.com
 core.autocrlf=true
 ```
+
+**⚠️ IMPORTANT:**
+- **Use GitHub noreply email** to protect your privacy
+- Format: `YOUR_GITHUB_USERNAME@users.noreply.github.com`
+- Find your username at: https://github.com/YOUR_USERNAME
+- This prevents GH007 email privacy errors when pushing
 
 ✅ **Checkpoint 1.1:** Git identity configured
 
