@@ -219,7 +219,34 @@ REDIS_PORT=6379
 - `CACHE_STORE=redis`: Dùng Redis cho cache (nhanh hơn file)
 - `SESSION_DRIVER=redis`: Dùng Redis cho sessions
 
-### 2.3. Test Laravel Local (Tùy chọn)
+### 2.3. Fix .env Cho Test Local (QUAN TRỌNG!)
+
+⚠️ **VẤN ĐỀ:** File `.env` đang config Redis, nhưng Windows **KHÔNG CÓ** Redis server → Lỗi 500!
+
+**Trên Windows PowerShell:**
+
+```powershell
+# Mở .env
+notepad .env
+```
+
+**Đổi 2 dòng này (tạm thời cho test local):**
+
+```env
+# TÌM và ĐỔI:
+SESSION_DRIVER=redis  →  SESSION_DRIVER=file
+CACHE_STORE=redis     →  CACHE_STORE=file
+```
+
+**Lưu file:** `Ctrl+S`, đóng Notepad
+
+**Giải thích:**
+- Windows không có Redis server → connect Redis failed → 500 error
+- `SESSION_DRIVER=file`: Lưu sessions vào `storage/framework/sessions/`
+- `CACHE_STORE=file`: Lưu cache vào `storage/framework/cache/`
+- **SAU KHI TEST XONG:** Đổi lại thành `redis` trước khi push lên VPS!
+
+### 2.4. Test Laravel Local
 
 **Trên Windows PowerShell:**
 
@@ -237,11 +264,41 @@ php artisan serve
 http://localhost:8000
 ```
 
-**Phải thấy:** Trang Laravel welcome page (màu cam)
+**Phải thấy:** 🎉 Trang Laravel welcome page (màu cam)!
+
+**Nếu vẫn lỗi 500:**
+- Kiểm tra `SESSION_DRIVER=file` và `CACHE_STORE=file` trong `.env`
+- Xem logs: `storage/logs/laravel.log`
 
 **Dừng server:** Nhấn `Ctrl+C` trong PowerShell
 
-✅ **Checkpoint 2:** .env đã cấu hình
+### 2.5. Đổi Lại .env Về Production Config
+
+⚠️ **QUAN TRỌNG:** Sau khi test xong, đổi lại về Redis!
+
+**Trên Windows PowerShell:**
+
+```powershell
+# Mở .env
+notepad .env
+```
+
+**Đổi lại 2 dòng:**
+
+```env
+# ĐỔI LẠI VỀ PRODUCTION:
+SESSION_DRIVER=file  →  SESSION_DRIVER=redis
+CACHE_STORE=file     →  CACHE_STORE=redis
+```
+
+**Lưu file:** `Ctrl+S`, đóng Notepad
+
+**Giải thích:**
+- VPS có Redis server → dùng Redis cho performance cao
+- `.env` sẽ push lên Git (trong `.gitignore`), nhưng cần đúng config production
+- Khi deploy lên VPS, copy `.env` này (đã có Redis config)
+
+✅ **Checkpoint 2:** .env đã cấu hình và test thành công
 
 ---
 
