@@ -328,6 +328,18 @@ git status
 # Phải thấy: "On branch main" hoặc "On branch master"
 ```
 
+**⚠️ Nếu thấy "Reinitialized existing Git repository":**
+
+Có nghĩa là repository đã tồn tại! Kiểm tra:
+
+```powershell
+# Xem lịch sử commit
+git log --oneline
+
+# Nếu đã có commits → SKIP bước 1.4, 1.5, 1.6
+# Nhảy thẳng sang PART 2
+```
+
 ✅ **Checkpoint 1.3:** Git initialized
 
 ---
@@ -402,6 +414,8 @@ E-Commerce Platform for Natural Health Products
 ```powershell
 # Thêm tất cả files vào staging
 git add .
+# Có thể thấy warning: "CRLF will be replaced by LF"
+# → Bình thường! Git đang convert line endings Windows → Linux
 
 # Kiểm tra những gì sẽ được commit
 git status
@@ -416,6 +430,21 @@ git commit -m "Initial commit: project foundation"
 # Kiểm tra lịch sử commit
 git log --oneline
 # Phải thấy 1 commit
+```
+
+**⚠️ Nếu thấy "nothing to commit, working tree clean":**
+
+Có nghĩa là:
+1. Files đã được commit trước đó, HOẶC
+2. Repository đã có sẵn code
+
+**Kiểm tra:**
+```powershell
+# Xem có commits không
+git log --oneline
+
+# Nếu đã có commits:
+# → ✅ SKIP bước này, nhảy sang PART 2
 ```
 
 ✅ **Checkpoint 1.6:** Initial commit created
