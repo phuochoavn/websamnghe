@@ -216,14 +216,17 @@ remote: https://github.com/settings/emails
 
 ```powershell
 # Use GitHub noreply email instead
-git config --global user.email "YOUR_GITHUB_USERNAME@users.noreply.github.com"
-
-# Example:
-git config --global user.email "phuochoavn@users.noreply.github.com"
+# Format: ID+USERNAME@users.noreply.github.com
+git config --global user.email "201552537+phuochoavn@users.noreply.github.com"
 
 # Verify
 git config --global user.email
 ```
+
+**How to find your GitHub noreply email:**
+1. Go to https://github.com/settings/emails
+2. Look for: "ID+username@users.noreply.github.com"
+3. Copy that exact email
 
 **If already committed with wrong email:**
 
@@ -256,11 +259,11 @@ git push -u origin main --force
 
 ```powershell
 # Set your name
-git config --global user.name "Your Name"
+git config --global user.name "Hoa Nguyen"
 
 # Set your email - IMPORTANT: Use GitHub noreply email for privacy!
-# Format: YOUR_GITHUB_USERNAME@users.noreply.github.com
-git config --global user.email "phuochoavn@users.noreply.github.com"
+# Format: ID+USERNAME@users.noreply.github.com
+git config --global user.email "201552537+phuochoavn@users.noreply.github.com"
 
 # Verify
 git config --global --list
@@ -269,15 +272,16 @@ git config --global --list
 **Should show:**
 
 ```
-user.name=Your Name
-user.email=phuochoavn@users.noreply.github.com
+user.name=Hoa Nguyen
+user.email=201552537+phuochoavn@users.noreply.github.com
 core.autocrlf=true
 ```
 
 **⚠️ IMPORTANT:**
 - **Use GitHub noreply email** to protect your privacy
-- Format: `YOUR_GITHUB_USERNAME@users.noreply.github.com`
-- Find your username at: https://github.com/YOUR_USERNAME
+- Format: `ID+USERNAME@users.noreply.github.com`
+- Find your email at: https://github.com/settings/emails
+- Look for: "Keep my email addresses private" section
 - This prevents GH007 email privacy errors when pushing
 
 ✅ **Checkpoint 1.1:** Git identity configured
