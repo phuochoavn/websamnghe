@@ -228,16 +228,23 @@ git config --global user.email
 2. Look for: "ID+username@users.noreply.github.com"
 3. Copy that exact email
 
-**If already committed with wrong email:**
+**Nếu đã commit với email sai:**
 
 ```powershell
-# Amend last commit with new email
+# QUAN TRỌNG: CD vào thư mục project trước!
+cd C:\Projects\samnghethaycu
+
+# Verify đang ở đúng thư mục (phải thấy branch name)
+git status
+
+# Sửa lại commit với email mới
 git commit --amend --reset-author --no-edit
 
-# Verify
+# Kiểm tra email đã đổi chưa
 git log --format="%an %ae" -1
+# Phải thấy: Hoa Nguyen 201552537+phuochoavn@users.noreply.github.com
 
-# Push again
+# Push lại (force vì đã amend commit)
 git push -u origin main --force
 ```
 
@@ -258,14 +265,14 @@ git push -u origin main --force
 **Windows PowerShell:**
 
 ```powershell
-# Set your name
+# Đặt tên của bạn
 git config --global user.name "Hoa Nguyen"
 
-# Set your email - IMPORTANT: Use GitHub noreply email for privacy!
+# Đặt email - QUAN TRỌNG: Dùng GitHub noreply email để bảo mật!
 # Format: ID+USERNAME@users.noreply.github.com
 git config --global user.email "201552537+phuochoavn@users.noreply.github.com"
 
-# Verify
+# Kiểm tra config
 git config --global --list
 ```
 
@@ -291,15 +298,15 @@ core.autocrlf=true
 ### 1.2. Create Local Project Directory
 
 ```powershell
-# Create project folder
+# Tạo thư mục project
 New-Item -ItemType Directory -Path "C:\Projects\samnghethaycu" -Force
 
-# Navigate to it
+# Di chuyển vào thư mục vừa tạo
 cd C:\Projects\samnghethaycu
 
-# Verify
+# Kiểm tra đã vào đúng thư mục chưa
 Get-Location
-# Should show: C:\Projects\samnghethaycu
+# Phải thấy: C:\Projects\samnghethaycu
 ```
 
 ✅ **Checkpoint 1.2:** Project directory created
@@ -309,16 +316,16 @@ Get-Location
 ### 1.3. Initialize Git Repository
 
 ```powershell
-# Initialize Git
+# Khởi tạo Git repository
 git init
 
-# Verify
+# Kiểm tra folder .git đã được tạo chưa
 ls -Force .git
-# Should see .git directory
+# Phải thấy thư mục .git
 
-# Check status
+# Kiểm tra trạng thái Git
 git status
-# Should show: "On branch main" or "On branch master"
+# Phải thấy: "On branch main" hoặc "On branch master"
 ```
 
 ✅ **Checkpoint 1.3:** Git initialized
@@ -393,22 +400,22 @@ E-Commerce Platform for Natural Health Products
 ### 1.6. Initial Commit
 
 ```powershell
-# Add all files
+# Thêm tất cả files vào staging
 git add .
 
-# Check what will be committed
+# Kiểm tra những gì sẽ được commit
 git status
 
-# Should show:
+# Phải thấy:
 # new file:   .gitignore
 # new file:   README.md
 
-# Create initial commit
+# Tạo commit đầu tiên
 git commit -m "Initial commit: project foundation"
 
-# Verify
+# Kiểm tra lịch sử commit
 git log --oneline
-# Should show 1 commit
+# Phải thấy 1 commit
 ```
 
 ✅ **Checkpoint 1.6:** Initial commit created
@@ -473,22 +480,22 @@ git log --oneline
 **PowerShell:**
 
 ```powershell
-# Ensure you're in project directory
+# QUAN TRỌNG: Đảm bảo đang ở đúng thư mục project
 cd C:\Projects\samnghethaycu
 
-# Add GitHub remote (replace YOUR_USERNAME)
+# Thêm GitHub remote (thay YOUR_USERNAME bằng username của bạn)
 git remote add origin https://github.com/phuochoavn/websamnghe.git
 
-# Verify remote
+# Kiểm tra remote đã add chưa
 git remote -v
-# Should show:
+# Phải thấy:
 # origin  https://github.com/phuochoavn/websamnghe.git (fetch)
 # origin  https://github.com/phuochoavn/websamnghe.git (push)
 
-# Rename branch to main (if needed)
+# Đổi tên branch thành main (nếu cần)
 git branch -M main
 
-# Push to GitHub
+# Push lên GitHub
 git push -u origin main
 ```
 
