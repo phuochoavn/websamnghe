@@ -7,6 +7,59 @@
 
 ---
 
+## 📖 WORKFLOW NÀY LÀM GÌ?
+
+### 🎯 Mục đích:
+
+**Thiết lập hệ thống Git và tự động hóa deployment TRƯỚC KHI bắt đầu viết code Laravel.**
+
+Thay vì code xong rồi mới nghĩ đến Git và deployment, workflow này đảo ngược quy trình:
+- **Bước 1:** Setup Git (local + GitHub + VPS)
+- **Bước 2:** Tạo deployment automation
+- **Bước 3:** Mới bắt đầu code Laravel (WORKFLOW-2+)
+
+### 🎁 Bạn sẽ có gì sau workflow này:
+
+✅ **Git hoàn chỉnh trên 3 nơi:**
+- Windows local (C:\Projects\samnghethaycu)
+- GitHub repository (private)
+- VPS (/var/www/samnghethaycu.com)
+
+✅ **SSH authentication không cần password:**
+- GitHub: Dùng SSH key hoặc Personal Access Token
+- VPS: Dùng SSH key riêng cho deploy user
+
+✅ **Deployment automation:**
+- Script `deploy-sam` trên VPS
+- 1 lệnh deploy toàn bộ: pull code, install, migrate, cache, permissions
+- Thay vì 15-20 lệnh manual → chỉ còn `deploy-sam`
+
+✅ **Professional workflow:**
+```
+LOCAL (Windows)          GITHUB (Remote)         VPS (Production)
+─────────────────        ───────────────         ────────────────
+git add .
+git commit -m "..."
+git push origin main  →  Repository updated  →   ssh vps
+                                                  deploy-sam ✨
+                                                  → Site updated!
+```
+
+### ⚠️ CHÚ Ý QUAN TRỌNG:
+
+**WORKFLOW-1 này CHỈ setup Git và automation.**
+**KHÔNG CÀI đặt PHP, MySQL, Laravel, etc.**
+
+Các workflow tiếp theo mới cài:
+- **WORKFLOW-2:** VPS Infrastructure (PHP 8.4, MySQL, Nginx, SSL)
+- **WORKFLOW-3:** Laravel Installation
+- **WORKFLOW-4:** Filament Admin Panel
+- Etc.
+
+**→ Phải làm WORKFLOW-1 TRƯỚC, sau đó mới làm WORKFLOW-2, 3, 4...**
+
+---
+
 ## 📋 MỤC LỤC
 
 - [PREREQUISITES](#prerequisites-kiểm-tra-trước-khi-bắt-đầu)
