@@ -359,12 +359,12 @@ git log --oneline
 - `.gitignore`: Laravel tự động ignore .env, vendor/, node_modules/
 - Commit message format: `feat: description` (Conventional Commits)
 
-### 3.3. Push Lên GitHub
+### 3.3. Kết Nối Với GitHub Repository
 
 **Trên Windows PowerShell:**
 
 ```powershell
-# Thêm remote GitHub (thay YOUR_USERNAME)
+# Thêm remote GitHub
 git remote add origin https://github.com/phuochoavn/websamnghe.git
 
 # Kiểm tra remote đã add chưa
@@ -375,7 +375,41 @@ git remote -v
 
 # Đổi tên branch thành main
 git branch -M main
+```
 
+### 3.4. Pull Code Từ GitHub (Merge 2 Lịch Sử)
+
+⚠️ **QUAN TRỌNG:** Repository GitHub đã có code (WORKFLOW-1.md, WORKFLOW-2.md, CLAUDE.md, etc.)
+
+**Trên Windows PowerShell:**
+
+```powershell
+# Pull code từ GitHub và merge với code local
+git pull origin main --allow-unrelated-histories
+
+# Git sẽ mở editor để nhập merge commit message:
+# → Nếu là Vim: nhấn :wq rồi Enter
+# → Nếu là Nano: nhấn Ctrl+X, sau đó Y, rồi Enter
+# → Nếu là Notepad/VS Code: đóng editor (Git tự lưu)
+
+# Kiểm tra merge thành công
+git log --oneline -5
+# Phải thấy:
+# - Merge commit (mới nhất)
+# - Laravel commit
+# - WORKFLOW commits từ GitHub
+```
+
+**Giải thích:**
+- `--allow-unrelated-histories`: Merge 2 lịch sử Git khác nhau
+- Sau merge: Cả Laravel files VÀ WORKFLOW files đều có trong project
+- Kết quả: `app/`, `bootstrap/`, `WORKFLOW-1.md`, `CLAUDE.md`, etc.
+
+### 3.5. Push Lên GitHub
+
+**Trên Windows PowerShell:**
+
+```powershell
 # Push lên GitHub
 git push -u origin main
 ```
@@ -389,7 +423,7 @@ Password: [PASTE PERSONAL ACCESS TOKEN]
 
 **Chờ push hoàn tất...**
 
-✅ **Checkpoint 3:** Laravel đã push lên GitHub
+✅ **Checkpoint 3:** Laravel đã merge với WORKFLOW files và push lên GitHub
 
 ---
 
