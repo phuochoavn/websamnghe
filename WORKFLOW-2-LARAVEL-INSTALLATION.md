@@ -1163,53 +1163,73 @@ sudo rm -f /var/log/nginx/samnghethaycu-error.log
 
 ---
 
-### BƯỚC 5: Reset GitHub Repository (Tùy Chọn)
+### BƯỚC 5: Xóa Laravel Khỏi Windows
 
-⚠️ **LƯU Ý:** Bước này sẽ XÓA Laravel code khỏi GitHub, chỉ giữ lại WORKFLOW files!
-
-**Có 2 cách:**
-
-#### **Cách 1: Xóa Laravel commit khỏi main branch (Khuyến nghị)**
+⚠️ **LƯU Ý:** Bước này XÓA Laravel khỏi máy Windows local
 
 **📍 Trên Windows PowerShell:**
 
 ```powershell
-# Clone repository về máy khác (để backup)
+# ⚠️ QUAN TRỌNG: Phải RA NGOÀI thư mục trước khi xóa!
+cd C:\Projects
+
+# Xóa thư mục Laravel
+Remove-Item samnghethaycu -Recurse -Force
+
+# Kiểm tra đã xóa chưa
+Test-Path samnghethaycu
+# ✅ Phải trả về: False
+```
+
+**Giải thích:**
+- Nếu đang ở TRONG thư mục `samnghethaycu`, lệnh `Remove-Item` sẽ lỗi "in use"
+- Phải `cd C:\Projects` (ra ngoài) trước khi xóa
+
+---
+
+### BƯỚC 5B: Reset GitHub Repository (Tùy Chọn - Nếu Đã Push Laravel)
+
+⚠️ **CHỈ LÀM BƯỚC NÀY NẾU:**
+- Bạn đã hoàn thành PHẦN 3 (push Laravel lên GitHub)
+- Bạn muốn xóa Laravel code khỏi GitHub, chỉ giữ lại WORKFLOW files
+
+**📍 Trên Windows PowerShell:**
+
+```powershell
+# BƯỚC 1: Clone repository để backup
 cd C:\Projects
 git clone https://github.com/phuochoavn/websamnghe.git websamnghe-backup
 
-# Vào repository chính
-cd C:\Projects\samnghethaycu
-
-# Kiểm tra log
+# BƯỚC 2: Kiểm tra log
+cd websamnghe-backup
 git log --oneline -10
-# Tìm commit ID của "feat: Laravel 12 installation..."
 
-# Reset về commit TRƯỚC Laravel commit
-git reset --hard <COMMIT_ID_TRƯỚC_LARAVEL>
-# Ví dụ: git reset --hard 00cdb4d (commit "fix(workflow-2): handle merge...")
+# ✅ Phải thấy cả WORKFLOW commits VÀ Laravel commit:
+# abc1234 Merge branch 'main'...
+# dfda9f5 feat: Laravel 12 installation...
+# f467b88 docs(workflow-2): hoàn thiện...
+# 00cdb4d fix(workflow-2): handle merge...
+# ... (nhiều commits)
 
-# Force push lên GitHub
+# BƯỚC 3: Restore WORKFLOW files lên GitHub
 git push origin main --force
 
-# ⚠️ WARNING: Force push sẽ xóa lịch sử!
+# ⏳ Chờ xong...
+
+# BƯỚC 4: Xóa backup
+cd C:\Projects
+Remove-Item websamnghe-backup -Recurse -Force
 ```
 
-#### **Cách 2: Giữ nguyên GitHub, chỉ xóa local**
-
-**📍 Trên Windows PowerShell:**
+**❌ NẾU GIT LOG CHỈ CÓ 1 COMMIT LARAVEL:**
 
 ```powershell
-# Backup trước (nếu cần)
-Compress-Archive -Path C:\Projects\samnghethaycu -DestinationPath C:\Projects\samnghethaycu-backup.zip
-
-# Xóa thư mục Laravel
-Remove-Item C:\Projects\samnghethaycu -Recurse -Force
-
-# Kiểm tra đã xóa chưa
-Test-Path C:\Projects\samnghethaycu
-# ✅ Phải trả về: False
+git log --oneline -10
+dfda9f5 feat: Laravel 12 installation...
+# ← CHỈ 1 commit = CHƯA merge với WORKFLOW files!
 ```
+
+**→ KHÔNG reset! Làm theo hướng dẫn trên để restore từ backup!**
 
 ---
 
