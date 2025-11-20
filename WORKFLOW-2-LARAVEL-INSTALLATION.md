@@ -1276,49 +1276,38 @@ Test-Path samnghethaycu
 
 ---
 
-### BƯỚC 5B: Reset GitHub Repository (Tùy Chọn - Nếu Đã Push Laravel)
+### 📝 LƯU Ý VỀ GITHUB
 
-⚠️ **CHỈ LÀM BƯỚC NÀY NẾU:**
-- Bạn đã hoàn thành PHẦN 3 (push Laravel lên GitHub)
-- Bạn muốn xóa Laravel code khỏi GitHub, chỉ giữ lại WORKFLOW files
+⚠️ **QUAN TRỌNG:** Khi ROLLBACK, code trên GitHub **KHÔNG BỊ XÓA**!
 
-**📍 Trên Windows PowerShell:**
+**GitHub vẫn giữ nguyên:**
+- ✅ Branch `main`: WORKFLOW files
+- ✅ Branch `claude/...` (nếu có): WORKFLOW files + Laravel 12 code
 
+**Tại sao không xóa GitHub?**
+- GitHub là "source of truth" - nguồn code chính thức
+- ROLLBACK chỉ xóa deployment (VPS + Windows local)
+- Khi làm lại WORKFLOW-2, clone lại từ GitHub là có code ngay
+
+**Nếu muốn làm lại WORKFLOW-2:**
+
+**Option 1: Cài Laravel mới (theo WORKFLOW-2 từ đầu)**
 ```powershell
-# BƯỚC 1: Clone repository để backup
 cd C:\Projects
-git clone https://github.com/phuochoavn/websamnghe.git websamnghe-backup
-
-# BƯỚC 2: Kiểm tra log
-cd websamnghe-backup
-git log --oneline -10
-
-# ✅ Phải thấy cả WORKFLOW commits VÀ Laravel commit:
-# abc1234 Merge branch 'main'...
-# dfda9f5 feat: Laravel 12 installation...
-# f467b88 docs(workflow-2): hoàn thiện...
-# 00cdb4d fix(workflow-2): handle merge...
-# ... (nhiều commits)
-
-# BƯỚC 3: Restore WORKFLOW files lên GitHub
-git push origin main --force
-
-# ⏳ Chờ xong...
-
-# BƯỚC 4: Xóa backup
-cd C:\Projects
-Remove-Item websamnghe-backup -Recurse -Force
+New-Item -ItemType Directory -Path "samnghethaycu" -Force
+cd samnghethaycu
+composer create-project laravel/laravel temp "^12.0"
+# ... tiếp tục theo WORKFLOW-2
 ```
 
-**❌ NẾU GIT LOG CHỈ CÓ 1 COMMIT LARAVEL:**
-
+**Option 2: Clone code từ GitHub (nhanh hơn)**
 ```powershell
-git log --oneline -10
-dfda9f5 feat: Laravel 12 installation...
-# ← CHỈ 1 commit = CHƯA merge với WORKFLOW files!
+cd C:\Projects
+git clone https://github.com/phuochoavn/websamnghe.git samnghethaycu
+cd samnghethaycu
+git checkout claude/...  # Hoặc branch có Laravel code
+# ✅ Đã có sẵn Laravel 12 + WORKFLOW files!
 ```
-
-**→ KHÔNG reset! Làm theo hướng dẫn trên để restore từ backup!**
 
 ---
 
