@@ -488,17 +488,21 @@ git clone https://github.com/phuochoavn/websamnghe.git samnghethaycu.com
 # Di chuyển vào thư mục project
 cd samnghethaycu.com
 
+# ⚠️ QUAN TRỌNG: Checkout sang branch main (có Laravel files)
+git checkout main
+
 # Kiểm tra files đã có chưa
 ls -la
 # ✅ Phải thấy:
-# - app/, bootstrap/, public/, vendor/ (Laravel)
+# - app/, bootstrap/, public/, composer.json (Laravel)
 # - WORKFLOW-1.md, WORKFLOW-2.md, CLAUDE.md (Documentation)
 ```
 
 **Giải thích:**
-- `git clone`: Tải code từ GitHub về VPS
+- `git clone`: Tải code từ GitHub về VPS (default branch có thể không phải main)
+- `git checkout main`: **BẮT BUỘC!** Chuyển sang branch main (có Laravel files)
+- Nếu không checkout, sẽ chỉ thấy WORKFLOW files, không có `composer.json`
 - `samnghethaycu.com`: Tên thư mục trên VPS
-- Repository URL: Lấy từ GitHub repository page
 
 ### 4.2. Cài Dependencies
 
