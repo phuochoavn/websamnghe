@@ -1,9 +1,10 @@
 # 🚀 WORKFLOW 2: CÀI ĐẶT LARAVEL
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 5.0 Professional Vietnamese (No-Error Edition)
+> **Version:** 6.0 Professional Vietnamese (Complete Fix Edition)
 > **Thời gian thực tế:** 15-20 phút
 > **Mục tiêu:** Laravel 12 + Nginx + Production Ready
+> **Cập nhật:** 2025-11-20 - Fixed Redis facade & config cache issues
 
 ---
 
@@ -561,6 +562,29 @@ grep APP_KEY .env
 - Mỗi server cần APP_KEY riêng
 - APP_KEY dùng để mã hóa sessions, cookies, passwords
 
+### 4.4B. Cache Config (QUAN TRỌNG!)
+
+⚠️ **BẮT BUỘC:** Phải cache config ngay sau khi tạo .env để Laravel load đúng cấu hình!
+
+**📍 Trên VPS:**
+
+```bash
+# Clear cache cũ (nếu có)
+php artisan config:clear
+
+# Cache config mới (load .env vào cache)
+php artisan config:cache
+
+# Kiểm tra config đã cache chưa
+ls -la bootstrap/cache/config.php
+# ✅ Phải thấy file config.php vừa được tạo
+```
+
+**Giải thích:**
+- `config:clear`: Xóa config cache cũ
+- `config:cache`: Tạo cache mới từ .env (bắt buộc cho production)
+- Nếu không cache → Laravel có thể không load Redis config → Lỗi 500!
+
 ### 4.5. Set Permissions
 
 **📍 Trên VPS:**
@@ -809,23 +833,42 @@ cd C:\Projects\samnghethaycu
 notepad routes\web.php
 ```
 
-**Thêm route này vào cuối file (TRƯỚC dấu `?>` nếu có):**
+**⚠️ LƯU Ý QUAN TRỌNG:** File `routes/web.php` mặc định có cấu trúc sau:
 
 ```php
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+```
+
+**Sửa TOÀN BỘ file thành:**
+
+```php
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+
 // Health check endpoint
 Route::get('/health', function () {
     try {
-        \DB::connection()->getPdo();
+        DB::connection()->getPdo();
         $dbStatus = 'connected';
     } catch (\Exception $e) {
         $dbStatus = 'failed: ' . $e->getMessage();
     }
 
     try {
-        \Redis::connection()->ping();
+        Redis::connection()->ping();
         $redisStatus = 'connected';
     } catch (\Exception $e) {
-        $redisStatus = 'failed';
+        $redisStatus = 'failed: ' . $e->getMessage();
     }
 
     return response()->json([
@@ -834,17 +877,29 @@ Route::get('/health', function () {
         'app' => config('app.name'),
         'environment' => config('app.env'),
         'database' => $dbStatus,
-        'cache' => \Cache::has('health_check') ? 'working' : 'available',
+        'cache' => Cache::has('health_check') ? 'working' : 'available',
         'redis' => $redisStatus,
     ]);
 });
+
+Route::get('/', function () {
+    return view('welcome');
+});
 ```
+
+**Giải thích:**
+- **QUAN TRỌNG:** `use` statements phải ở **ĐẦU FILE** (sau `<?php`)
+- Dùng `Redis::connection()` (Laravel Facade), KHÔNG dùng `\Redis::connection()` (raw PHP class)
+- Dùng `DB::connection()` và `Cache::has()` (Laravel Facades)
+- Tất cả facades đã được import qua `use` statements
+
+**Lưu file:** `Ctrl+S`, đóng Notepad
 
 **Lưu, commit, push:**
 
 ```powershell
 git add routes\web.php
-git commit -m "feat: add health check endpoint with DB and Redis status"
+git commit -m "feat: add health check endpoint with Laravel facades"
 git push origin main
 ```
 
@@ -855,8 +910,11 @@ git push origin main
 cd /var/www/samnghethaycu.com
 git pull origin main
 
-# Clear cache
-php artisan optimize:clear
+# Clear route cache
+php artisan route:clear
+
+# Cache routes mới
+php artisan route:cache
 ```
 
 **Test health endpoint:**
@@ -870,13 +928,40 @@ curl https://samnghethaycu.com/health
 ```json
 {
   "status": "healthy",
-  "timestamp": "2025-11-17 23:00:00",
+  "timestamp": "2025-11-20 13:30:55",
   "app": "Sam Nghe Thay Cu",
   "environment": "production",
   "database": "connected",
   "cache": "available",
   "redis": "connected"
 }
+```
+
+**❌ Nếu gặp lỗi 500:**
+
+```bash
+# Kiểm tra Laravel logs
+tail -50 storage/logs/laravel.log
+
+# Lỗi thường gặp:
+# - "Undefined array key 'redis'" → Chưa chạy config:cache
+# - "Call to undefined method Redis::connection()" → Thiếu use statement
+```
+
+**Fix:**
+
+```bash
+# Clear và rebuild cache
+php artisan config:clear
+php artisan config:cache
+php artisan route:clear
+php artisan route:cache
+
+# Reload PHP-FPM
+sudo systemctl reload php8.4-fpm
+
+# Test lại
+curl https://samnghethaycu.com/health
 ```
 
 ✅ **Checkpoint 6:** Laravel hoạt động hoàn hảo!
@@ -1294,22 +1379,48 @@ http://69.62.82.145
 ## 📊 TỔNG KẾT
 
 **Tạo ngày:** 2025-11-17
-**Version:** 5.0 Professional Vietnamese (No-Error Edition)
+**Cập nhật:** 2025-11-20
+**Version:** 6.0 Professional Vietnamese (Complete Fix Edition)
 **Thời gian:** 15-20 phút thực tế
 **Số bước:** 6 phần chính + Rollback
 
 **Những lỗi đã fix:**
-- ✅ Redis connection error trên Windows local (500 error)
-- ✅ Git push rejected (merge unrelated histories)
-- ✅ Wrong directory errors (added cd commands)
-- ✅ Missing markers (Windows vs VPS)
+- ✅ Redis connection error trên Windows local (500 error) - Section 2.3-2.5
+- ✅ Git push rejected (merge unrelated histories) - Section 3.4
+- ✅ Wrong directory errors (added cd commands) - Toàn bộ workflow
+- ✅ Missing markers (Windows vs VPS) - Toàn bộ workflow
+- ✅ Git clone wrong branch (missing `git checkout main`) - Section 4.1
+- ✅ **Redis facade error (`\Redis` vs `Redis`)** - Section 6.4
+- ✅ **Config cache missing (undefined array key 'redis')** - Section 4.4B
+
+**Lỗi nghiêm trọng đã phát hiện và fix (2025-11-20):**
+
+1. **Health Check Endpoint Code Sai:**
+   - ❌ **Trước:** `\Redis::connection()` (gọi raw PHP class → lỗi)
+   - ✅ **Sau:** `Redis::connection()` (Laravel Facade)
+   - ❌ **Trước:** `use` statements ở cuối file
+   - ✅ **Sau:** `use` statements ở đầu file (PSR standard)
+
+2. **Missing Config Cache:**
+   - ❌ **Trước:** Không có lệnh `config:cache` sau khi copy .env
+   - ✅ **Sau:** Thêm section 4.4B - Cache config ngay sau .env
+   - **Hậu quả nếu thiếu:** Laravel không load Redis config → 500 error
 
 **Kết quả:**
 - ✅ Laravel 12 production-ready
-- ✅ Git workflow hoàn chỉnh
-- ✅ HTTPS với SSL
-- ✅ Health check endpoint
-- ✅ Rollback procedure rõ ràng
+- ✅ Git workflow hoàn chỉnh (Local → GitHub → VPS)
+- ✅ HTTPS với SSL certificate
+- ✅ Health check endpoint (DB + Redis status) hoạt động 100%
+- ✅ Rollback procedure chi tiết
+- ✅ KHÔNG CÒN LỖI 500 khi follow đúng workflow
+
+**Test Cases Đã Kiểm Tra:**
+- ✅ Fresh install từ đầu (ROLLBACK → WORKFLOW-2)
+- ✅ Health endpoint trả về JSON đúng format
+- ✅ Database connection: connected
+- ✅ Redis connection: connected
+- ✅ Config cache hoạt động
+- ✅ Route cache hoạt động
 
 ---
 
