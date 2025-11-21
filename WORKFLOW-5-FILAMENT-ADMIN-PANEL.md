@@ -814,18 +814,48 @@ composer remove filament/filament -W
 # Removing filament/filament (v4.2.3)
 # ...
 # Package operations: 0 installs, 0 updates, 34 removals
+# (May show error about filament:upgrade - this is OK, will fix in next step)
 
-# BƯỚC 3: Rebuild autoloader
+# BƯỚC 3: Remove filament:upgrade script from composer.json
+code composer.json
+
+# Trong VS Code, tìm section "scripts" -> "post-autoload-dump"
+# XÓA dòng: "@php artisan filament:upgrade"
+#
+# BEFORE (3 dòng):
+# "post-autoload-dump": [
+#     "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+#     "@php artisan package:discover --ansi",
+#     "@php artisan filament:upgrade"   <-- XÓA DÒNG NÀY
+# ],
+#
+# AFTER (2 dòng):
+# "post-autoload-dump": [
+#     "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+#     "@php artisan package:discover --ansi"
+# ],
+#
+# Save file (Ctrl+S)
+
+# BƯỚC 4: Rebuild autoloader
 composer dump-autoload
 
 # Expected output:
 # Generating optimized autoload files
 # > Illuminate\Foundation\ComposerScripts::postAutoloadDump
 # > @php artisan package:discover --ansi
-# (Should complete WITHOUT errors)
+#
+#    INFO  Discovering packages.
+#
+#   laravel/pail .................................... DONE
+#   laravel/sail .................................... DONE
+#   laravel/tinker .................................. DONE
+#   ...
+#
+# (Should complete WITHOUT errors - no filament:upgrade error)
 ```
 
-✅ **Checkpoint 1:** Filament files and package removed locally
+✅ **Checkpoint 1:** Filament files, package, and scripts removed locally
 
 ---
 
