@@ -76,64 +76,6 @@ php artisan --version
 
 ---
 
-## 🔄 ROLLBACK: XÓA DEPLOYMENT AUTOMATION VỀ WORKFLOW-3
-
-**Nếu muốn xóa sạch Deployment Automation và quay về trạng thái WORKFLOW-3:**
-
-### **📍 Trên VPS (as deploy user):**
-
-```bash
-# BƯỚC 1: Xóa deployment script
-rm -f ~/scripts/deploy-samnghethaycu.sh
-rmdir ~/scripts 2>/dev/null  # Xóa thư mục nếu rỗng
-
-# Verify
-ls -la ~/scripts
-# Phải thấy: No such file or directory
-
-# BƯỚC 2: Xóa alias khỏi .bashrc
-sed -i '/alias deploy-sam=/d' ~/.bashrc
-
-# Reload .bashrc
-source ~/.bashrc
-
-# Verify alias đã bị xóa
-type deploy-sam 2>&1
-# Phải thấy: bash: type: deploy-sam: not found
-
-# BƯỚC 3: Xóa sudo configuration cho deploy user
-sudo visudo
-# Trong editor, TÌM VÀ XÓA dòng:
-# deploy ALL=(ALL) NOPASSWD: /bin/systemctl reload php8.4-fpm, /bin/chown, /bin/chmod, /bin/rm
-# Save: Ctrl+O, Enter, Ctrl+X (nano) hoặc ESC :wq (vim)
-
-# Verify sudoers syntax
-sudo visudo -c
-# Phải thấy: parsed OK
-
-# BƯỚC 4: Test sudo permissions (phải hỏi password)
-sudo systemctl status php8.4-fpm
-# Phải hỏi password (không còn NOPASSWD)
-
-# BƯỚC 5: Xóa test files nếu có
-cd /var/www/samnghethaycu.com
-rm -f DEPLOY-TEST.md
-git status
-# Nếu có uncommitted changes, reset:
-git reset --hard origin/main
-```
-
-✅ **Rollback complete! Bạn đã về trạng thái WORKFLOW-3:**
-- ✅ Deployment script đã xóa
-- ✅ Alias deploy-sam đã xóa
-- ✅ Sudo NOPASSWD đã xóa
-- ✅ VPS vẫn có Git workflow (Local → GitHub → VPS)
-- ✅ Laravel app vẫn chạy bình thường
-
-**Bây giờ bạn có thể làm lại WORKFLOW-4 từ đầu.**
-
----
-
 ## PHẦN 1: TẠO DEPLOYMENT SCRIPT
 
 **Thời gian:** 7 phút
@@ -699,6 +641,64 @@ AFTER (Automated - 5-30 seconds):
   Setup admin authentication
   Time: 10-15 minutes
 ```
+
+---
+
+## 🔄 ROLLBACK: XÓA DEPLOYMENT AUTOMATION VỀ WORKFLOW-3
+
+**Nếu muốn xóa sạch Deployment Automation và quay về trạng thái WORKFLOW-3:**
+
+### **📍 Trên VPS (as deploy user):**
+
+```bash
+# BƯỚC 1: Xóa deployment script
+rm -f ~/scripts/deploy-samnghethaycu.sh
+rmdir ~/scripts 2>/dev/null  # Xóa thư mục nếu rỗng
+
+# Verify
+ls -la ~/scripts
+# Phải thấy: No such file or directory
+
+# BƯỚC 2: Xóa alias khỏi .bashrc
+sed -i '/alias deploy-sam=/d' ~/.bashrc
+
+# Reload .bashrc
+source ~/.bashrc
+
+# Verify alias đã bị xóa
+type deploy-sam 2>&1
+# Phải thấy: bash: type: deploy-sam: not found
+
+# BƯỚC 3: Xóa sudo configuration cho deploy user
+sudo visudo
+# Trong editor, TÌM VÀ XÓA dòng:
+# deploy ALL=(ALL) NOPASSWD: /bin/systemctl reload php8.4-fpm, /bin/chown, /bin/chmod, /bin/rm
+# Save: Ctrl+O, Enter, Ctrl+X (nano) hoặc ESC :wq (vim)
+
+# Verify sudoers syntax
+sudo visudo -c
+# Phải thấy: parsed OK
+
+# BƯỚC 4: Test sudo permissions (phải hỏi password)
+sudo systemctl status php8.4-fpm
+# Phải hỏi password (không còn NOPASSWD)
+
+# BƯỚC 5: Xóa test files nếu có
+cd /var/www/samnghethaycu.com
+rm -f DEPLOY-TEST.md
+git status
+# Nếu có uncommitted changes, reset:
+git reset --hard origin/main
+```
+
+✅ **Rollback complete! Bạn đã về trạng thái WORKFLOW-3:**
+- ✅ Deployment script đã xóa
+- ✅ Alias deploy-sam đã xóa
+- ✅ Sudo NOPASSWD đã xóa
+- ✅ VPS vẫn có Git workflow (Local → GitHub → VPS)
+- ✅ Laravel app vẫn chạy bình thường
+
+**Bây giờ bạn có thể làm lại WORKFLOW-4 từ đầu.**
 
 ---
 
