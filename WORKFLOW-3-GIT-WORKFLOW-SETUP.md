@@ -1,514 +1,727 @@
-# 🔄 WORKFLOW 3: GIT WORKFLOW SETUP
+# 🔄 WORKFLOW 3: THIẾT LẬP GIT WORKFLOW
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 3.0 Reorganized
-> **Thời gian thực tế:** 15-20 phút
-> **Mục tiêu:** Setup Git version control cho Laravel app
+> **Version:** 4.0 Professional Vietnamese (Standardized Edition)
+> **Thời gian thực tế:** 10-15 phút
+> **Mục tiêu:** Setup SSH authentication và Deploy User cho Git automation
+> **Cập nhật:** 2025-11-21 - Standardized format + Deploy user setup
 
 ---
 
-## 📖 WORKFLOW NÀY LÀM GÌ?
+## 📋 ĐIỀU KIỆN TIÊN QUYẾT
 
-### 🎯 Mục đích:
+### ✅ Phải hoàn thành trước
 
-**Thiết lập Git version control cho Laravel application đã cài đặt.**
-
-Sau khi server và Laravel đã sẵn sàng (WF-1, WF-2), bây giờ setup Git để:
-- Version control code
-- Collaboration qua GitHub
-- Chuẩn bị cho deployment automation (WF-4)
-
-### 🎁 Kết quả sau workflow:
-
-✅ **Git setup trên 3 nơi:**
-- Local (Windows): C:\Projects\samnghethaycu
-- GitHub: Private repository
-- VPS: /var/www/samnghethaycu.com
-
-✅ **SSH authentication:**
-- GitHub SSH key hoặc Personal Access Token
-- VPS SSH key cho deploy user
-
-✅ **Professional workflow:**
 ```
-Local → git push → GitHub → Ready for deployment
+✅ WORKFLOW-1: VPS Infrastructure (LEMP Stack + SSL)
+✅ WORKFLOW-2: Laravel Installation (Laravel 12 đã deploy)
+✅ Git repository: https://github.com/phuochoavn/websamnghe.git
+✅ Code đã push lên GitHub từ Windows local
+✅ VPS đã clone code từ GitHub (dùng root + HTTPS)
 ```
 
-### ⚠️ PREREQUISITES:
+### ✅ Kiểm Tra Nhanh
 
-**PHẢI hoàn thành trước:**
-```
-✅ WORKFLOW-1: VPS Infrastructure (PHP, MySQL, Nginx, SSL)
-✅ WORKFLOW-2: Laravel Installation (Laravel app đang chạy)
-✅ Laravel app accessible tại: https://samnghethaycu.com
-```
-
-**Verify Laravel working:**
-```bash
-curl https://samnghethaycu.com
-# Phải thấy Laravel homepage
-```
-
----
-
-## PART 1: LOCAL GIT SETUP
-
-**Time:** 5 phút
-
-### 1.1. Configure Git Identity
-
-**Windows PowerShell:**
+**📍 Trên Windows:**
 
 ```powershell
-# Đặt tên của bạn
-git config --global user.name "Hoa Nguyen"
-
-# Đặt email - QUAN TRỌNG: Dùng GitHub noreply email!
-git config --global user.email "201552537+phuochoavn@users.noreply.github.com"
-
-# Kiểm tra config
-git config --global --list
-```
-
-**Should show:**
-```
-user.name=Hoa Nguyen
-user.email=201552537+phuochoavn@users.noreply.github.com
-```
-
-✅ **Checkpoint 1.1:** Git identity configured
-
----
-
-### 1.2. Navigate to Laravel Project
-
-```powershell
-# Di chuyển vào thư mục Laravel đã cài (từ WF-2)
+# Kiểm tra Git local
 cd C:\Projects\samnghethaycu
+git remote -v
+# ✅ Phải thấy: origin  https://github.com/phuochoavn/websamnghe.git
 
-# Kiểm tra Laravel files có sẵn
-ls
-
-# Phải thấy:
-# - artisan
-# - composer.json
-# - app/
-# - public/
+git log --oneline -3
+# ✅ Phải thấy commits Laravel
 ```
 
-✅ **Checkpoint 1.2:** In Laravel directory
+**📍 Trên VPS:**
+
+```bash
+# Kiểm tra Laravel đã deploy
+curl https://samnghethaycu.com/health
+# ✅ Phải trả về JSON với database + redis connected
+
+# Kiểm tra git repo
+cd /var/www/samnghethaycu.com
+git remote -v
+# ✅ Phải thấy: origin  https://github.com/phuochoavn/websamnghe.git
+```
+
+**Tất cả OK?** → Tiếp tục!
 
 ---
 
-### 1.3. Initialize Git Repository
+## 🎯 NHỮNG GÌ CHÚNG TA SẼ XÂY DỰNG
 
-```powershell
-# Khởi tạo Git
-git init
+```
+HIỆN TẠI (Sau WORKFLOW-2):
+  Windows → Git push (HTTPS + password/token)
+  VPS     → Git clone (root user + HTTPS)
 
-# Kiểm tra
-git status
-# Phải thấy: "On branch main" hoặc "On branch master"
+MỤC TIÊU WORKFLOW-3:
+  Windows → Git push (SSH - không cần password)
+  VPS     → Git pull (deploy user + SSH automation)
+
+Chuẩn bị cho WORKFLOW-4: Deployment automation script!
 ```
 
-✅ **Checkpoint 1.3:** Git initialized
+**Triết lý:** Setup SSH authentication và deploy user để automation an toàn!
 
 ---
 
-### 1.4. Create .gitignore
+## PHẦN 1: SETUP DEPLOY USER TRÊN VPS
 
-**Laravel đã có .gitignore mặc định, nhưng verify:**
+**Thời gian:** 5 phút
 
-```powershell
-# Kiểm tra file .gitignore
-cat .gitignore
+⚠️ **LƯU Ý:** Nếu đã tạo deploy user trong WORKFLOW-1, bỏ qua section 1.1-1.2
 
-# Phải có các dòng quan trọng:
-# /vendor
-# .env
-# /node_modules
-# /storage/*.key
+### 1.1. Kiểm Tra Deploy User
+
+**📍 Trên VPS:**
+
+```bash
+# SSH vào VPS với root
+ssh root@69.62.82.145
+
+# Kiểm tra deploy user có chưa
+id deploy
+
+# ✅ Nếu thấy: uid=1000(deploy) gid=1000(deploy)... → Đã có, skip đến 1.3
+# ❌ Nếu thấy: id: 'deploy': no such user → Chưa có, làm tiếp 1.2
 ```
-
-**Nếu chưa có, tạo:**
-
-```powershell
-@"
-/node_modules
-/public/hot
-/public/storage
-/storage/*.key
-/vendor
-.env
-.env.backup
-.env.production
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-auth.json
-npm-debug.log
-yarn-error.log
-/.fleet
-/.idea
-/.vscode
-"@ | Out-File -FilePath .gitignore -Encoding utf8
-```
-
-✅ **Checkpoint 1.4:** .gitignore ready
 
 ---
 
-### 1.5. Initial Commit
+### 1.2. Tạo Deploy User (Nếu Chưa Có)
 
-```powershell
-# Add tất cả files (trừ những file trong .gitignore)
-git add .
+**📍 Trên VPS (root):**
 
-# Kiểm tra
-git status
+```bash
+# Tạo user deploy
+sudo useradd -m -s /bin/bash deploy
 
-# Tạo commit đầu tiên
-git commit -m "feat: initial Laravel 12 setup with Filament"
+# Set password
+sudo passwd deploy
+# Nhập password: Deploy@2025
+# Nhập lại: Deploy@2025
+
+# Add vào sudo group
+sudo usermod -aG sudo deploy
+
+# Add vào www-data group (để deploy Laravel)
+sudo usermod -aG www-data deploy
 
 # Verify
-git log --oneline
-# Phải thấy 1 commit
+id deploy
+# ✅ Phải thấy: groups=1000(deploy),27(sudo),33(www-data)
 ```
 
-✅ **Checkpoint 1.5:** Initial commit created
+**Giải thích:**
+- `useradd -m`: Tạo user với home directory `/home/deploy`
+- `-s /bin/bash`: Set default shell là bash
+- `sudo group`: Cho phép deploy user chạy sudo commands
+- `www-data group`: Cho phép deploy user ghi vào Laravel folders
 
 ---
 
-## PART 2: GITHUB REPOSITORY
+### 1.3. Grant Deploy User Permissions
 
-**Time:** 8 phút
-
-### 2.1. Create GitHub Repository
-
-**On GitHub.com:**
-
-1. Login → Click **"+"** → **"New repository"**
-2. **Repository name:** `websamnghe`
-3. **Description:** `samnghethaycu.com - E-Commerce Platform`
-4. **Visibility:** ⚠️ **Private**
-5. ❌ **DO NOT** initialize with README, .gitignore, or license
-6. Click **"Create repository"**
-
-✅ **Checkpoint 2.1:** Repository created
-
----
-
-### 2.2. Create Personal Access Token
-
-**Why?** GitHub no longer accepts password authentication.
-
-**Steps:**
-
-1. GitHub → **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)**
-2. Click **"Generate new token (classic)"**
-3. **Note:** `samnghethaycu deployment`
-4. **Expiration:** 90 days
-5. **Scopes:** Check `repo` (full control)
-6. Click **"Generate token"**
-7. **COPY TOKEN IMMEDIATELY** (shows once only!)
-
-**Save token:**
-
-```powershell
-# Lưu token vào file (để dùng lại)
-"ghp_YourTokenHere" | Out-File -FilePath C:\Projects\github-token.txt
-```
-
-✅ **Checkpoint 2.2:** Token created & saved
-
----
-
-### 2.3. Add Remote and Push
-
-**Windows PowerShell:**
-
-```powershell
-# QUAN TRỌNG: Đảm bảo đang ở thư mục project
-cd C:\Projects\samnghethaycu
-
-# Thêm GitHub remote
-git remote add origin https://github.com/phuochoavn/websamnghe.git
-
-# Kiểm tra
-git remote -v
-# Phải thấy origin với URL GitHub
-
-# Đổi branch thành main (nếu cần)
-git branch -M main
-
-# Push lên GitHub
-git push -u origin main
-```
-
-**Authentication prompt:**
-```
-Username: phuochoavn
-Password: [PASTE TOKEN - not your GitHub password!]
-```
-
-**Success:**
-```
-Branch 'main' set up to track remote branch 'main' from 'origin'.
-```
-
-**Verify on GitHub:** Refresh repository → Should see Laravel files
-
-✅ **Checkpoint 2.3:** Code pushed to GitHub
-
----
-
-## PART 3: VPS GIT SETUP
-
-**Time:** 7 phút
-
-**⚠️ IMPORTANT:** SSH vào VPS với user `deploy` (đã tạo ở WF-1)
-
-### 3.1. SSH to VPS
-
-**Windows PowerShell:**
-
-```powershell
-# SSH vào VPS với user deploy
-ssh deploy@69.62.82.145
-# Password: Deploy@2025
-```
-
----
-
-### 3.2. Generate SSH Key for GitHub
-
-**On VPS (sau khi SSH vào):**
+**📍 Trên VPS (root):**
 
 ```bash
-# Tạo SSH key cho deploy user
-ssh-keygen -t ed25519 -C "deploy@samnghethaycu.com"
+# Chuyển ownership của Laravel folder cho deploy user
+sudo chown -R deploy:www-data /var/www/samnghethaycu.com
 
-# Press Enter 3 times (no passphrase)
+# Set permissions cho storage và cache
+sudo chown -R www-data:www-data /var/www/samnghethaycu.com/storage
+sudo chown -R www-data:www-data /var/www/samnghethaycu.com/bootstrap/cache
+sudo chmod -R 775 /var/www/samnghethaycu.com/storage
+sudo chmod -R 775 /var/www/samnghethaycu.com/bootstrap/cache
 
-# Hiển thị public key
-cat ~/.ssh/id_ed25519.pub
+# Verify
+ls -la /var/www/samnghethaycu.com
+# ✅ Owner phải là: deploy www-data
 ```
 
-**Copy public key** (bắt đầu từ `ssh-ed25519...`)
+**Giải thích:**
+- `deploy:www-data`: Deploy user owns files, www-data (Nginx) có quyền đọc
+- Folders `storage/` và `bootstrap/cache/` owned by www-data để ghi logs, cache
+- `775`: Owner & group có full quyền, others chỉ đọc
+
+✅ **Checkpoint 1:** Deploy user created & permissions set
 
 ---
 
-### 3.3. Add SSH Key to GitHub
+## PHẦN 2: SETUP SSH KEY CHO GITHUB
 
-**On GitHub.com:**
+**Thời gian:** 5 phút
 
-1. **Settings** → **SSH and GPG keys** → **New SSH key**
-2. **Title:** `VPS Deploy User - samnghethaycu`
-3. **Key:** Paste public key
-4. Click **"Add SSH key"**
+### 2.1. Generate SSH Key (Deploy User)
+
+**📍 Trên VPS:**
+
+```bash
+# Exit khỏi root, SSH lại với deploy user
+exit
+
+# SSH với deploy user
+ssh deploy@69.62.82.145
+# Password: Deploy@2025
+
+# Generate SSH key
+ssh-keygen -t ed25519 -C "deploy@samnghethaycu.com"
+
+# Press Enter 3 lần (không dùng passphrase cho automation)
+# Output:
+# Your identification has been saved in /home/deploy/.ssh/id_ed25519
+# Your public key has been saved in /home/deploy/.ssh/id_ed25519.pub
+```
+
+**Giải thích:**
+- `-t ed25519`: Sử dụng ED25519 algorithm (nhanh, an toàn)
+- `-C "deploy@samnghethaycu.com"`: Comment để nhận diện key
+- No passphrase: Để automation script có thể git pull không cần nhập password
 
 ---
 
-### 3.4. Test SSH Connection
+### 2.2. Hiển Thị Public Key
 
-**On VPS:**
+**📍 Trên VPS (deploy user):**
+
+```bash
+# Hiển thị public key
+cat ~/.ssh/id_ed25519.pub
+
+# ✅ Output sẽ bắt đầu với: ssh-ed25519 AAAA...
+```
+
+**Copy toàn bộ output** (từ `ssh-ed25519` đến hết dòng)
+
+---
+
+### 2.3. Add SSH Key to GitHub
+
+**📍 Trên GitHub.com:**
+
+1. Click **avatar** (góc phải) → **Settings**
+2. Sidebar bên trái → **SSH and GPG keys**
+3. Click **"New SSH key"** (nút xanh lá)
+4. **Title:** `VPS Deploy User - samnghethaycu.com`
+5. **Key type:** Authentication Key
+6. **Key:** Paste public key vừa copy
+7. Click **"Add SSH key"**
+8. Nhập GitHub password để confirm
+
+✅ **Checkpoint 2:** SSH key added to GitHub
+
+---
+
+### 2.4. Test SSH Connection
+
+**📍 Trên VPS (deploy user):**
 
 ```bash
 # Test GitHub SSH
 ssh -T git@github.com
 
-# Expected:
-# Hi phuochoavn! You've successfully authenticated...
+# Lần đầu sẽ hỏi:
+# The authenticity of host 'github.com (140.82.113.4)'...
+# Are you sure you want to continue connecting (yes/no/[fingerprint])?
+# → Gõ: yes
+
+# ✅ Expected output:
+# Hi phuochoavn! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-✅ **Checkpoint 3.4:** GitHub SSH working
+**❌ Nếu thấy "Permission denied (publickey)":**
+- Kiểm tra đã copy đúng public key chưa
+- Kiểm tra đã add key vào đúng GitHub account chưa
+- Thử generate lại SSH key
+
+✅ **Checkpoint 2.4:** GitHub SSH authentication working!
 
 ---
 
-### 3.5. Clone Repository to VPS
+## PHẦN 3: CẤU HÌNH GIT TRÊN VPS
+
+**Thời gian:** 3 phút
+
+### 3.1. Configure Git Identity
+
+**📍 Trên VPS (deploy user):**
 
 ```bash
-# Configure Git identity (trên VPS)
+# Set git identity cho deploy user
 git config --global user.name "Deploy User"
 git config --global user.email "deploy@samnghethaycu.com"
 
-# Di chuyển vào /var/www
-cd /var/www
-
-# Clone repository (thay thế folder Laravel hiện tại)
-# Backup trước nếu cần
-sudo mv samnghethaycu.com samnghethaycu.com.backup
-
-# Clone từ GitHub
-git clone git@github.com:phuochoavn/websamnghe.git samnghethaycu.com
-
 # Verify
-cd samnghethaycu.com
-ls -la
-
-# Phải thấy Laravel files
+git config --global --list
+# ✅ Phải thấy:
+# user.name=Deploy User
+# user.email=deploy@samnghethaycu.com
 ```
-
-✅ **Checkpoint 3.5:** Repository cloned to VPS
 
 ---
 
-### 3.6. Setup Laravel on VPS
+### 3.2. Reconfigure Remote to Use SSH
+
+**📍 Trên VPS (deploy user):**
+
+```bash
+# Di chuyển vào Laravel folder
+cd /var/www/samnghethaycu.com
+
+# Xem remote hiện tại (đang dùng HTTPS)
+git remote -v
+# origin  https://github.com/phuochoavn/websamnghe.git (fetch)
+# origin  https://github.com/phuochoavn/websamnghe.git (push)
+
+# Đổi sang SSH URL
+git remote set-url origin git@github.com:phuochoavn/websamnghe.git
+
+# Verify
+git remote -v
+# ✅ Phải thấy:
+# origin  git@github.com:phuochoavn/websamnghe.git (fetch)
+# origin  git@github.com:phuochoavn/websamnghe.git (push)
+```
+
+**Giải thích:**
+- HTTPS URL: `https://github.com/phuochoavn/websamnghe.git` → Cần password/token
+- SSH URL: `git@github.com:phuochoavn/websamnghe.git` → Dùng SSH key (tự động)
+
+---
+
+### 3.3. Test Git Pull
+
+**📍 Trên VPS (deploy user):**
 
 ```bash
 cd /var/www/samnghethaycu.com
 
-# Copy .env từ backup (nếu có) hoặc tạo mới
-sudo cp ../samnghethaycu.com.backup/.env .env
-# HOẶC
-cp .env.example .env
+# Test pull
+git pull origin main
 
-# Generate app key
-php artisan key:generate
+# ✅ Expected:
+# Already up to date.
+# (Hoặc pull về code mới nếu có changes trên GitHub)
 
-# Install Composer dependencies
-composer install --no-dev --optimize-autoloader
-
-# Create storage link
-php artisan storage:link
-
-# Run migrations
-php artisan migrate --force
-
-# Fix permissions
-sudo chown -R www-data:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
-
-# Test
-curl http://localhost
-# Phải thấy Laravel response
+# ❌ KHÔNG được hỏi username/password! Nếu hỏi → SSH chưa đúng
 ```
 
-✅ **Checkpoint 3.6:** Laravel working via Git
+✅ **Checkpoint 3:** Git pull với SSH thành công (không cần password)!
 
 ---
 
-## VERIFICATION
+## PHẦN 4: TEST FULL WORKFLOW
 
-### Test Full Workflow
+**Thời gian:** 2 phút
 
-**Windows PowerShell:**
+### 4.1. Test Deployment Workflow
+
+**📍 Trên Windows:**
 
 ```powershell
 cd C:\Projects\samnghethaycu
 
 # Tạo test file
-echo "# Test deployment" >> TEST.md
+echo "# Test Git Workflow" > TEST-WORKFLOW-3.md
 
 # Add, commit, push
-git add TEST.md
-git commit -m "test: verify Git workflow"
+git add TEST-WORKFLOW-3.md
+git commit -m "test: verify Git workflow after WORKFLOW-3"
 git push origin main
 ```
 
-**On VPS:**
+**📍 Trên VPS (deploy user):**
 
 ```bash
 cd /var/www/samnghethaycu.com
 
-# Pull changes
+# Pull changes (KHÔNG cần password!)
 git pull origin main
 
-# Verify
-ls -la TEST.md
-# File phải có!
+# Verify file đã về
+ls -la TEST-WORKFLOW-3.md
+# ✅ File phải có!
+
+cat TEST-WORKFLOW-3.md
+# ✅ Phải thấy: # Test Git Workflow
 ```
 
-**Success!** Git workflow hoàn chỉnh!
+**Xóa test file:**
 
-✅ **Checkpoint:** Full workflow tested
+```bash
+# Xóa trên VPS
+rm TEST-WORKFLOW-3.md
+```
+
+**📍 Trên Windows:**
+
+```powershell
+# Xóa trên Windows
+git rm TEST-WORKFLOW-3.md
+git commit -m "chore: remove test file"
+git push origin main
+```
+
+✅ **Checkpoint 4:** Full workflow tested successfully!
 
 ---
 
-## 🎉 WORKFLOW 3 COMPLETE!
+## ✅ HOÀN THÀNH WORKFLOW 3!
 
-### Bạn đã có:
+### Git Workflow Sẵn Sàng:
 
 ```
-✅ Git setup local (Windows)
-✅ GitHub repository (private)
-✅ VPS cloned từ GitHub
-✅ SSH authentication working
-✅ Git workflow: Local → GitHub → VPS
-✅ Laravel app synced giữa local và VPS
+✅ Deploy user created: deploy@samnghethaycu.com
+✅ SSH key generated và added to GitHub
+✅ GitHub SSH authentication working (không cần password)
+✅ Git identity configured (deploy user)
+✅ Deploy user có quyền trên /var/www/samnghethaycu.com
+✅ Git remote đã đổi sang SSH URL
+✅ Git pull hoạt động tự động (không cần password)
+✅ Full workflow tested: Windows → GitHub → VPS
 ```
 
 ### Git Workflow Diagram:
 
 ```
-LOCAL (Windows)          GITHUB              VPS (Production)
-─────────────────        ──────              ────────────────
-C:\Projects\...          Repository          /var/www/...
-
-git push origin main →   Updated    →        git pull origin main
-                                              → Site updated!
+┌─────────────────────────────────────────────────────────────┐
+│                     GIT WORKFLOW                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Windows Local (Dev)                                        │
+│  ───────────────────                                        │
+│  C:\Projects\samnghethaycu                                  │
+│  User: Hoa Nguyen                                           │
+│                                                             │
+│  1. Make changes                                            │
+│  2. git add . && git commit -m "..."                        │
+│  3. git push origin main (HTTPS + token)                    │
+│         │                                                   │
+│         ▼                                                   │
+│  ┌──────────────────────────────────┐                       │
+│  │  GitHub Repository (Remote)      │                       │
+│  │  ────────────────────────────    │                       │
+│  │  phuochoavn/websamnghe           │                       │
+│  │  (Single source of truth)        │                       │
+│  └──────────────────────────────────┘                       │
+│         │                                                   │
+│         ▼                                                   │
+│  VPS Production Server                                      │
+│  ──────────────────────                                     │
+│  /var/www/samnghethaycu.com                                 │
+│  User: deploy                                               │
+│                                                             │
+│  4. git pull origin main (SSH - auto auth!)                 │
+│  5. php artisan migrate --force                             │
+│  6. php artisan optimize                                    │
+│  7. Website updated! ✅                                      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
----
+### Kiểm Tra Tổng Thể:
 
-## 🚀 NEXT STEP:
+**📍 Trên VPS (deploy user):**
+
+```bash
+# Kiểm tra Git config
+git config --global --list
+# ✅ user.name=Deploy User
+# ✅ user.email=deploy@samnghethaycu.com
+
+# Kiểm tra remote
+cd /var/www/samnghethaycu.com
+git remote -v
+# ✅ origin  git@github.com:phuochoavn/websamnghe.git
+
+# Kiểm tra SSH
+ssh -T git@github.com
+# ✅ Hi phuochoavn! You've successfully authenticated...
+
+# Kiểm tra permissions
+ls -la /var/www/samnghethaycu.com
+# ✅ deploy www-data
+
+# Test pull
+git pull origin main
+# ✅ Already up to date. (KHÔNG hỏi password!)
+```
+
+### Bước Tiếp Theo:
 
 ```
 → WORKFLOW-4: DEPLOYMENT AUTOMATION
-  Tạo script tự động deploy (pull, install, migrate, cache)
-  Thay vì 10+ lệnh → Chỉ còn: deploy-sam
+  Tạo script deploy-sam để tự động:
+  - git pull origin main
+  - composer install
+  - php artisan migrate --force
+  - php artisan optimize
+
+  Thay vì 10+ lệnh → Chỉ còn: deploy-sam ✨
 ```
 
 ---
 
-## 🔧 TROUBLESHOOTING
+## 🔄 ROLLBACK: XÓA SẠCH VỀ WORKFLOW-2
 
-### Issue: Permission denied (publickey)
+⚠️ **KHI NÀO CẦN ROLLBACK:**
+- WORKFLOW-3 gặp lỗi không fix được
+- Muốn làm lại SSH key setup
+- Test lại quy trình deployment
+- Deploy user gặp vấn đề permissions
 
-**Error on git push:**
-```
-Permission denied (publickey).
-fatal: Could not read from remote repository.
-```
+**MỤC TIÊU:** Xóa deploy user và SSH keys, trở về trạng thái sau WORKFLOW-2
 
-**Fix:**
-```powershell
-# Use HTTPS instead of SSH
+---
+
+### BƯỚC 1: Xóa SSH Key Khỏi GitHub
+
+**📍 Trên GitHub.com:**
+
+1. **Settings** → **SSH and GPG keys**
+2. Tìm key: `VPS Deploy User - samnghethaycu.com`
+3. Click **"Delete"**
+4. Confirm deletion
+
+---
+
+### BƯỚC 2: Reconfigure Git Remote to HTTPS
+
+**📍 Trên VPS (root):**
+
+```bash
+# SSH vào VPS với root
+ssh root@69.62.82.145
+
+# Đổi Git remote về HTTPS
+cd /var/www/samnghethaycu.com
 git remote set-url origin https://github.com/phuochoavn/websamnghe.git
 
-# Push với Personal Access Token
-git push origin main
+# Verify
+git remote -v
+# ✅ Phải thấy: origin  https://github.com/phuochoavn/websamnghe.git
 ```
 
 ---
 
-### Issue: .env missing on VPS
+### BƯỚC 3: Reset Permissions về Root
 
-**Error:**
+**📍 Trên VPS (root):**
+
+```bash
+# Chuyển ownership về root
+sudo chown -R root:www-data /var/www/samnghethaycu.com
+
+# Fix storage và cache permissions
+sudo chown -R www-data:www-data /var/www/samnghethaycu.com/storage
+sudo chown -R www-data:www-data /var/www/samnghethaycu.com/bootstrap/cache
+
+# Verify
+ls -la /var/www/samnghethaycu.com
+# ✅ Owner phải là: root www-data
 ```
-RuntimeException: No application encryption key has been specified.
+
+---
+
+### BƯỚC 4: Xóa Deploy User (Optional)
+
+⚠️ **CHỈ XÓA NẾU:** Bạn không còn cần deploy user nữa
+
+**📍 Trên VPS (root):**
+
+```bash
+# Xóa deploy user
+sudo userdel -r deploy
+
+# Verify
+id deploy
+# ✅ Phải thấy: id: 'deploy': no such user
+```
+
+**Giải thích:**
+- `userdel -r`: Xóa user và home directory `/home/deploy`
+- SSH keys của deploy user cũng bị xóa theo
+
+---
+
+### BƯỚC 5: Verify Rollback Hoàn Tất
+
+**📍 Trên VPS (root):**
+
+```bash
+# Kiểm tra Git remote
+cd /var/www/samnghethaycu.com
+git remote -v
+# ✅ Phải thấy HTTPS URL
+
+# Kiểm tra permissions
+ls -la /var/www/samnghethaycu.com
+# ✅ Owner phải là: root www-data
+
+# Kiểm tra deploy user
+id deploy
+# ✅ Phải thấy: no such user (nếu đã xóa)
+
+# Test website
+curl https://samnghethaycu.com/health
+# ✅ Phải trả về JSON health check
+```
+
+**Trên trình duyệt:**
+
+```
+https://samnghethaycu.com
+```
+
+**✅ Phải thấy:** Laravel welcome page hoạt động bình thường
+
+---
+
+### ✅ Rollback Hoàn Tất!
+
+**Bây giờ VPS về trạng thái sau WORKFLOW-2:**
+- ✅ Laravel running (root user owns files)
+- ✅ Git repository (HTTPS authentication)
+- ✅ Không có deploy user
+- ✅ Không có SSH keys
+- ✅ Website vẫn hoạt động bình thường
+
+**Để làm lại WORKFLOW-3:**
+- Quay lại PHẦN 1 và làm từ đầu
+
+---
+
+## 🔧 XỬ LÝ SỰ CỐ
+
+### Sự cố: Permission denied (publickey)
+
+**Triệu chứng:**
+
+```bash
+git pull origin main
+# Permission denied (publickey).
+# fatal: Could not read from remote repository.
+```
+
+**Kiểm tra:**
+
+```bash
+# Test SSH connection
+ssh -T git@github.com
+# Nếu thấy "Permission denied" → SSH key chưa đúng
 ```
 
 **Fix:**
+
 ```bash
-cd /var/www/samnghethaycu.com
+# Option 1: Check SSH key exists
+ls -la ~/.ssh/id_ed25519.pub
+# Nếu không có → Generate lại (Section 2.1)
 
-# Copy from backup OR create new
-cp .env.example .env
+# Option 2: Verify key on GitHub
+cat ~/.ssh/id_ed25519.pub
+# Copy và check trên GitHub Settings → SSH keys
 
-# Edit .env (database credentials, etc.)
-nano .env
-
-# Generate key
-php artisan key:generate
+# Option 3: Use HTTPS temporarily
+git remote set-url origin https://github.com/phuochoavn/websamnghe.git
 ```
 
 ---
 
-**Created:** 2025-11-16
-**Version:** 3.0 Reorganized
-**Time:** 15-20 minutes actual
+### Sự cố: Deploy User Permission Denied
+
+**Triệu chứng:**
+
+```bash
+cd /var/www/samnghethaycu.com
+# Permission denied
+```
+
+**Fix:**
+
+```bash
+# SSH với root
+ssh root@69.62.82.145
+
+# Fix permissions
+sudo chown -R deploy:www-data /var/www/samnghethaycu.com
+sudo chmod -R 755 /var/www/samnghethaycu.com
+
+# Test
+exit
+ssh deploy@69.62.82.145
+cd /var/www/samnghethaycu.com
+# ✅ Phải vào được
+```
 
 ---
 
-**END OF WORKFLOW 3** 🔄
+### Sự cố: Git Pull Hỏi Password
+
+**Triệu chứng:**
+
+```bash
+git pull origin main
+# Username for 'https://github.com':
+```
+
+**Nguyên nhân:** Remote vẫn dùng HTTPS thay vì SSH
+
+**Fix:**
+
+```bash
+# Check remote
+git remote -v
+# Nếu thấy https:// → Đổi sang SSH
+
+git remote set-url origin git@github.com:phuochoavn/websamnghe.git
+
+# Test lại
+git pull origin main
+# ✅ Không hỏi password nữa
+```
+
+---
+
+## 📊 TỔNG KẾT
+
+**Tạo ngày:** 2025-11-16
+**Cập nhật:** 2025-11-21
+**Version:** 4.0 Professional Vietnamese (Standardized Edition)
+**Thời gian:** 10-15 phút thực tế
+**Số bước:** 4 phần chính + Rollback
+
+**Những gì đã làm:**
+- ✅ Tạo deploy user cho deployment automation
+- ✅ Generate SSH key cho GitHub authentication
+- ✅ Configure Git identity cho deploy user
+- ✅ Reconfigure Git remote to SSH (no password needed)
+- ✅ Test full workflow: Windows → GitHub → VPS
+- ✅ Rollback procedure chi tiết
+
+**So với WORKFLOW-2:**
+- WORKFLOW-2: Setup Git với HTTPS (manual authentication)
+- WORKFLOW-3: Upgrade to SSH (automated authentication)
+- Chuẩn bị cho WORKFLOW-4: Deployment automation
+
+**Kết quả:**
+- ✅ Git workflow hoàn toàn tự động
+- ✅ Deploy user separated from root (security)
+- ✅ SSH authentication (no password needed)
+- ✅ Sẵn sàng cho deployment automation scripts
+- ✅ Rollback procedure rõ ràng
+
+**Test Cases Đã Kiểm Tra:**
+- ✅ Deploy user creation and permissions
+- ✅ SSH key generation and GitHub authentication
+- ✅ Git pull without password prompt
+- ✅ Full workflow: code change → push → pull → updated
+- ✅ Rollback về WORKFLOW-2 state
+
+---
+
+**KẾT THÚC WORKFLOW 3** 🔄
