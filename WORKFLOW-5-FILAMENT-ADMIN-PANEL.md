@@ -783,7 +783,13 @@ Configure User      →    Push changes   →    deploy-sam ✨
 
 **Nếu muốn xóa Filament và quay về trạng thái WORKFLOW-4 (Laravel without admin panel):**
 
-### **📍 Trên Windows (Local):**
+**⚠️ IMPORTANT:** Rollback phải xóa cả code VÀ published assets trên VPS!
+
+### **PHẦN 1: XÓA FILAMENT TRÊN LOCAL**
+
+**Thời gian:** 3-5 phút
+
+**📍 Trên Windows (Local):**
 
 ```powershell
 cd C:\Projects\samnghethaycu
@@ -791,72 +797,493 @@ cd C:\Projects\samnghethaycu
 # BƯỚC 1: Remove Filament package
 composer remove filament/filament -W
 
-# BƯỚC 2: Delete Filament files
-Remove-Item -Recurse -Force app\Providers\Filament
+# Expected output:
+# Removing filament/filament (v4.2.3)
+# ...
+# Package operations: 0 installs, 0 updates, 34 removals
+
+# BƯỚC 2: Rebuild autoloader
+composer dump-autoload
+
+# Expected output:
+# Generating optimized autoload files
+# > Illuminate\Foundation\ComposerScripts::postAutoloadDump
+
+# BƯỚC 3: Delete Filament files
+Remove-Item -Recurse -Force app\Providers\Filament -ErrorAction SilentlyContinue
 Remove-Item -Force config\filament.php -ErrorAction SilentlyContinue
 
-# BƯỚC 3: Revert User model
-# Mở app\Models\User.php và xóa:
-# - use Filament\Models\Contracts\FilamentUser;
-# - use Filament\Panel;
-# - implements FilamentUser
-# - canAccessPanel() method
+# Verify files deleted
+ls app\Providers\
+# Should NOT show: Filament directory
 
-notepad app\Models\User.php
+ls config\filament.php
+# Should show: File not found
+```
 
-# BƯỚC 4: Clear caches
+✅ **Checkpoint 1:** Filament package removed locally
+
+---
+
+### **BƯỚC 4: Revert User Model**
+
+**📍 Trên Windows:**
+
+**Option A: Manual Edit (Recommended)**
+
+```powershell
+# Open User model in editor
+code app\Models\User.php
+```
+
+**Xóa các dòng này:**
+
+```php
+// Line ~5-6: Remove these imports
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+
+// Line ~10: Remove FilamentUser interface
+class User extends Authenticatable implements FilamentUser  // ❌ Remove
+
+// Change to:
+class User extends Authenticatable  // ✅ Keep only this
+
+// Line ~35-42: Remove entire canAccessPanel method
+public function canAccessPanel(Panel $panel): bool  // ❌ Remove this method
+{
+    return str_ends_with($this->email, '@samnghethaycu.com');
+}
+```
+
+**User.php sau khi revert:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+}
+```
+
+**Save file (Ctrl+S)**
+
+**Option B: Git Revert (If you committed User model separately)**
+
+```powershell
+# Find the commit that added FilamentUser
+git log --oneline app\Models\User.php
+
+# Revert that specific commit
+git revert <commit-hash> --no-commit
+
+# Then continue with BƯỚC 5
+```
+
+✅ **Checkpoint 2:** User model reverted
+
+---
+
+### **BƯỚC 5: Clear Caches**
+
+**📍 Trên Windows:**
+
+```powershell
 php artisan optimize:clear
 
-# BƯỚC 5: Commit changes
+# Expected output:
+# Configuration cache cleared successfully.
+# Route cache cleared successfully.
+# View cache cleared successfully.
+# Compiled services and packages files removed successfully.
+# Caches cleared successfully.
+```
+
+✅ **Checkpoint 3:** Caches cleared
+
+---
+
+### **BƯỚC 6: Verify Locally**
+
+**📍 Trên Windows:**
+
+```powershell
+# Check Filament package removed
+composer show | Select-String "filament"
+# Should show: (empty)
+
+# Check routes (should have no admin routes)
+php artisan route:list | Select-String "admin"
+# Should show: (empty)
+
+# Test Laravel still works
+php artisan --version
+# Should show: Laravel Framework 12.x.x
+```
+
+✅ **Checkpoint 4:** Local verification passed
+
+---
+
+### **BƯỚC 7: Commit & Push**
+
+**📍 Trên Windows:**
+
+```powershell
+# Check changes
+git status
+
+# Should show:
+# - modified: composer.json
+# - modified: composer.lock
+# - deleted: app/Providers/Filament/
+# - deleted: config/filament.php
+# - modified: app/Models/User.php
+
+# Add all changes
 git add .
-git commit -m "revert: remove Filament admin panel"
+
+# Commit
+git commit -m "revert: remove Filament admin panel and restore to WORKFLOW-4 state"
+
+# Push to GitHub
 git push origin main
 ```
 
-### **📍 Trên VPS:**
+**Expected output:**
+
+```
+[main abc1234] revert: remove Filament admin panel and restore to WORKFLOW-4 state
+ X files changed, X insertions(+), XXX deletions(-)
+ delete mode 100644 app/Providers/Filament/AdminPanelProvider.php
+ delete mode 100644 config/filament.php
+
+To https://github.com/phuochoavn/websamnghe.git
+   def5678..abc1234  main -> main
+```
+
+✅ **Checkpoint 5:** Changes committed and pushed to GitHub
+
+---
+
+### **PHẦN 2: XÓA FILAMENT TRÊN VPS**
+
+**Thời gian:** 5-7 phút
+
+**📍 Trên VPS:**
 
 ```bash
-# BƯỚC 6: Deploy removal to VPS
+# BƯỚC 8: Deploy removal to VPS
 ssh deploy@69.62.82.145
-cd /var/www/samnghethaycu.com
-deploy-sam
 
-# BƯỚC 7: Remove admin user (optional)
+cd /var/www/samnghethaycu.com
+
+deploy-sam
+```
+
+**Expected output:**
+
+```
+🚀 Starting deployment...
+
+📥 Step 1/8: Pulling latest code from GitHub...
+✅ Code updated
+abc1234 revert: remove Filament admin panel and restore to WORKFLOW-4 state
+
+📦 Step 4/8: Installing Composer dependencies...
+✅ Dependencies installed
+(Filament packages will be removed)
+
+...
+
+🎉 Deployment completed successfully!
+```
+
+✅ **Checkpoint 6:** Code deployed to VPS
+
+---
+
+### **BƯỚC 9: Clear Cache on VPS**
+
+**📍 Trên VPS:**
+
+```bash
+# Clear all caches
+php artisan optimize:clear
+
+# Rebuild caches (without Filament)
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Restart PHP-FPM
+sudo systemctl reload php8.4-fpm
+```
+
+**Expected output:**
+
+```
+Configuration cache cleared successfully.
+Route cache cleared successfully.
+View cache cleared successfully.
+...
+Configuration cached successfully.
+Routes cached successfully.
+Views cached successfully.
+```
+
+✅ **Checkpoint 7:** Caches rebuilt on VPS
+
+---
+
+### **BƯỚC 10: XÓA PUBLISHED ASSETS (CRITICAL!)**
+
+**📍 Trên VPS:**
+
+**⚠️ CRITICAL:** Đây là bước quan trọng nhất! Assets được publish với sudo permissions, không bị xóa tự động bởi deploy-sam.
+
+```bash
+cd /var/www/samnghethaycu.com
+
+# List assets before deletion
+ls -la public/vendor/livewire/ 2>/dev/null || echo "Livewire assets not found"
+ls -la public/js/filament/ 2>/dev/null || echo "Filament JS not found"
+ls -la public/css/filament/ 2>/dev/null || echo "Filament CSS not found"
+ls -la public/fonts/filament/ 2>/dev/null || echo "Filament fonts not found"
+
+# DELETE Livewire assets
+sudo rm -rf public/vendor/livewire/
+
+# DELETE Filament assets (if exist)
+sudo rm -rf public/js/filament/
+sudo rm -rf public/css/filament/
+sudo rm -rf public/fonts/filament/
+
+# Verify deletion
+ls -la public/vendor/ 2>/dev/null
+# Should NOT show: livewire directory
+
+# Test 404 (assets should be gone)
+curl -I https://samnghethaycu.com/vendor/livewire/livewire.min.js
+# Should return: HTTP/2 404
+```
+
+**Expected output:**
+
+```
+# Before deletion:
+public/vendor/livewire/:
+drwxr-xr-x 2 www-data www-data   4096 Nov 21 10:30 .
+-rw-r--r-- 1 www-data www-data 123456 Nov 21 10:30 livewire.min.js
+-rw-r--r-- 1 www-data www-data 234567 Nov 21 10:30 livewire.min.js.map
+
+# After deletion:
+ls: cannot access 'public/vendor/livewire/': No such file or directory
+
+# Curl test:
+HTTP/2 404
+content-type: text/html; charset=UTF-8
+```
+
+✅ **Checkpoint 8:** Published assets deleted from VPS
+
+---
+
+### **BƯỚC 11: Remove Admin User (Optional)**
+
+**📍 Trên VPS:**
+
+```bash
+# Remove admin user from database
 php artisan tinker
 ```
 
 **In tinker:**
 
 ```php
+// Check if user exists
+$user = User::where('email', 'admin@samnghethaycu.com')->first();
+$user;
+// Should return: User object or null
+
+// Delete user
 User::where('email', 'admin@samnghethaycu.com')->delete();
+// Should return: 1 (1 row deleted)
+
+// Verify deletion
+User::where('email', 'admin@samnghethaycu.com')->count();
+// Should return: 0
+
 exit
 ```
 
-### **📍 Verify Rollback:**
+✅ **Checkpoint 9:** Admin user deleted
+
+---
+
+### **PHẦN 3: VERIFICATION - HOÀN THÀNH ROLLBACK**
+
+**📍 Trên VPS:**
 
 ```bash
-# Check Filament routes removed
+# 1. Check Filament routes removed
 php artisan route:list | grep admin
-# Should show: (empty)
+# Expected: (empty, no output)
 
-# Check Filament package removed
+# 2. Check Filament package removed
 composer show | grep filament
-# Should show: (empty)
+# Expected: (empty, no output)
 
-# Test website still works
+# 3. Verify published assets removed
+ls -la public/vendor/livewire/ 2>/dev/null
+# Expected: No such file or directory
+
+# 4. Test Livewire JS 404
+curl -I https://samnghethaycu.com/vendor/livewire/livewire.min.js
+# Expected: HTTP/2 404
+
+# 5. Test website still works
 curl https://samnghethaycu.com
-# Should return: Laravel welcome page
+# Expected: Laravel welcome page HTML
+
+# 6. Check Laravel version
+php artisan --version
+# Expected: Laravel Framework 12.x.x
+
+# 7. Check database (optional)
+php artisan db:show
+# Expected: Database connection info (should work)
 ```
 
-✅ **Rollback complete! Bạn đã về trạng thái WORKFLOW-4:**
-- ✅ Filament package removed
-- ✅ Admin panel files deleted
-- ✅ Admin routes removed
-- ✅ Admin user deleted (optional)
-- ✅ Laravel vẫn chạy bình thường
-- ✅ Git workflow vẫn hoạt động
+**📍 Browser Test:**
 
-**Bây giờ bạn có thể làm lại WORKFLOW-5 từ đầu.**
+```
+1. Visit: https://samnghethaycu.com
+   - Should show: Laravel welcome page ✅
+
+2. Visit: https://samnghethaycu.com/admin
+   - Should show: 404 Not Found ✅
+
+3. Open browser console (F12)
+   - Should show: No errors ✅
+```
+
+---
+
+### **✅ ROLLBACK COMPLETE CHECKLIST:**
+
+```
+✅ Filament package removed (composer remove)
+✅ Autoloader rebuilt (composer dump-autoload)
+✅ Filament files deleted (AdminPanelProvider, config)
+✅ User model reverted (removed FilamentUser interface)
+✅ Caches cleared locally
+✅ Local verification passed
+✅ Changes committed and pushed to GitHub
+✅ Changes deployed to VPS (deploy-sam)
+✅ Caches rebuilt on VPS
+✅ Published assets deleted from VPS (CRITICAL!)
+✅ Admin routes removed (php artisan route:list)
+✅ Admin panel inaccessible (404 at /admin)
+✅ Admin user deleted (optional)
+✅ Laravel welcome page working
+✅ Website functioning normally
+```
+
+---
+
+### **🎉 Rollback Success!**
+
+**Bạn đã về trạng thái WORKFLOW-4:**
+
+```
+✅ Laravel 12 working at https://samnghethaycu.com
+✅ No Filament admin panel
+✅ No admin routes
+✅ No published assets
+✅ No admin user
+✅ Git workflow hoạt động bình thường
+✅ VPS deployment automation vẫn work (deploy-sam)
+```
+
+**Bây giờ bạn có thể:**
+- Làm lại WORKFLOW-5 từ đầu
+- Tiếp tục với project khác
+- Test deployment workflow
+
+---
+
+### **📝 Common Rollback Issues:**
+
+**Issue 1: Assets vẫn còn sau rollback**
+
+**Symptom:** Curl vẫn trả về HTTP 200 cho livewire.min.js
+
+**Fix:**
+```bash
+# Force delete with sudo
+sudo rm -rf /var/www/samnghethaycu.com/public/vendor/livewire/
+sudo rm -rf /var/www/samnghethaycu.com/public/js/filament/
+sudo rm -rf /var/www/samnghethaycu.com/public/css/filament/
+sudo rm -rf /var/www/samnghethaycu.com/public/fonts/filament/
+```
+
+**Issue 2: Permission denied khi xóa assets**
+
+**Error:** `rm: cannot remove 'public/vendor/livewire/': Permission denied`
+
+**Fix:**
+```bash
+# Use sudo
+sudo rm -rf public/vendor/livewire/
+
+# Or change ownership first
+sudo chown -R deploy:deploy public/vendor/
+rm -rf public/vendor/livewire/
+```
+
+**Issue 3: Composer autoload errors sau rollback**
+
+**Error:** `Class 'Filament\...' not found`
+
+**Fix:**
+```bash
+# Rebuild autoloader
+composer dump-autoload
+
+# Clear all caches
+php artisan optimize:clear
+php artisan config:clear
+
+# Restart PHP-FPM
+sudo systemctl restart php8.4-fpm
+```
 
 ---
 
