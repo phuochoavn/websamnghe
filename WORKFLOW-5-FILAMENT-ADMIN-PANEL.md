@@ -1,9 +1,9 @@
 # 🎨 WORKFLOW 5: QUẢN TRỊ FILAMENT
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 4.0 Professional Vietnamese (Standardized Edition)
+> **Version:** 4.1 Professional Vietnamese (Updated for Filament v4)
 > **Thời gian thực tế:** 10-15 phút
-> **Mục tiêu:** Filament v3 + Admin user + Dashboard working
+> **Mục tiêu:** Filament (latest) + Admin user + Dashboard working
 
 ---
 
@@ -11,17 +11,19 @@
 
 ### 🎯 Mục đích:
 
-**Cài đặt Filament v3 Admin Panel để quản lý nội dung website.**
+**Cài đặt Filament Admin Panel để quản lý nội dung website.**
 
 Sau khi đã có Laravel working (WF-2) và deployment automation (WF-4), bây giờ cài đặt:
-- Filament v3 admin panel
+- Filament admin panel (latest version, tự động tương thích với Laravel 12)
 - Tạo admin user
 - Truy cập dashboard tại `/admin`
 - Chuẩn bị cho CRUD operations (WF-6)
 
+**📝 Note:** Với Laravel 12, Composer sẽ tự động cài Filament v4.x (latest stable version).
+
 ### 🎁 Kết quả sau workflow:
 
-✅ **Filament v3 installed:**
+✅ **Filament installed:**
 - Admin panel tại `/admin`
 - User authentication working
 - Dashboard accessible
@@ -96,8 +98,8 @@ https://samnghethaycu.com
 # Navigate to project
 cd C:\Projects\samnghethaycu
 
-# Install Filament v3
-composer require filament/filament:"^3.2" -W
+# Install Filament (latest version compatible with Laravel 12)
+composer require filament/filament -W
 
 # This takes 1-2 minutes...
 # Wait for completion
@@ -106,13 +108,31 @@ composer require filament/filament:"^3.2" -W
 **Expected output:**
 
 ```
-Using version ^3.2 for filament/filament
+Using version ^4.2 for filament/filament
 ./composer.json has been updated
-...
-Package operations: XX installs, X updates, X removals
-...
+Running composer update filament/filament --with-all-dependencies
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 34 installs, 0 updates, 0 removals
+  - Locking filament/filament (v4.2.3)
+  - Locking livewire/livewire (v3.6.4)
+  ...
+Installing dependencies from lock file
+Package operations: 34 installs, 0 updates, 0 removals
+  - Installing filament/filament (v4.2.3): Extracting archive
+  ...
 Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  filament/filament ............................................................. DONE
+  livewire/livewire ............................................................. DONE
+  ...
 ```
+
+**📝 Note:** Filament v4.2.x sẽ được cài tự động (tương thích với Laravel 12).
 
 ✅ **Checkpoint 1.1:** Filament package installed
 
@@ -608,7 +628,7 @@ deploy-sam
 ### Bạn đã có:
 
 ```
-✅ Filament v3 installed and configured
+✅ Filament v4.x installed and configured (latest stable)
 ✅ Admin panel at /admin with professional UI
 ✅ Admin user (admin@samnghethaycu.com)
 ✅ User authentication working
@@ -617,6 +637,7 @@ deploy-sam
 ✅ Access control via canAccessPanel()
 ✅ Deployed via Git workflow
 ✅ Ready for CRUD resources (WF-6)
+✅ Compatible with Laravel 12
 ```
 
 ### Admin Credentials:
@@ -943,7 +964,7 @@ php artisan cache:clear
 ```
 Your requirements could not be resolved to an installable set of packages.
   Problem 1
-    - filament/filament[v3.2.0, ..., v3.2.x] require php ^8.1 -> ...
+    - filament/filament[v4.2.0, ..., v4.2.x] require php ^8.1 -> ...
 ```
 
 **Cause:** PHP version mismatch
@@ -972,15 +993,59 @@ deploy-sam
 
 ---
 
+### Issue 8: Dependency conflict errors (termwind/collision)
+
+**Error:**
+```
+Your requirements could not be resolved to an installable set of packages.
+  Problem 1
+    - filament/filament v4.2.0 requires illuminate/console ^10.0 -> ...
+    - illuminate/console require nunomaduro/termwind ^1.13 -> ...
+    - but these were not loaded, likely because it conflicts with another require.
+```
+
+**Cause:** Xung đột version giữa Filament và các dependencies của Laravel 12
+
+**📍 Trên Windows - Fix (3 cách, thử theo thứ tự):**
+
+**Cách 1: Cài Filament không chỉ định version (RECOMMENDED)**
+
+```powershell
+# Let Composer choose compatible version
+composer require filament/filament -W
+```
+
+**Cách 2: Update collision cùng lúc**
+
+```powershell
+# Update both Filament and collision
+composer require filament/filament nunomaduro/collision -W
+```
+
+**Cách 3: Update toàn bộ dependencies trước**
+
+```powershell
+# Step 1: Update all packages
+composer update -W
+
+# Step 2: Install Filament
+composer require filament/filament
+```
+
+**⚠️ Note:** Với Laravel 12, luôn dùng `composer require filament/filament -W` (không chỉ định version) để Composer tự động chọn version tương thích.
+
+---
+
 ## 📚 FILAMENT RESOURCES
 
 ### Official Documentation
 
-- **Filament v3 Docs**: https://filamentphp.com/docs/3.x
-- **Panels**: https://filamentphp.com/docs/3.x/panels
-- **Tables**: https://filamentphp.com/docs/3.x/tables
-- **Forms**: https://filamentphp.com/docs/3.x/forms
-- **Actions**: https://filamentphp.com/docs/3.x/actions
+- **Filament Docs (Latest)**: https://filamentphp.com/docs
+- **Panels**: https://filamentphp.com/docs/panels
+- **Tables**: https://filamentphp.com/docs/tables
+- **Forms**: https://filamentphp.com/docs/forms
+- **Actions**: https://filamentphp.com/docs/actions
+- **Notifications**: https://filamentphp.com/docs/notifications
 
 ### Common Artisan Commands
 
@@ -1010,7 +1075,8 @@ php artisan list filament
 ---
 
 **Created:** 2025-11-21
-**Version:** 4.0 Professional Vietnamese (Standardized Edition)
+**Updated:** 2025-11-21 (Filament v4 compatibility)
+**Version:** 4.1 Professional Vietnamese (Updated for Filament v4)
 **Time:** 10-15 minutes actual
 **Format:** Standardized with WORKFLOW-2 v6.0, WORKFLOW-3 v4.0, and WORKFLOW-4 v4.0
 
