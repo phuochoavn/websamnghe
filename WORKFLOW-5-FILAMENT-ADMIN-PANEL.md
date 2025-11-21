@@ -789,27 +789,14 @@ Configure User      →    Push changes   →    deploy-sam ✨
 
 **Thời gian:** 3-5 phút
 
+**⚠️ CRITICAL ORDER:** Phải xóa Filament files TRƯỚC, rồi mới xóa package. Nếu xóa package trước sẽ gặp lỗi "Class Filament\PanelProvider not found"!
+
 **📍 Trên Windows (Local):**
 
 ```powershell
 cd C:\Projects\samnghethaycu
 
-# BƯỚC 1: Remove Filament package
-composer remove filament/filament -W
-
-# Expected output:
-# Removing filament/filament (v4.2.3)
-# ...
-# Package operations: 0 installs, 0 updates, 34 removals
-
-# BƯỚC 2: Rebuild autoloader
-composer dump-autoload
-
-# Expected output:
-# Generating optimized autoload files
-# > Illuminate\Foundation\ComposerScripts::postAutoloadDump
-
-# BƯỚC 3: Delete Filament files
+# BƯỚC 1: Delete Filament files FIRST (CRITICAL!)
 Remove-Item -Recurse -Force app\Providers\Filament -ErrorAction SilentlyContinue
 Remove-Item -Force config\filament.php -ErrorAction SilentlyContinue
 
@@ -818,10 +805,27 @@ ls app\Providers\
 # Should NOT show: Filament directory
 
 ls config\filament.php
-# Should show: File not found
+# Should show: File not found (error is expected)
+
+# BƯỚC 2: Remove Filament package
+composer remove filament/filament -W
+
+# Expected output:
+# Removing filament/filament (v4.2.3)
+# ...
+# Package operations: 0 installs, 0 updates, 34 removals
+
+# BƯỚC 3: Rebuild autoloader
+composer dump-autoload
+
+# Expected output:
+# Generating optimized autoload files
+# > Illuminate\Foundation\ComposerScripts::postAutoloadDump
+# > @php artisan package:discover --ansi
+# (Should complete WITHOUT errors)
 ```
 
-✅ **Checkpoint 1:** Filament package removed locally
+✅ **Checkpoint 1:** Filament files and package removed locally
 
 ---
 
@@ -1284,6 +1288,42 @@ php artisan config:clear
 # Restart PHP-FPM
 sudo systemctl restart php8.4-fpm
 ```
+
+**Issue 4: "Class Filament\PanelProvider not found" khi composer remove**
+
+**Error:**
+```
+In AdminPanelProvider.php line 22:
+  Class "Filament\PanelProvider" not found
+
+Script @php artisan package:discover --ansi handling the post-autoload-dump event returned with error code 1
+```
+
+**Root Cause:** Sai thứ tự! AdminPanelProvider.php vẫn còn trong `app/Providers/Filament/` nên Laravel cố load nó, nhưng class `Filament\PanelProvider` đã bị xóa bởi `composer remove`.
+
+**Fix (trên Windows):**
+```powershell
+# Step 1: Delete Filament files (should have done this FIRST!)
+Remove-Item -Recurse -Force app\Providers\Filament -ErrorAction SilentlyContinue
+Remove-Item -Force config\filament.php -ErrorAction SilentlyContinue
+
+# Step 2: Rebuild autoloader (will work now)
+composer dump-autoload
+
+# Expected output (no errors):
+# Generating optimized autoload files
+# > Illuminate\Foundation\ComposerScripts::postAutoloadDump
+# > @php artisan package:discover --ansi
+#
+#    INFO  Discovering packages.
+#
+# (NO Filament packages listed)
+```
+
+**Prevention:** Luôn làm theo đúng thứ tự trong PHẦN 1:
+1. BƯỚC 1: Delete Filament files FIRST ✅
+2. BƯỚC 2: Remove package ✅
+3. BƯỚC 3: Rebuild autoloader ✅
 
 ---
 
