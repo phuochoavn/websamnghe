@@ -1,8 +1,8 @@
 # 🎨 WORKFLOW 5: QUẢN TRỊ FILAMENT
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 4.1 Professional Vietnamese (Updated for Filament v4)
-> **Thời gian thực tế:** 10-15 phút
+> **Version:** 4.2 Professional Vietnamese (Updated for Filament v4 + Asset Publishing)
+> **Thời gian thực tế:** 12-17 phút
 > **Mục tiêu:** Filament (latest) + Admin user + Dashboard working
 
 ---
@@ -222,7 +222,7 @@ git status
 git add .
 
 # Commit
-git commit -m "feat: install Filament v3 admin panel with default configuration"
+git commit -m "feat: install Filament v4 admin panel with default configuration"
 
 # Push to GitHub
 git push origin main
@@ -231,7 +231,7 @@ git push origin main
 **Expected output:**
 
 ```
-[main abc1234] feat: install Filament v3 admin panel with default configuration
+[main abc1234] feat: install Filament v4 admin panel with default configuration
  X files changed, XXX insertions(+), X deletions(-)
  create mode 100644 app/Providers/Filament/AdminPanelProvider.php
  create mode 100644 config/filament.php
@@ -273,7 +273,7 @@ deploy-sam
 
 📥 Step 1/8: Pulling latest code from GitHub...
 ✅ Code updated
-def5678 feat: install Filament v3 admin panel with default configuration
+def5678 feat: install Filament v4 admin panel with default configuration
 
 🔍 Step 2/8: Checking .env file...
 ✅ .env exists
@@ -318,6 +318,94 @@ php artisan route:list | grep admin
 ```
 
 ✅ **Checkpoint 3.2:** Filament routes verified on VPS
+
+---
+
+## PHẦN 3A: PUBLISH ASSETS TRÊN VPS
+
+**Thời gian:** 2 phút
+
+**⚠️ CRITICAL:** Filament v4 assets (Livewire JS/CSS) phải được publish trên VPS sau deployment. Nếu không, admin panel sẽ không load được (404 errors cho livewire.min.js).
+
+**📝 Note:** Assets này KHÔNG được commit vào Git (do .gitignore), nên phải publish trực tiếp trên VPS.
+
+### BƯỚC 3A.1: Publish Livewire và Filament Assets
+
+**📍 Trên VPS:**
+
+```bash
+cd /var/www/samnghethaycu.com
+
+# Publish Livewire assets
+php artisan livewire:publish --assets
+
+# Publish Filament assets
+php artisan filament:assets
+
+# Fix permissions
+sudo chown -R www-data:www-data public/
+sudo chmod -R 755 public/
+
+# Clear all caches
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+```
+
+**Expected output:**
+
+```
+INFO  Publishing [livewire:assets] assets.
+
+Copying directory [vendor/livewire/livewire/dist] to [public/vendor/livewire] .................. DONE
+
+INFO  Successfully published assets for [livewire:assets]!
+
+[... Filament assets list ...]
+INFO  Successfully published assets!
+
+Configuration cache cleared successfully.
+Configuration cached successfully.
+Route cache cleared successfully.
+Routes cached successfully.
+```
+
+✅ **Checkpoint 3A.1:** Assets published successfully
+
+---
+
+### BƯỚC 3A.2: Verify Assets Exist
+
+**📍 Trên VPS:**
+
+```bash
+# Check Livewire assets
+ls -la public/vendor/livewire/
+# Should show: livewire.min.js, livewire.min.js.map
+
+# Check Filament assets
+ls -la public/js/filament/ 2>/dev/null || echo "Filament JS not found (OK if using CDN)"
+ls -la public/css/filament/ 2>/dev/null || echo "Filament CSS not found (OK if using CDN)"
+ls -la public/fonts/filament/ 2>/dev/null || echo "Filament fonts not found (OK if using CDN)"
+
+# Test file accessibility
+curl -I https://samnghethaycu.com/vendor/livewire/livewire.min.js
+# Should return: HTTP/2 200
+```
+
+**Expected output:**
+
+```
+public/vendor/livewire/:
+-rw-r--r-- 1 www-data www-data 123456 Nov 21 10:30 livewire.min.js
+-rw-r--r-- 1 www-data www-data 234567 Nov 21 10:30 livewire.min.js.map
+
+HTTP/2 200
+content-type: application/javascript
+...
+```
+
+✅ **Checkpoint 3A.2:** Assets accessible via web
 
 ---
 
@@ -591,10 +679,12 @@ deploy-sam
 **✅ Checklist - Filament Admin Panel:**
 
 ```
-✅ Filament v3 installed locally
+✅ Filament v4 installed locally
 ✅ AdminPanelProvider created
 ✅ Code committed and pushed to GitHub
 ✅ Deployed to VPS with deploy-sam
+✅ Livewire & Filament assets published on VPS
+✅ Assets accessible (livewire.min.js returns HTTP 200)
 ✅ Admin user created (admin@samnghethaycu.com)
 ✅ Admin panel accessible at /admin
 ✅ Can login successfully
@@ -1036,6 +1126,129 @@ composer require filament/filament
 
 ---
 
+### Issue 9: Missing Livewire/Filament assets (404 errors)
+
+**Error (Browser Console):**
+```
+GET https://samnghethaycu.com/livewire/livewire.min.js?id=df3a17f2
+net::ERR_ABORTED 404 (Not Found)
+```
+
+**Symptoms:**
+- Admin login page loads but không login được
+- Dashboard hiện trang trắng hoặc không có interactive elements
+- Browser console shows 404 errors for JS/CSS files
+- Livewire components không hoạt động
+
+**Root Cause:** Filament/Livewire assets chưa được publish trên VPS
+
+**Why this happens:**
+- Assets được tạo trong `public/vendor/livewire/`, `public/js/filament/`, etc.
+- Nhưng `.gitignore` bỏ qua thư mục này (không commit vào Git)
+- Khi deploy với `deploy-sam`, assets không có trong Git repository
+- VPS không có assets → 404 errors
+
+**📍 Trên VPS - Fix (Step-by-step):**
+
+```bash
+cd /var/www/samnghethaycu.com
+
+# STEP 1: Publish Livewire assets
+php artisan livewire:publish --assets
+
+# Expected output:
+# INFO  Publishing [livewire:assets] assets.
+# Copying directory [vendor/livewire/livewire/dist] to [public/vendor/livewire] .... DONE
+
+# STEP 2: Publish Filament assets
+php artisan filament:assets
+
+# Expected output:
+# [... list of Filament assets ...]
+# INFO  Successfully published assets!
+
+# STEP 3: Fix permissions (CRITICAL!)
+sudo chown -R www-data:www-data public/
+sudo chmod -R 755 public/
+
+# STEP 4: Verify assets exist
+ls -la public/vendor/livewire/
+# Should show: livewire.min.js, livewire.min.js.map
+
+# STEP 5: Test accessibility from web
+curl -I https://samnghethaycu.com/vendor/livewire/livewire.min.js
+# Should return: HTTP/2 200
+
+# STEP 6: Clear all caches
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# STEP 7: Restart PHP-FPM
+sudo systemctl reload php8.4-fpm
+```
+
+**📍 Verify Fix:**
+
+**Browser:**
+```
+1. Open: https://samnghethaycu.com/admin
+2. Open browser console (F12)
+3. Look for errors
+4. Should see NO 404 errors for livewire.min.js
+5. Login should work now
+```
+
+**Terminal:**
+```bash
+# Verify Livewire asset
+curl https://samnghethaycu.com/vendor/livewire/livewire.min.js | head -c 100
+# Should show: JavaScript code (starts with "!function...")
+
+# Check file size
+ls -lh public/vendor/livewire/livewire.min.js
+# Should show: ~100-200KB file
+```
+
+✅ **Solution Applied:** Assets published and accessible
+
+**📝 Prevention (Future Deployments):**
+
+**Option 1: Add to deploy-sam script (RECOMMENDED)**
+
+Edit `~/.bashrc` to add asset publishing to deploy-sam:
+
+```bash
+# After composer install, add:
+echo "📦 Step 4B/8: Publishing assets..."
+php artisan livewire:publish --assets --force > /dev/null 2>&1
+php artisan filament:assets --force > /dev/null 2>&1
+echo "✅ Assets published"
+```
+
+**Option 2: Manual publish after each deploy**
+
+Sau mỗi lần chạy `deploy-sam`, run:
+```bash
+php artisan livewire:publish --assets && php artisan filament:assets
+sudo chown -R www-data:www-data public/
+```
+
+**Option 3: Commit assets to Git (NOT RECOMMENDED)**
+
+Remove from `.gitignore`:
+```
+# Comment out or remove these lines:
+# /public/hot
+# /public/storage
+# /public/build
+```
+
+**⚠️ Warning:** Committing assets có thể gây permission conflicts giữa deploy user và www-data user.
+
+---
+
 ## 📚 FILAMENT RESOURCES
 
 ### Official Documentation
@@ -1075,9 +1288,9 @@ php artisan list filament
 ---
 
 **Created:** 2025-11-21
-**Updated:** 2025-11-21 (Filament v4 compatibility)
-**Version:** 4.1 Professional Vietnamese (Updated for Filament v4)
-**Time:** 10-15 minutes actual
+**Updated:** 2025-11-21 (Added asset publishing step + Issue 9)
+**Version:** 4.2 Professional Vietnamese (Updated for Filament v4 + Asset Publishing)
+**Time:** 12-17 minutes actual
 **Format:** Standardized with WORKFLOW-2 v6.0, WORKFLOW-3 v4.0, and WORKFLOW-4 v4.0
 
 ---
