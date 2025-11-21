@@ -1,35 +1,62 @@
-# 🎨 WORKFLOW 5: FILAMENT ADMIN PANEL
+# 🎨 WORKFLOW 5: QUẢN TRỊ FILAMENT
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 3.0 Reorganized
+> **Version:** 4.0 Professional Vietnamese (Standardized Edition)
 > **Thời gian thực tế:** 10-15 phút
 > **Mục tiêu:** Filament v3 + Admin user + Dashboard working
 
 ---
 
-## 📋 PREREQUISITES
+## 📖 WORKFLOW NÀY LÀM GÌ?
 
-### ✅ Must Complete First
+### 🎯 Mục đích:
 
+**Cài đặt Filament v3 Admin Panel để quản lý nội dung website.**
+
+Sau khi đã có Laravel working (WF-2) và deployment automation (WF-4), bây giờ cài đặt:
+- Filament v3 admin panel
+- Tạo admin user
+- Truy cập dashboard tại `/admin`
+- Chuẩn bị cho CRUD operations (WF-6)
+
+### 🎁 Kết quả sau workflow:
+
+✅ **Filament v3 installed:**
+- Admin panel tại `/admin`
+- User authentication working
+- Dashboard accessible
+- Dark mode toggle
+
+✅ **Admin user created:**
+- Email: admin@samnghethaycu.com
+- Password: Admin@123456
+- Can login and manage site
+
+✅ **Ready for next workflow:**
+- Database schema (WF-6)
+- CRUD resources (WF-7)
+
+### ⚠️ PREREQUISITES:
+
+**PHẢI hoàn thành trước:**
 ```
-✅ WORKFLOW-1: VPS Infrastructure
-✅ WORKFLOW-2: Laravel Installation
-✅ WORKFLOW-3: Git Workflow Setup
-✅ WORKFLOW-4: Deployment Automation
+✅ WORKFLOW-1: VPS Infrastructure (LEMP + SSL)
+✅ WORKFLOW-2: Laravel Installation (Laravel working)
+✅ WORKFLOW-3: Git Workflow Setup (Git automation)
+✅ WORKFLOW-4: Deployment Automation (deploy-sam command)
 ✅ Laravel working at: https://samnghethaycu.com
 ```
 
-### ✅ Quick Verification
+**📍 Trên Windows - Verify trước khi bắt đầu:**
 
-**Browser:**
-
+```powershell
+# Check Laravel working locally
+cd C:\Projects\samnghethaycu
+php artisan --version
+# Phải thấy: Laravel Framework 12.x.x
 ```
-https://samnghethaycu.com
-```
 
-**Should see:** Laravel welcome page
-
-**SSH test:**
+**📍 Trên VPS - Verify Laravel working:**
 
 ```bash
 ssh deploy@69.62.82.145
@@ -38,40 +65,32 @@ cd /var/www/samnghethaycu.com
 
 # Check Laravel
 php artisan --version
-# Should show: Laravel Framework 12.x.x
+# Phải thấy: Laravel Framework 12.x.x
 
 # Test deploy command
-deploy-sam
-# Should work
+type deploy-sam
+# Phải thấy: deploy-sam is aliased to '...'
 ```
 
-**All OK?** → Continue!
+**Browser test:**
+
+```
+https://samnghethaycu.com
+```
+
+**Should see:** Laravel welcome page
+
+**Nếu bất kỳ check nào FAIL → DỪNG LẠI, hoàn thành WF-1 đến WF-4 trước!**
 
 ---
 
-## 🎯 WHAT WE'LL BUILD
+## PHẦN 1: CÀI ĐẶT FILAMENT (LOCAL)
 
-```
-Laravel 12
-    ↓
-Install Filament v3 (local)
-    ↓
-Git commit & push
-    ↓
-Deploy to VPS (deploy-sam)
-    ↓
-Create admin user
-    ↓
-Result: https://samnghethaycu.com/admin ✅
-```
+**Thời gian:** 5 phút
 
----
+### BƯỚC 1.1: Install Filament Package
 
-## PART 1: INSTALL FILAMENT (LOCAL)
-
-**Time:** 5 phút
-
-**Windows PowerShell:**
+**📍 Trên Windows (PowerShell):**
 
 ```powershell
 # Navigate to project
@@ -84,42 +103,100 @@ composer require filament/filament:"^3.2" -W
 # Wait for completion
 ```
 
-### 1.1. Install Admin Panel
+**Expected output:**
+
+```
+Using version ^3.2 for filament/filament
+./composer.json has been updated
+...
+Package operations: XX installs, X updates, X removals
+...
+Generating optimized autoload files
+```
+
+✅ **Checkpoint 1.1:** Filament package installed
+
+---
+
+### BƯỚC 1.2: Install Admin Panel
+
+**📍 Trên Windows:**
 
 ```powershell
 # Install Filament panels
 php artisan filament:install --panels
-
-# Prompt: "What is the ID of the panel you would like to create?"
-# Answer: admin (press Enter)
-
-# Creates:
-# - app/Providers/Filament/AdminPanelProvider.php
-# - config/filament.php
 ```
 
-### 1.2. Verify Installation
+**Prompt and answer:**
+
+```
+What is the ID of the panel you would like to create?
+> admin
+```
+
+**Press Enter**
+
+**Expected output:**
+
+```
+Creating admin panel...
+
+Panel created successfully!
+
+The following files have been created:
+- app/Providers/Filament/AdminPanelProvider.php
+
+You can now access the panel at: /admin
+```
+
+✅ **Checkpoint 1.2:** Admin panel installed
+
+---
+
+### BƯỚC 1.3: Verify Installation
+
+**📍 Trên Windows:**
 
 ```powershell
 # Check if Filament routes exist
 php artisan route:list | Select-String "admin"
 
-# Should show multiple /admin/* routes
+# Should show multiple /admin/* routes like:
+# GET|HEAD  admin ................ filament.admin.pages.dashboard
+# GET|HEAD  admin/login .......... filament.admin.auth.login
+# POST      admin/logout ......... filament.admin.auth.logout
 ```
 
-✅ **Checkpoint 1:** Filament installed locally
+**Verify files created:**
+
+```powershell
+# Check AdminPanelProvider exists
+ls app\Providers\Filament\
+
+# Should show: AdminPanelProvider.php
+```
+
+✅ **Checkpoint 1.3:** Filament routes verified
 
 ---
 
-## PART 2: COMMIT & PUSH
+## PHẦN 2: COMMIT & PUSH
 
-**Time:** 1 phút
+**Thời gian:** 1 phút
 
-**PowerShell:**
+### BƯỚC 2.1: Git Commit
+
+**📍 Trên Windows:**
 
 ```powershell
 # Check changes
 git status
+
+# Should see:
+# - modified: composer.json
+# - modified: composer.lock
+# - new file: app/Providers/Filament/AdminPanelProvider.php
+# - new file: config/filament.php
 
 # Add all changes
 git add .
@@ -131,52 +208,106 @@ git commit -m "feat: install Filament v3 admin panel with default configuration"
 git push origin main
 ```
 
-✅ **Checkpoint 2:** Filament pushed to GitHub
+**Expected output:**
+
+```
+[main abc1234] feat: install Filament v3 admin panel with default configuration
+ X files changed, XXX insertions(+), X deletions(-)
+ create mode 100644 app/Providers/Filament/AdminPanelProvider.php
+ create mode 100644 config/filament.php
+
+Enumerating objects: X, done.
+...
+To https://github.com/phuochoavn/websamnghe.git
+   abc1234..def5678  main -> main
+```
+
+✅ **Checkpoint 2.1:** Filament pushed to GitHub
 
 ---
 
-## PART 3: DEPLOY TO VPS
+## PHẦN 3: DEPLOY LÊN VPS
 
-**Time:** 2 phút
+**Thời gian:** 2 phút
 
-**SSH to VPS:**
+### BƯỚC 3.1: Deploy với deploy-sam
+
+**📍 Trên VPS:**
 
 ```bash
+# SSH to VPS
 ssh deploy@69.62.82.145
 
 cd /var/www/samnghethaycu.com
 
 # Deploy with our automation script!
 deploy-sam
-
-# This will:
-# 1. Pull latest code
-# 2. Install composer dependencies
-# 3. Run migrations
-# 4. Clear & rebuild caches
-# 5. Fix permissions
-# 6. Reload PHP-FPM
 ```
 
 **Expected output:**
 
 ```
 🚀 Starting deployment...
+
+📂 Current directory: /var/www/samnghethaycu.com
+
 📥 Step 1/8: Pulling latest code from GitHub...
 ✅ Code updated
-...
+def5678 feat: install Filament v3 admin panel with default configuration
+
+🔍 Step 2/8: Checking .env file...
+✅ .env exists
+
+🔧 Step 3/8: Checking bootstrap/cache...
+✅ bootstrap/cache is directory
+
+📦 Step 4/8: Installing Composer dependencies...
+✅ Dependencies installed
+
+🗄️  Step 5/8: Running database migrations...
+✅ Migrations complete
+
+🧹 Step 6/8: Clearing caches...
+✅ Caches rebuilt
+
+🔐 Step 7/8: Fixing permissions...
+✅ Permissions fixed
+
+🔄 Step 8/8: Reloading PHP-FPM...
+✅ PHP-FPM reloaded
+
 🎉 Deployment completed successfully!
+
+🌐 Website: https://samnghethaycu.com
+🔧 Admin: https://samnghethaycu.com/admin
 ```
 
-✅ **Checkpoint 3:** Filament deployed to VPS
+✅ **Checkpoint 3.1:** Filament deployed to VPS
 
 ---
 
-## PART 4: CREATE ADMIN USER
+### BƯỚC 3.2: Verify Filament Routes on VPS
 
-**Time:** 2 phút
+**📍 Trên VPS:**
 
-**On VPS:**
+```bash
+# Check Filament routes exist
+php artisan route:list | grep admin
+
+# Should show multiple /admin/* routes
+```
+
+✅ **Checkpoint 3.2:** Filament routes verified on VPS
+
+---
+
+## PHẦN 4: TẠO ADMIN USER
+
+**Thời gian:** 2 phút
+
+### BƯỚC 4.1: Create Admin User
+
+**📍 Trên VPS:**
 
 ```bash
 cd /var/www/samnghethaycu.com
@@ -185,41 +316,79 @@ cd /var/www/samnghethaycu.com
 php artisan make:filament-user
 ```
 
-**Prompts & Answers:**
+**Prompts and answers:**
 
 ```
-Name: Admin
-Email address: admin@samnghethaycu.com
-Password: Admin@123456
+Name:
+> Admin
+
+Email address:
+> admin@samnghethaycu.com
+
+Password:
+> Admin@123456
+
+(Nhập password 2 lần)
 ```
 
-**Success message:**
+**Expected output:**
 
 ```
 Success! admin@samnghethaycu.com may now log in at https://samnghethaycu.com/admin
 ```
 
-✅ **Checkpoint 4:** Admin user created
+✅ **Checkpoint 4.1:** Admin user created
 
 ---
 
-## PART 5: TEST ADMIN PANEL
+### BƯỚC 4.2: Verify User in Database
 
-**Time:** 2 phút
+**📍 Trên VPS:**
 
-### 5.1. Access Admin Panel
+```bash
+# Check user exists
+php artisan tinker
+```
 
-**Browser:**
+**In tinker:**
+
+```php
+User::where('email', 'admin@samnghethaycu.com')->first();
+# Should return User object
+
+exit
+```
+
+✅ **Checkpoint 4.2:** Admin user verified
+
+---
+
+## PHẦN 5: TEST ADMIN PANEL
+
+**Thời gian:** 2 phút
+
+### BƯỚC 5.1: Access Admin Login Page
+
+**📍 Browser:**
 
 ```
 https://samnghethaycu.com/admin
 ```
 
-**Should see:** Filament login page
+**Should see:**
+- Filament login page
+- "Sign in" heading
+- Email and Password fields
+- "Sign in" button
+- Professional Filament UI
 
-### 5.2. Login
+✅ **Checkpoint 5.1:** Login page accessible
 
-**Credentials:**
+---
+
+### BƯỚC 5.2: Login to Dashboard
+
+**📍 Browser - Login credentials:**
 
 ```
 Email: admin@samnghethaycu.com
@@ -230,35 +399,66 @@ Password: Admin@123456
 
 **Should see:** 🎉 **Filament Dashboard!**
 
-### 5.3. Explore Dashboard
+- Dashboard heading
+- Sidebar navigation (empty for now)
+- User menu (top right with "Admin" name)
+- Dark mode toggle
+- Clean, professional interface
 
-**Check:**
-
-- ✅ Sidebar with navigation
-- ✅ User menu (top right)
-- ✅ Dashboard widgets area (empty for now)
-- ✅ Dark mode toggle working
-
-✅ **Checkpoint 5:** Admin panel working
+✅ **Checkpoint 5.2:** Login successful
 
 ---
 
-## PART 6: CONFIGURE USER MODEL (Optional)
+### BƯỚC 5.3: Explore Dashboard Features
 
-**Time:** 3 phút
+**📍 Browser - Check these features:**
 
-**Why?** Make User model Filament-compatible with canAccessPanel() method.
-
-### 6.1. Update User Model (Local)
-
-**Windows PowerShell:**
-
-```powershell
-# Open User model
-notepad app\Models\User.php
+```
+✅ Sidebar: Navigation menu (empty, will add resources in WF-6)
+✅ User Menu: Click your name (top right)
+   - Profile link
+   - Logout link
+✅ Dark Mode: Toggle dark/light mode (moon/sun icon)
+✅ Dashboard: Main content area (empty widgets for now)
+✅ Responsive: Resize browser window (mobile-friendly)
 ```
 
-**Add Filament interface:**
+✅ **Checkpoint 5.3:** All features working
+
+---
+
+### BƯỚC 5.4: Test Logout
+
+**📍 Browser:**
+
+```
+1. Click user menu (top right)
+2. Click "Sign out"
+3. Should redirect to login page
+4. Try login again - should work
+```
+
+✅ **Checkpoint 5.4:** Logout working
+
+---
+
+## PHẦN 6: CẤU HÌNH USER MODEL (Optional but Recommended)
+
+**Thời gian:** 3 phút
+
+**Tại sao cần?** Add `canAccessPanel()` method để kiểm soát ai có thể truy cập admin panel.
+
+### BƯỚC 6.1: Update User Model
+
+**📍 Trên Windows:**
+
+```powershell
+# Open User model in your editor
+notepad app\Models\User.php
+# Or use VS Code: code app\Models\User.php
+```
+
+**Update User.php with Filament interface:**
 
 ```php
 <?php
@@ -275,7 +475,39 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
 
-    // ... existing code ...
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
     /**
      * Determine if the user can access the Filament admin panel.
@@ -288,53 +520,103 @@ class User extends Authenticatable implements FilamentUser
 }
 ```
 
-**Save**
+**Save file**
 
-### 6.2. Commit & Deploy
+✅ **Checkpoint 6.1:** User model updated
+
+---
+
+### BƯỚC 6.2: Commit & Deploy
+
+**📍 Trên Windows:**
 
 ```powershell
 git add app\Models\User.php
-git commit -m "feat: configure User model for Filament admin panel access"
+git commit -m "feat: configure User model for Filament admin panel access control"
 git push origin main
 ```
 
-**On VPS:**
+**📍 Trên VPS:**
 
 ```bash
 deploy-sam
 ```
 
-✅ **Checkpoint 6:** User model configured
+**Expected:** Deploy completes successfully
+
+✅ **Checkpoint 6.2:** User model deployed
 
 ---
 
-## VERIFICATION
+### BƯỚC 6.3: Test Access Control
 
-### Final Checklist
-
-- [ ] Admin panel accessible: https://samnghethaycu.com/admin ✅
-- [ ] Can login with admin credentials ✅
-- [ ] Dashboard loads without errors ✅
-- [ ] User menu working ✅
-- [ ] Logout function working ✅
-- [ ] Git deployment tested ✅
-
-**All checked?** → SUCCESS! 🎉
-
----
-
-## ✅ WORKFLOW 4 COMPLETE!
-
-### Filament Ready:
+**📍 Browser:**
 
 ```
-✅ Filament v3 installed
-✅ Admin panel configured at /admin
-✅ Admin user created
-✅ Dashboard accessible
+1. Logout from admin panel
+2. Login with admin@samnghethaycu.com
+   - Should work ✅
+3. (Optional) Try creating user with different email domain
+   - Should be blocked from accessing /admin
+```
+
+✅ **Checkpoint 6.3:** Access control working
+
+---
+
+## ✅ VERIFICATION - HOÀN THÀNH WORKFLOW 5
+
+### Full Workflow Checklist
+
+**✅ Checklist - Filament Admin Panel:**
+
+```
+✅ Filament v3 installed locally
+✅ AdminPanelProvider created
+✅ Code committed and pushed to GitHub
+✅ Deployed to VPS with deploy-sam
+✅ Admin user created (admin@samnghethaycu.com)
+✅ Admin panel accessible at /admin
+✅ Can login successfully
+✅ Dashboard loads without errors
+✅ User menu working
+✅ Dark mode toggle working
+✅ Logout function working
+✅ User model configured with canAccessPanel()
+```
+
+**Final test:**
+
+**📍 Browser:**
+
+```
+1. Visit: https://samnghethaycu.com/admin
+2. Login with admin@samnghethaycu.com
+3. Verify dashboard loads
+4. Toggle dark mode
+5. Check user menu
+6. Logout
+7. Login again
+```
+
+**All working?** → SUCCESS! 🎉
+
+---
+
+## 🎉 WORKFLOW 5 COMPLETE!
+
+### Bạn đã có:
+
+```
+✅ Filament v3 installed and configured
+✅ Admin panel at /admin with professional UI
+✅ Admin user (admin@samnghethaycu.com)
 ✅ User authentication working
-✅ Dark mode available
-✅ Deployed via Git
+✅ Dashboard accessible
+✅ Dark mode toggle
+✅ Access control via canAccessPanel()
+✅ Deployed via Git workflow
+✅ Ready for CRUD resources (WF-6)
 ```
 
 ### Admin Credentials:
@@ -345,31 +627,137 @@ Email: admin@samnghethaycu.com
 Password: Admin@123456
 ```
 
+**⚠️ IMPORTANT:** Change this password in production!
+
 ### Current Features:
 
 ```
-✅ User authentication
-✅ Dashboard (empty widgets)
+✅ User authentication with Filament
+✅ Dashboard (empty widgets, will add in WF-8)
 ✅ User profile management
 ✅ Dark mode toggle
-✅ Responsive design
+✅ Responsive design (mobile-friendly)
+✅ Access control (@samnghethaycu.com domain only)
 ```
 
-### Next Steps:
+### Deployment Workflow Verified:
 
 ```
-→ WORKFLOW-6-DATABASE-SCHEMA.md
-  Create database tables and basic models
-  Generate Filament resources for CRUD operations
+Local (Windows)          GitHub              VPS (Production)
+───────────────          ──────              ────────────────
+Install Filament    →    Push code      →    deploy-sam ✨
+Configure User      →    Push changes   →    deploy-sam ✨
+                                              → Filament working!
 ```
+
+---
+
+## 🚀 NEXT STEP:
+
+```
+✅ WORKFLOW-1: VPS Infrastructure (LEMP + SSL)
+✅ WORKFLOW-2: Laravel Installation (Health check working)
+✅ WORKFLOW-3: Git Workflow Setup (Passwordless SSH)
+✅ WORKFLOW-4: Deployment Automation (One-command deployment)
+✅ WORKFLOW-5: Filament Admin Panel (Dashboard working)
+→ WORKFLOW-6: DATABASE SCHEMA
+  Create 15 models and 23 database tables
+  Generate Filament resources for CRUD
+  Time: 25-35 minutes
+```
+
+---
+
+## 🔄 ROLLBACK: XÓA FILAMENT VỀ WORKFLOW-4
+
+**Nếu muốn xóa Filament và quay về trạng thái WORKFLOW-4 (Laravel without admin panel):**
+
+### **📍 Trên Windows (Local):**
+
+```powershell
+cd C:\Projects\samnghethaycu
+
+# BƯỚC 1: Remove Filament package
+composer remove filament/filament -W
+
+# BƯỚC 2: Delete Filament files
+Remove-Item -Recurse -Force app\Providers\Filament
+Remove-Item -Force config\filament.php -ErrorAction SilentlyContinue
+
+# BƯỚC 3: Revert User model
+# Mở app\Models\User.php và xóa:
+# - use Filament\Models\Contracts\FilamentUser;
+# - use Filament\Panel;
+# - implements FilamentUser
+# - canAccessPanel() method
+
+notepad app\Models\User.php
+
+# BƯỚC 4: Clear caches
+php artisan optimize:clear
+
+# BƯỚC 5: Commit changes
+git add .
+git commit -m "revert: remove Filament admin panel"
+git push origin main
+```
+
+### **📍 Trên VPS:**
+
+```bash
+# BƯỚC 6: Deploy removal to VPS
+ssh deploy@69.62.82.145
+cd /var/www/samnghethaycu.com
+deploy-sam
+
+# BƯỚC 7: Remove admin user (optional)
+php artisan tinker
+```
+
+**In tinker:**
+
+```php
+User::where('email', 'admin@samnghethaycu.com')->delete();
+exit
+```
+
+### **📍 Verify Rollback:**
+
+```bash
+# Check Filament routes removed
+php artisan route:list | grep admin
+# Should show: (empty)
+
+# Check Filament package removed
+composer show | grep filament
+# Should show: (empty)
+
+# Test website still works
+curl https://samnghethaycu.com
+# Should return: Laravel welcome page
+```
+
+✅ **Rollback complete! Bạn đã về trạng thái WORKFLOW-4:**
+- ✅ Filament package removed
+- ✅ Admin panel files deleted
+- ✅ Admin routes removed
+- ✅ Admin user deleted (optional)
+- ✅ Laravel vẫn chạy bình thường
+- ✅ Git workflow vẫn hoạt động
+
+**Bây giờ bạn có thể làm lại WORKFLOW-5 từ đầu.**
 
 ---
 
 ## 🔧 TROUBLESHOOTING
 
-### Issue: Cannot access /admin (404 error)
+### Issue 1: Cannot access /admin (404 error)
 
-**Fix:**
+**Error:** 404 Not Found khi truy cập `/admin`
+
+**Cause:** Routes chưa được cache hoặc Filament chưa install đúng
+
+**📍 Trên VPS - Fix:**
 
 ```bash
 cd /var/www/samnghethaycu.com
@@ -380,14 +768,28 @@ php artisan route:cache
 
 # Verify admin routes exist
 php artisan route:list | grep admin
+# Should show multiple /admin/* routes
+
+# If no routes, reinstall Filament
+composer require filament/filament:"^3.2" -W
+php artisan filament:install --panels
 
 # Restart PHP-FPM
 sudo systemctl restart php8.4-fpm
 ```
 
-### Issue: "Class FilamentUser not found"
+---
 
-**Fix:**
+### Issue 2: "Class FilamentUser not found"
+
+**Error:**
+```
+Class 'Filament\Models\Contracts\FilamentUser' not found
+```
+
+**Cause:** Filament dependencies chưa cài đầy đủ
+
+**📍 Trên VPS - Fix:**
 
 ```bash
 # Install missing Filament dependencies
@@ -398,21 +800,32 @@ composer dump-autoload
 
 # Clear all caches
 php artisan optimize:clear
+
+# Verify Filament installed
+composer show | grep filament
+# Should show: filament/filament v3.2.x
 ```
 
-### Issue: Login but dashboard shows errors
+---
 
-**Check logs:**
+### Issue 3: Login but dashboard shows errors
+
+**Error:** Dashboard loads but shows errors or blank page
+
+**📍 Trên VPS - Check logs:**
 
 ```bash
 # Laravel log
-tail -50 storage/logs/laravel.log
+tail -50 /var/www/samnghethaycu.com/storage/logs/laravel.log
 
 # Nginx error log
 sudo tail -50 /var/log/nginx/samnghethaycu-error.log
+
+# PHP-FPM log
+sudo tail -50 /var/log/php8.4-fpm.log
 ```
 
-**Common fix:**
+**📍 Trên VPS - Common fixes:**
 
 ```bash
 # Clear Filament cache
@@ -420,28 +833,62 @@ php artisan filament:optimize-clear
 
 # Rebuild caches
 php artisan optimize
+
+# Fix permissions
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+# Restart PHP-FPM
+sudo systemctl restart php8.4-fpm
 ```
 
-### Issue: Cannot create admin user
+---
 
-**Error:** "Database connection failed"
+### Issue 4: Cannot create admin user
 
-**Fix:**
+**Error:** "Database connection failed" or "SQLSTATE[HY000] [1045] Access denied"
+
+**Cause:** Database credentials sai trong .env
+
+**📍 Trên VPS - Fix:**
 
 ```bash
 # Test database connection
 php artisan db:show
+# Should show database info
 
-# Check .env
+# If fails, check .env
 cat .env | grep DB_
+# Verify:
+# DB_DATABASE=samnghethaycu
+# DB_USERNAME=samnghethaycu_user
+# DB_PASSWORD=<correct password>
 
-# Test MySQL connection
+# Get correct credentials
+cat ~/credentials/database.txt
+
+# Update .env if wrong
+nano .env
+
+# Clear config cache
+php artisan config:clear
+php artisan config:cache
+
+# Test MySQL connection manually
 mysql -u samnghethaycu_user -p samnghethaycu
+# Enter password from credentials.txt
+# Should connect successfully
 ```
 
-### Issue: Admin user exists but cannot login
+---
 
-**Reset password:**
+### Issue 5: Admin user exists but cannot login
+
+**Error:** "These credentials do not match our records"
+
+**Cause:** Password sai hoặc user chưa tạo đúng
+
+**📍 Trên VPS - Reset password:**
 
 ```bash
 cd /var/www/samnghethaycu.com
@@ -453,9 +900,74 @@ php artisan tinker
 
 ```php
 $user = App\Models\User::where('email', 'admin@samnghethaycu.com')->first();
+
+// Check if user exists
+$user;
+// Should return User object
+
+// Reset password
 $user->password = bcrypt('Admin@123456');
 $user->save();
+
+// Verify
+$user->email;
+// Should show: admin@samnghethaycu.com
+
 exit
+```
+
+**Try login again with Admin@123456**
+
+---
+
+### Issue 6: "Too Many Attempts" login error
+
+**Error:** "Too many login attempts. Please try again in X seconds."
+
+**Cause:** Rate limiting bị trigger do thử login sai nhiều lần
+
+**📍 Trên VPS - Fix:**
+
+```bash
+# Clear application cache (includes rate limiter)
+php artisan cache:clear
+
+# Wait 1 minute then try login again
+```
+
+---
+
+### Issue 7: Composer install errors during deploy
+
+**Error:**
+```
+Your requirements could not be resolved to an installable set of packages.
+  Problem 1
+    - filament/filament[v3.2.0, ..., v3.2.x] require php ^8.1 -> ...
+```
+
+**Cause:** PHP version mismatch
+
+**📍 Trên VPS - Fix:**
+
+```bash
+# Check PHP version
+php -v
+# Should be PHP 8.4.x
+
+# If wrong version, check php command
+which php
+# Should be: /usr/bin/php8.4
+
+# Update alternatives if needed
+sudo update-alternatives --config php
+# Select php8.4
+
+# Clear Composer cache
+composer clear-cache
+
+# Try deploy again
+deploy-sam
 ```
 
 ---
@@ -464,33 +976,44 @@ exit
 
 ### Official Documentation
 
-- Filament v3 Docs: https://filamentphp.com/docs/3.x
-- Panels: https://filamentphp.com/docs/3.x/panels
-- Tables: https://filamentphp.com/docs/3.x/tables
-- Forms: https://filamentphp.com/docs/3.x/forms
+- **Filament v3 Docs**: https://filamentphp.com/docs/3.x
+- **Panels**: https://filamentphp.com/docs/3.x/panels
+- **Tables**: https://filamentphp.com/docs/3.x/tables
+- **Forms**: https://filamentphp.com/docs/3.x/forms
+- **Actions**: https://filamentphp.com/docs/3.x/actions
 
-### Common Commands
+### Common Artisan Commands
 
 ```bash
-# Create resource
+# Create Filament resource (will use in WF-6)
 php artisan make:filament-resource ModelName
 
-# Create user
+# Create Filament user
 php artisan make:filament-user
 
 # Clear Filament cache
 php artisan filament:optimize-clear
 
+# Rebuild Filament assets
+php artisan filament:assets
+
 # List all Filament commands
 php artisan list filament
 ```
 
+### Filament Plugins (Future)
+
+- **Spatie Media Library**: https://filamentphp.com/plugins/filament-spatie-media-library
+- **Import**: https://filamentphp.com/plugins/konnco-import
+- **Shield (Permissions)**: https://filamentphp.com/plugins/bezhansalleh-shield
+
 ---
 
-**Created:** 2025-11-16
-**Version:** 4.0 Modular
+**Created:** 2025-11-21
+**Version:** 4.0 Professional Vietnamese (Standardized Edition)
 **Time:** 10-15 minutes actual
+**Format:** Standardized with WORKFLOW-2 v6.0, WORKFLOW-3 v4.0, and WORKFLOW-4 v4.0
 
 ---
 
-**END OF WORKFLOW 4** 🎨
+**END OF WORKFLOW 5** 🎨
