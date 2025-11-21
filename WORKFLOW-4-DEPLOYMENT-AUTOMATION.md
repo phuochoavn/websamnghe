@@ -1,7 +1,7 @@
-# 🚀 WORKFLOW 4: DEPLOYMENT AUTOMATION
+# 🚀 WORKFLOW 4: TỰ ĐỘNG HÓA TRIỂN KHAI
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 3.0 Reorganized
+> **Version:** 4.0 Professional Vietnamese (Standardized Edition)
 > **Thời gian thực tế:** 10-15 phút
 > **Mục tiêu:** Tự động hóa deployment với một lệnh duy nhất
 
@@ -47,7 +47,7 @@ git push origin main →   Updated    →        deploy-sam ✨
 ✅ WORKFLOW-3: Git Workflow Setup (Git local + GitHub + VPS)
 ```
 
-**Verify trước khi bắt đầu:**
+**📍 Trên VPS - Verify trước khi bắt đầu:**
 
 ```bash
 # SSH vào VPS với user deploy
@@ -76,15 +76,73 @@ php artisan --version
 
 ---
 
-## PART 1: DEPLOYMENT SCRIPT
+## 🔄 ROLLBACK: XÓA DEPLOYMENT AUTOMATION VỀ WORKFLOW-3
 
-**Time:** 7 phút
+**Nếu muốn xóa sạch Deployment Automation và quay về trạng thái WORKFLOW-3:**
 
-### 1.1. Create Deployment Script
+### **📍 Trên VPS (as deploy user):**
+
+```bash
+# BƯỚC 1: Xóa deployment script
+rm -f ~/scripts/deploy-samnghethaycu.sh
+rmdir ~/scripts 2>/dev/null  # Xóa thư mục nếu rỗng
+
+# Verify
+ls -la ~/scripts
+# Phải thấy: No such file or directory
+
+# BƯỚC 2: Xóa alias khỏi .bashrc
+sed -i '/alias deploy-sam=/d' ~/.bashrc
+
+# Reload .bashrc
+source ~/.bashrc
+
+# Verify alias đã bị xóa
+type deploy-sam 2>&1
+# Phải thấy: bash: type: deploy-sam: not found
+
+# BƯỚC 3: Xóa sudo configuration cho deploy user
+sudo visudo
+# Trong editor, TÌM VÀ XÓA dòng:
+# deploy ALL=(ALL) NOPASSWD: /bin/systemctl reload php8.4-fpm, /bin/chown, /bin/chmod, /bin/rm
+# Save: Ctrl+O, Enter, Ctrl+X (nano) hoặc ESC :wq (vim)
+
+# Verify sudoers syntax
+sudo visudo -c
+# Phải thấy: parsed OK
+
+# BƯỚC 4: Test sudo permissions (phải hỏi password)
+sudo systemctl status php8.4-fpm
+# Phải hỏi password (không còn NOPASSWD)
+
+# BƯỚC 5: Xóa test files nếu có
+cd /var/www/samnghethaycu.com
+rm -f DEPLOY-TEST.md
+git status
+# Nếu có uncommitted changes, reset:
+git reset --hard origin/main
+```
+
+✅ **Rollback complete! Bạn đã về trạng thái WORKFLOW-3:**
+- ✅ Deployment script đã xóa
+- ✅ Alias deploy-sam đã xóa
+- ✅ Sudo NOPASSWD đã xóa
+- ✅ VPS vẫn có Git workflow (Local → GitHub → VPS)
+- ✅ Laravel app vẫn chạy bình thường
+
+**Bây giờ bạn có thể làm lại WORKFLOW-4 từ đầu.**
+
+---
+
+## PHẦN 1: TẠO DEPLOYMENT SCRIPT
+
+**Thời gian:** 7 phút
+
+### BƯỚC 1.1: Tạo Deployment Script
 
 **⚠️ IMPORTANT:** Đảm bảo đã SSH vào VPS với user `deploy`
 
-**On VPS (as deploy user):**
+**📍 Trên VPS (as deploy user):**
 
 ```bash
 # Kiểm tra đang là user nào
@@ -248,17 +306,18 @@ echo "✅ Deployment script created at ~/scripts/deploy-samnghethaycu.sh"
 ls -lh ~/scripts/deploy-samnghethaycu.sh
 # Phải thấy: -rwxr-xr-x (executable)
 
-# Xem nội dung script
+# Xem nội dung script (20 dòng đầu)
 head -20 ~/scripts/deploy-samnghethaycu.sh
+# Phải thấy: #!/bin/bash và các dòng comment
 ```
 
 ✅ **Checkpoint 1.1:** Deployment script created
 
 ---
 
-### 1.2. Create Deployment Alias
+### BƯỚC 1.2: Tạo Deployment Alias
 
-**On VPS (as deploy user):**
+**📍 Trên VPS (as deploy user):**
 
 ```bash
 # Thêm alias vào .bashrc
@@ -275,37 +334,36 @@ type deploy-sam
 **Test alias:**
 
 ```bash
-# Gõ tên alias (chưa chạy)
-which deploy-sam
-# OR
+# Verify alias exists
 alias | grep deploy-sam
+# Phải thấy: alias deploy-sam='~/scripts/deploy-samnghethaycu.sh'
 ```
 
 ✅ **Checkpoint 1.2:** Deployment alias created
 
 ---
 
-## PART 2: SUDO CONFIGURATION
+## PHẦN 2: CẤU HÌNH SUDO PERMISSIONS
 
-**Time:** 3 phút
+**Thời gian:** 3 phút
 
-### 2.1. Configure Passwordless Sudo
+### BƯỚC 2.1: Cấu Hình Passwordless Sudo
 
-**Why?** Deploy script cần sudo để:
-- Reload PHP-FPM
-- Fix permissions (chown, chmod)
-- Remove symlinks (rm)
+**Tại sao cần?** Deploy script cần sudo để:
+- Reload PHP-FPM (`systemctl reload php8.4-fpm`)
+- Fix permissions (`chown`, `chmod`)
+- Remove symlinks (`rm -f`)
 
-**On VPS (as deploy user):**
+**📍 Trên VPS (as deploy user):**
 
 ```bash
 # Mở sudoers file (secure editor)
 sudo visudo
 ```
 
-**⚠️ IMPORTANT:** Lệnh trên sẽ mở nano editor, KHÔNG phải bash!
+**⚠️ IMPORTANT:** Lệnh trên sẽ mở nano/vim editor, KHÔNG phải bash!
 
-**Inside nano editor:**
+**Inside editor (nano hoặc vim):**
 
 1. Nhấn **End** hoặc **Ctrl+End** để đến cuối file
 2. Nhấn **Enter** để tạo dòng mới
@@ -332,35 +390,38 @@ sudo visudo -c
 
 ---
 
-### 2.2. Test Sudo Permissions
+### BƯỚC 2.2: Test Sudo Permissions
 
-**On VPS (as deploy user):**
+**📍 Trên VPS (as deploy user):**
 
 ```bash
 # Test reload PHP-FPM (không cần password)
 sudo systemctl status php8.4-fpm
 # Phải hiển thị status KHÔNG hỏi password
 
-# Test chown
-sudo chown deploy:deploy /tmp/test-file 2>/dev/null || echo "Command allowed"
+# Test chown (should not ask password)
+sudo chown deploy:deploy /tmp/test-file 2>/dev/null || echo "✅ Command allowed"
 
-# Test chmod
-sudo chmod 755 /tmp/test-file 2>/dev/null || echo "Command allowed"
+# Test chmod (should not ask password)
+sudo chmod 755 /tmp/test-file 2>/dev/null || echo "✅ Command allowed"
+
+# Test rm (should not ask password)
+sudo rm -f /tmp/test-file 2>/dev/null || echo "✅ Command allowed"
 ```
 
-**Nếu hỏi password → Sudoers configuration SAI, cần fix lại bước 2.1**
+**⚠️ Nếu hỏi password → Sudoers configuration SAI, cần fix lại BƯỚC 2.1**
 
 ✅ **Checkpoint 2.2:** Sudo permissions tested
 
 ---
 
-## PART 3: DEPLOYMENT TESTING
+## PHẦN 3: TEST DEPLOYMENT
 
-**Time:** 5 phút
+**Thời gian:** 5 phút
 
-### 3.1. Test Deployment Script (First Run)
+### BƯỚC 3.1: Test Deployment Script (First Run)
 
-**On VPS (as deploy user):**
+**📍 Trên VPS (as deploy user):**
 
 ```bash
 # Đảm bảo đang ở đúng thư mục
@@ -407,9 +468,9 @@ deploy-sam
 🔧 Admin: https://samnghethaycu.com/admin
 
 📌 Current version:
-abc1234 (HEAD -> main, origin/main) Initial commit
+f63c59e (HEAD -> main, origin/main) feat: add health check endpoint
 
-📅 Deployed at: 2025-11-16 15:30:45
+📅 Deployed at: 2025-11-21 01:00:00
 👤 Deployed by: deploy
 ```
 
@@ -419,16 +480,17 @@ abc1234 (HEAD -> main, origin/main) Initial commit
 - **".env file not found"** → Tạo .env từ .env.example
 - **"composer: command not found"** → Composer chưa cài (WF-1)
 - **"php: command not found"** → PHP chưa cài (WF-1)
+- **"sudo: a password is required"** → Sudo config chưa đúng (BƯỚC 2.1)
 
-✅ **Checkpoint 3.1:** Deployment script tested
+✅ **Checkpoint 3.1:** Deployment script tested successfully
 
 ---
 
-### 3.2. Test End-to-End Workflow
+### BƯỚC 3.2: Test End-to-End Workflow
 
 **Complete workflow: Local → GitHub → VPS**
 
-**Step 1: Make change on Windows**
+**📍 Trên Windows - Bước 1: Tạo thay đổi trên local**
 
 ```powershell
 # Windows PowerShell
@@ -443,26 +505,27 @@ git commit -m "test: verify deployment automation"
 git push origin main
 ```
 
-**Step 2: Deploy on VPS**
+**📍 Trên VPS - Bước 2: Deploy lên VPS**
 
 ```bash
 # On VPS (as deploy user)
+cd /var/www/samnghethaycu.com
 deploy-sam
 ```
 
-**Expected:**
+**Expected output:**
 
 ```
 📥 Step 1/8: Pulling latest code from GitHub...
 ✅ Code updated
-abc1234 test: verify deployment automation
+9d7b8a2 test: verify deployment automation
 
 ...
 
 🎉 Deployment completed successfully!
 ```
 
-**Step 3: Verify file exists**
+**📍 Trên VPS - Bước 3: Verify file đã sync**
 
 ```bash
 # Kiểm tra file đã pull về VPS chưa
@@ -473,21 +536,40 @@ cat /var/www/samnghethaycu.com/DEPLOY-TEST.md
 # Phải thấy nội dung "Deployment test"
 ```
 
+**📍 Trên VPS - Bước 4: Cleanup test file**
+
+```bash
+# Xóa test file
+rm /var/www/samnghethaycu.com/DEPLOY-TEST.md
+```
+
+**📍 Trên Windows - Bước 5: Cleanup trên local**
+
+```powershell
+# Windows PowerShell
+cd C:\Projects\samnghethaycu
+git rm DEPLOY-TEST.md
+git commit -m "chore: remove deployment test file"
+git push origin main
+```
+
 ✅ **Checkpoint 3.2:** End-to-end workflow verified
 
 ---
 
-### 3.3. Performance Test
+### BƯỚC 3.3: Performance Test
 
 **Measure deployment time:**
 
+**📍 Trên VPS:**
+
 ```bash
-# On VPS
+# Test với time command
 time deploy-sam
 ```
 
 **Expected time:**
-- **First run:** 30-60 seconds (Composer install)
+- **First run:** 30-60 seconds (Composer install đầy đủ)
 - **Subsequent runs (no changes):** 5-10 seconds
 - **Subsequent runs (with changes):** 15-30 seconds
 
@@ -495,7 +577,7 @@ time deploy-sam
 
 ---
 
-## VERIFICATION
+## ✅ VERIFICATION - HOÀN THÀNH WORKFLOW 4
 
 ### Full Workflow Checklist
 
@@ -505,20 +587,48 @@ time deploy-sam
 ✅ Deployment script created at ~/scripts/deploy-samnghethaycu.sh
 ✅ Script is executable (chmod +x)
 ✅ Alias 'deploy-sam' configured in .bashrc
-✅ Sudo configured for deploy user (no password for specific commands)
+✅ Sudo configured for deploy user (NOPASSWD for specific commands)
 ✅ Script runs successfully with colored output
 ✅ All 8 steps execute without errors
 ✅ End-to-end workflow tested: Local → GitHub → VPS
+✅ Test file synced successfully
+✅ Performance < 30 seconds
 ```
 
-**Test deployment workflow:**
+**Final test deployment workflow:**
+
+**📍 Trên VPS:**
 
 ```bash
-# On VPS
+# Test deployment
 deploy-sam
 # Should complete in < 30 seconds
-# Should show green checkmarks for all 8 steps
+# Should show green checkmarks ✅ for all 8 steps
 # Should reload PHP-FPM without password prompt
+```
+
+**Expected successful output:**
+
+```
+🚀 Starting deployment...
+📂 Current directory: /var/www/samnghethaycu.com
+📥 Step 1/8: Pulling latest code from GitHub...
+✅ No changes (already up to date)
+🔍 Step 2/8: Checking .env file...
+✅ .env exists
+🔧 Step 3/8: Checking bootstrap/cache...
+✅ bootstrap/cache is directory
+📦 Step 4/8: Installing Composer dependencies...
+✅ Dependencies installed
+🗄️  Step 5/8: Running database migrations...
+✅ Migrations complete
+🧹 Step 6/8: Clearing caches...
+✅ Caches rebuilt
+🔐 Step 7/8: Fixing permissions...
+✅ Permissions fixed
+🔄 Step 8/8: Reloading PHP-FPM...
+✅ PHP-FPM reloaded
+🎉 Deployment completed successfully!
 ```
 
 ---
@@ -530,14 +640,15 @@ deploy-sam
 ```
 ✅ Professional deployment script (8 automated steps)
 ✅ One-command deployment: deploy-sam
-✅ Sudo permissions configured (secure, minimal)
+✅ Sudo permissions configured (secure, minimal privileges)
 ✅ Colored output with status tracking
 ✅ Error handling (exit on failure)
 ✅ Git-based workflow: Local → GitHub → VPS
 ✅ Deployment time: 5-30 seconds (vs 15-20 minutes manual)
+✅ Production-ready automation
 ```
 
-### Deployment Workflow:
+### Deployment Workflow Comparison:
 
 ```
 BEFORE (Manual - 15-20 minutes):
@@ -555,29 +666,33 @@ BEFORE (Manual - 15-20 minutes):
 11. sudo systemctl reload php8.4-fpm
 12. Check logs for errors
 13. Test website
-... (many more steps)
+... (many more manual steps)
 
 AFTER (Automated - 5-30 seconds):
 ─────────────────────────────────
 1. SSH to VPS
 2. deploy-sam ✨
-   → Done!
+   → Done! All 8 steps automated!
 ```
 
 ### Script Features:
 
 - **8 automated steps:** Pull, check .env, fix bootstrap/cache, install, migrate, cache, permissions, reload
-- **Colored output:** Easy to read (green ✅, yellow ⚠️, red ❌, blue ℹ️)
-- **Error handling:** Exits on failure with clear messages
-- **Smart checks:** Skips steps if files missing (graceful degradation)
-- **Deployment info:** Shows current version, timestamp, deployed by
-- **Professional:** Production-ready script following best practices
+- **Colored output:** Easy to read (🟢 green ✅, 🟡 yellow ⚠️, 🔴 red ❌, 🔵 blue ℹ️)
+- **Error handling:** Exits immediately on failure with clear error messages
+- **Smart checks:** Skips steps gracefully if files missing
+- **Deployment info:** Shows current version, timestamp, deployed by user
+- **Professional:** Production-ready script following DevOps best practices
 
 ---
 
 ## 🚀 NEXT STEP:
 
 ```
+✅ WORKFLOW-1: VPS Infrastructure (LEMP + SSL)
+✅ WORKFLOW-2: Laravel Installation (Health check working)
+✅ WORKFLOW-3: Git Workflow Setup (Passwordless SSH)
+✅ WORKFLOW-4: Deployment Automation (One-command deployment)
 → WORKFLOW-5: FILAMENT ADMIN PANEL
   Install Filament v3 admin panel
   Create admin user
@@ -589,7 +704,13 @@ AFTER (Automated - 5-30 seconds):
 
 ## 🔧 TROUBLESHOOTING
 
-### Issue: "deploy-sam: command not found"
+### Issue 1: "deploy-sam: command not found"
+
+**Error:**
+```bash
+deploy-sam
+bash: deploy-sam: command not found
+```
 
 **Fix:**
 
@@ -599,36 +720,53 @@ source ~/.bashrc
 
 # Verify alias
 type deploy-sam
+# Should show: deploy-sam is aliased to '~/scripts/deploy-samnghethaycu.sh'
 
 # If still not found, run script directly
 ~/scripts/deploy-samnghethaycu.sh
+
+# Or add alias manually
+echo "alias deploy-sam='~/scripts/deploy-samnghethaycu.sh'" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ---
 
-### Issue: "Permission denied" when reloading PHP-FPM
+### Issue 2: "Permission denied" when reloading PHP-FPM
 
 **Error:**
 ```
 sudo: no tty present and no askpass program specified
 ```
 
+**Cause:** Sudoers configuration chưa đúng
+
 **Fix:**
 
 ```bash
 # Re-check sudoers configuration
 sudo visudo -c
+# Should show: parsed OK
 
-# Verify line exists:
-# deploy ALL=(ALL) NOPASSWD: /bin/systemctl reload php8.4-fpm, ...
+# Verify line exists in sudoers
+sudo grep "deploy.*NOPASSWD" /etc/sudoers /etc/sudoers.d/*
 
 # If missing, add it again via:
 sudo visudo
+# Add this line at the end:
+# deploy ALL=(ALL) NOPASSWD: /bin/systemctl reload php8.4-fpm, /bin/chown, /bin/chmod, /bin/rm
 ```
 
 ---
 
-### Issue: "Cannot access /var/www/samnghethaycu.com"
+### Issue 3: "Cannot access /var/www/samnghethaycu.com"
+
+**Error:**
+```
+❌ ERROR: Cannot access /var/www/samnghethaycu.com
+```
+
+**Cause:** Laravel application chưa cài hoặc directory không tồn tại
 
 **Fix:**
 
@@ -636,19 +774,21 @@ sudo visudo
 # Verify directory exists
 ls -la /var/www/samnghethaycu.com
 
-# If missing, clone repository
+# If missing, go back to WORKFLOW-2
+# Or clone repository again:
 cd /var/www
-git clone git@github.com:phuochoavn/websamnghe.git samnghethaycu.com
+sudo git clone git@github.com:phuochoavn/websamnghe.git samnghethaycu.com
+sudo chown -R deploy:www-data samnghethaycu.com
 ```
 
 ---
 
-### Issue: Deployment runs but website shows errors
+### Issue 4: Deployment runs but website shows errors
 
 **Check logs:**
 
 ```bash
-# Laravel logs
+# Laravel application logs
 tail -50 /var/www/samnghethaycu.com/storage/logs/laravel.log
 
 # Nginx error logs
@@ -661,23 +801,111 @@ sudo tail -50 /var/log/php8.4-fpm.log
 **Common fixes:**
 
 ```bash
-# Clear all caches
+# Clear all caches manually
 cd /var/www/samnghethaycu.com
 php artisan optimize:clear
 
-# Fix permissions
+# Fix permissions manually
 sudo chown -R www-data:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
 
-# Restart PHP-FPM
+# Restart PHP-FPM (not just reload)
 sudo systemctl restart php8.4-fpm
+
+# Verify .env configuration
+cat .env | grep -E "^(APP_|DB_|CACHE_|SESSION_)"
 ```
 
 ---
 
-**Created:** 2025-11-16
-**Version:** 3.0 Reorganized
+### Issue 5: Git pull fails with "Permission denied"
+
+**Error:**
+```
+Permission denied (publickey).
+fatal: Could not read from remote repository.
+```
+
+**Cause:** SSH key chưa được add vào GitHub
+
+**Fix:**
+
+```bash
+# Test SSH connection
+ssh -T git@github.com
+# Should show: Hi username! You've successfully authenticated
+
+# If fails, go back to WORKFLOW-3 and setup SSH key again
+# Or verify SSH key exists:
+cat ~/.ssh/id_ed25519.pub
+# Copy key and add to GitHub SSH keys
+```
+
+---
+
+### Issue 6: Composer install errors
+
+**Error:**
+```
+Your requirements could not be resolved to an installable set of packages.
+```
+
+**Fix:**
+
+```bash
+# Clear Composer cache
+composer clear-cache
+
+# Remove vendor and reinstall
+cd /var/www/samnghethaycu.com
+rm -rf vendor/
+composer install --no-dev --optimize-autoloader
+
+# Verify PHP version matches composer.json
+php -v
+# Should be PHP 8.4.x
+```
+
+---
+
+### Issue 7: Database migration errors
+
+**Error:**
+```
+SQLSTATE[HY000] [1045] Access denied for user
+```
+
+**Cause:** Database credentials in .env sai
+
+**Fix:**
+
+```bash
+# Verify database credentials
+cat ~/credentials/database.txt
+
+# Update .env with correct credentials
+nano /var/www/samnghethaycu.com/.env
+# Update:
+# DB_DATABASE=samnghethaycu
+# DB_USERNAME=samnghethaycu_user
+# DB_PASSWORD=<password from credentials.txt>
+
+# Clear config cache
+php artisan config:clear
+php artisan config:cache
+
+# Test database connection
+php artisan tinker
+>>> DB::connection()->getPdo();
+# Should not throw error
+```
+
+---
+
+**Created:** 2025-11-21
+**Version:** 4.0 Professional Vietnamese (Standardized Edition)
 **Time:** 10-15 minutes actual
+**Format:** Standardized with WORKFLOW-2 v6.0 and WORKFLOW-3 v4.0
 
 ---
 
