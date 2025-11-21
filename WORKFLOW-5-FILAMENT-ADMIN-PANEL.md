@@ -1028,84 +1028,175 @@ To https://github.com/phuochoavn/websamnghe.git
 
 ### **PHẦN 2: XÓA FILAMENT TRÊN VPS**
 
-**Thời gian:** 5-7 phút
+**Thời gian:** 5-10 phút
+
+**⚠️ CRITICAL ISSUES DISCOVERED:**
+1. **Permission denied khi git pull**: File trong `public/` thuộc `www-data`, user `deploy` không xóa được
+2. **Cache files còn tồn tại**: `bootstrap/cache/*.php` vẫn tìm `AdminPanelProvider.php` đã xóa
+3. **Published assets không tự xóa**: Filament assets trong `public/` cần xóa thủ công với sudo
 
 **📍 Trên VPS:**
 
 ```bash
-# BƯỚC 8: Deploy removal to VPS
+# SSH to VPS
 ssh deploy@69.62.82.145
 
 cd /var/www/samnghethaycu.com
+```
 
-deploy-sam
+---
+
+### **BƯỚC 8: Fix public/ Permissions (CRITICAL!)**
+
+**⚠️ QUAN TRỌNG:** Phải fix permissions TRƯỚC KHI git pull, nếu không sẽ gặp lỗi "Permission denied"!
+
+```bash
+# Fix ownership of public/ directory
+sudo chown -R deploy:www-data public/
+
+# Verify ownership changed
+ls -ld public/
+# Expected: drwxr-xr-x ... deploy www-data ... public/
 ```
 
 **Expected output:**
 
-```
-🚀 Starting deployment...
-
-📥 Step 1/8: Pulling latest code from GitHub...
-✅ Code updated
-abc1234 revert: remove Filament admin panel and restore to WORKFLOW-4 state
-
-📦 Step 4/8: Installing Composer dependencies...
-✅ Dependencies installed
-(Filament packages will be removed)
-
-...
-
-🎉 Deployment completed successfully!
+```bash
+drwxr-xr-x 6 deploy www-data 4096 Nov 21 13:22 public/
 ```
 
-✅ **Checkpoint 6:** Code deployed to VPS
+✅ **Checkpoint 6:** Public directory ownership fixed
 
 ---
 
-### **BƯỚC 9: Clear Cache on VPS**
+### **BƯỚC 9: Clear Bootstrap Cache Files (CRITICAL!)**
+
+**⚠️ QUAN TRỌNG:** Phải clear cache files TRƯỚC KHI git pull để tránh lỗi ClassLoader!
+
+```bash
+# Delete bootstrap cache files (may contain references to AdminPanelProvider)
+rm -f bootstrap/cache/services.php
+rm -f bootstrap/cache/packages.php
+
+# Or clear all .php cache files
+sudo rm -rf bootstrap/cache/*.php
+
+# Verify deletion
+ls -la bootstrap/cache/
+# Expected: Only .gitignore file remains
+```
+
+**Expected output:**
+
+```bash
+total 12
+drwxrwxr-x 2 deploy www-data 4096 Nov 21 13:23 .
+drwxr-xr-x 4 deploy www-data 4096 Nov 21 00:03 ..
+-rw-r--r-- 1 deploy www-data   39 Nov 21 00:03 .gitignore
+```
+
+✅ **Checkpoint 7:** Bootstrap cache cleared
+
+---
+
+### **BƯỚC 10: Git Pull Changes from GitHub**
 
 **📍 Trên VPS:**
 
 ```bash
-# Clear all caches
-php artisan optimize:clear
+# Pull latest changes from GitHub (rollback commit)
+git reset --hard origin/main
 
-# Rebuild caches (without Filament)
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# Restart PHP-FPM
-sudo systemctl reload php8.4-fpm
+# Or use git pull if you prefer
+git pull origin main
 ```
 
 **Expected output:**
 
-```
-Configuration cache cleared successfully.
-Route cache cleared successfully.
-View cache cleared successfully.
-...
-Configuration cached successfully.
-Routes cached successfully.
-Views cached successfully.
+```bash
+HEAD is now at ffacf06 revert: remove Filament admin panel and restore to WORKFLOW-4 state
 ```
 
-✅ **Checkpoint 7:** Caches rebuilt on VPS
+**⚠️ If you see "Permission denied" errors:**
+
+```bash
+error: unable to unlink old 'public/.htaccess': Permission denied
+error: unable to unlink old 'public/css/filament/filament/app.css': Permission denied
+...
+```
+
+**Fix:** Go back to BƯỚC 8 and run `sudo chown -R deploy:www-data public/` again!
+
+✅ **Checkpoint 8:** Code pulled from GitHub
 
 ---
 
-### **BƯỚC 10: XÓA PUBLISHED ASSETS (CRITICAL!)**
+### **BƯỚC 11: Reinstall Composer Dependencies**
 
 **📍 Trên VPS:**
 
-**⚠️ CRITICAL:** Đây là bước quan trọng nhất! Assets được publish với sudo permissions, không bị xóa tự động bởi deploy-sam.
+```bash
+# Reinstall dependencies (this will REMOVE 34 Filament packages)
+composer install --no-dev --optimize-autoloader
+```
+
+**Expected output:**
+
+```bash
+Installing dependencies from lock file
+Verifying lock file contents can be installed on current platform.
+Package operations: 0 installs, 0 updates, 34 removals
+  - Removing ueberdosis/tiptap-php (2.0.0)
+  - Removing symfony/html-sanitizer (v7.3.6)
+  - Removing spatie/shiki-php (2.3.2)
+  ...
+  - Removing livewire/livewire (v3.6.4)
+  ...
+  - Removing filament/widgets (v4.2.3)
+  - Removing filament/tables (v4.2.3)
+  - Removing filament/support (v4.2.3)
+  - Removing filament/schemas (v4.2.3)
+  - Removing filament/query-builder (v4.2.3)
+  - Removing filament/notifications (v4.2.3)
+  - Removing filament/infolists (v4.2.3)
+  - Removing filament/forms (v4.2.3)
+  - Removing filament/filament (v4.2.3)
+  - Removing filament/actions (v4.2.3)
+  ...
+  - Removing blade-ui-kit/blade-icons (1.8.0)
+  - Removing blade-ui-kit/blade-heroicons (2.6.0)
+  ...
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  laravel/tinker ................................................................................................ DONE
+  nesbot/carbon ................................................................................................. DONE
+  nunomaduro/termwind ........................................................................................... DONE
+
+53 packages you are using are looking for funding.
+```
+
+**⚠️ If you see "Class BladeHeroiconsServiceProvider not found" error:**
+
+This is normal! The package is being removed but cache still references it. Continue to next step to fix.
+
+✅ **Checkpoint 9:** Composer dependencies reinstalled (34 packages removed)
+
+---
+
+### **BƯỚC 12: XÓA PUBLISHED ASSETS (CRITICAL!)**
+
+**📍 Trên VPS:**
+
+**⚠️ CRITICAL:** Đây là bước quan trọng nhất! Assets được publish với sudo permissions, không bị xóa tự động bởi composer!
 
 ```bash
 cd /var/www/samnghethaycu.com
 
-# List assets before deletion
+# List assets before deletion (to verify they exist)
 ls -la public/vendor/livewire/ 2>/dev/null || echo "Livewire assets not found"
 ls -la public/js/filament/ 2>/dev/null || echo "Filament JS not found"
 ls -la public/css/filament/ 2>/dev/null || echo "Filament CSS not found"
@@ -1114,42 +1205,45 @@ ls -la public/fonts/filament/ 2>/dev/null || echo "Filament fonts not found"
 # DELETE Livewire assets
 sudo rm -rf public/vendor/livewire/
 
-# DELETE Filament assets (if exist)
+# DELETE Filament assets
 sudo rm -rf public/js/filament/
 sudo rm -rf public/css/filament/
 sudo rm -rf public/fonts/filament/
 
-# Verify deletion
+# Verify deletion (should show empty or not found)
 ls -la public/vendor/ 2>/dev/null
-# Should NOT show: livewire directory
+# Expected: Should NOT show livewire directory
 
-# Test 404 (assets should be gone)
+# Test 404 (assets should return 404 Not Found)
 curl -I https://samnghethaycu.com/vendor/livewire/livewire.min.js
-# Should return: HTTP/2 404
+# Expected: HTTP/2 404
 ```
 
 **Expected output:**
 
-```
+```bash
 # Before deletion:
-public/vendor/livewire/:
-drwxr-xr-x 2 www-data www-data   4096 Nov 21 10:30 .
--rw-r--r-- 1 www-data www-data 123456 Nov 21 10:30 livewire.min.js
--rw-r--r-- 1 www-data www-data 234567 Nov 21 10:30 livewire.min.js.map
+drwxr-xr-x 2 deploy www-data   4096 Nov 21 10:50 public/vendor/livewire/
+drwxr-xr-x 10 deploy www-data   4096 Nov 21 02:58 public/js/filament/
+drwxr-xr-x 3 deploy www-data   4096 Nov 21 02:58 public/css/filament/
+drwxr-xr-x 3 deploy www-data   4096 Nov 21 02:58 public/fonts/filament/
 
 # After deletion:
-ls: cannot access 'public/vendor/livewire/': No such file or directory
+total 8
+drwxr-xr-x 2 deploy www-data 4096 Nov 21 13:27 public/vendor/
+(empty - no livewire/)
 
 # Curl test:
 HTTP/2 404
-content-type: text/html; charset=UTF-8
+server: nginx/1.24.0 (Ubuntu)
+content-type: text/html
 ```
 
-✅ **Checkpoint 8:** Published assets deleted from VPS
+✅ **Checkpoint 10:** Published assets deleted from VPS
 
 ---
 
-### **BƯỚC 11: Remove Admin User (Optional)**
+### **BƯỚC 13: Remove Admin User (Optional)**
 
 **📍 Trên VPS:**
 
@@ -1164,89 +1258,208 @@ php artisan tinker
 // Check if user exists
 $user = User::where('email', 'admin@samnghethaycu.com')->first();
 $user;
-// Should return: User object or null
+// Expected: App\Models\User object or null
 
 // Delete user
 User::where('email', 'admin@samnghethaycu.com')->delete();
-// Should return: 1 (1 row deleted)
+// Expected: 1 (1 row deleted)
 
 // Verify deletion
 User::where('email', 'admin@samnghethaycu.com')->count();
-// Should return: 0
+// Expected: 0
 
 exit
 ```
 
-✅ **Checkpoint 9:** Admin user deleted
+**Expected output:**
+
+```php
+> $user = User::where('email', 'admin@samnghethaycu.com')->first();
+= App\Models\User {#5976
+    id: 1,
+    name: "Admin",
+    email: "admin@samnghethaycu.com",
+    ...
+  }
+
+> User::where('email', 'admin@samnghethaycu.com')->delete();
+= 1
+
+> User::where('email', 'admin@samnghethaycu.com')->count();
+= 0
+```
+
+✅ **Checkpoint 11:** Admin user deleted from database
+
+---
+
+### **BƯỚC 14: Rebuild Cache and Reload PHP-FPM**
+
+**📍 Trên VPS:**
+
+```bash
+# Clear all caches
+php artisan optimize:clear
+
+# Rebuild caches (without Filament)
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Reload PHP-FPM to apply changes
+sudo systemctl reload php8.4-fpm
+```
+
+**Expected output:**
+
+```bash
+# optimize:clear
+   INFO  Clearing cached bootstrap files.
+
+  config ................................................................................................. 0.87ms DONE
+  cache .................................................................................................. 6.39ms DONE
+  compiled ............................................................................................... 0.86ms DONE
+  events ................................................................................................. 0.50ms DONE
+  routes ................................................................................................. 0.44ms DONE
+  views .................................................................................................. 8.05ms DONE
+
+# config:cache
+   INFO  Configuration cached successfully.
+
+# route:cache
+   INFO  Routes cached successfully.
+
+# view:cache
+   INFO  Blade templates cached successfully.
+```
+
+✅ **Checkpoint 12:** Caches rebuilt and PHP-FPM reloaded
 
 ---
 
 ### **PHẦN 3: VERIFICATION - HOÀN THÀNH ROLLBACK**
 
+**Thời gian:** 2-3 phút
+
 **📍 Trên VPS:**
 
 ```bash
-# 1. Check Filament routes removed
+# 1. Check Laravel version
+php artisan --version
+# Expected: Laravel Framework 12.39.0
+
+# 2. Check Filament routes removed
 php artisan route:list | grep admin
 # Expected: (empty, no output)
 
-# 2. Check Filament package removed
+# 3. Check Filament package removed
 composer show | grep filament
 # Expected: (empty, no output)
 
-# 3. Verify published assets removed
+# 4. Verify published assets removed
 ls -la public/vendor/livewire/ 2>/dev/null
-# Expected: No such file or directory
+# Expected: ls: cannot access 'public/vendor/livewire/': No such file or directory
 
-# 4. Test Livewire JS 404
+# 5. Test Livewire JS returns 404
 curl -I https://samnghethaycu.com/vendor/livewire/livewire.min.js
 # Expected: HTTP/2 404
 
-# 5. Test website still works
-curl https://samnghethaycu.com
-# Expected: Laravel welcome page HTML
-
-# 6. Check Laravel version
-php artisan --version
-# Expected: Laravel Framework 12.x.x
-
-# 7. Check database (optional)
+# 6. Check database connection still works
 php artisan db:show
-# Expected: Database connection info (should work)
+# Expected: Database info with 9 tables (users, cache, sessions, etc.)
+
+# 7. Check routes (should only show Laravel default routes)
+php artisan route:list
+# Expected:
+#   GET|HEAD       / ...............................
+#   GET|HEAD       health ............................
+#   GET|HEAD       storage/{path} .......... storage.local
+#   GET|HEAD       up ................................
 ```
+
+**Expected output from php artisan db:show:**
+
+```bash
+  MySQL ...................................................................................... 8.0.44-0ubuntu0.24.04.1
+  Connection ................................................................................................... mysql
+  Database ............................................................................................. samnghethaycu
+  Host ..................................................................................................... 127.0.0.1
+  Port .......................................................................................................... 3306
+  Username ........................................................................................ samnghethaycu_user
+  Tables ........................................................................................................... 9
+  Total Size ............................................................................................... 160.00 KB
+
+  Schema / Table ................................................................................................ Size
+  samnghethaycu / cache ..................................................................................... 16.00 KB
+  samnghethaycu / cache_locks ............................................................................... 16.00 KB
+  samnghethaycu / failed_jobs ............................................................................... 16.00 KB
+  samnghethaycu / job_batches ............................................................................... 16.00 KB
+  samnghethaycu / jobs ...................................................................................... 16.00 KB
+  samnghethaycu / migrations ................................................................................ 16.00 KB
+  samnghethaycu / password_reset_tokens ..................................................................... 16.00 KB
+  samnghethaycu / sessions .................................................................................. 16.00 KB
+  samnghethaycu / users ..................................................................................... 32.00 KB
+```
+
+✅ **Checkpoint 13:** All VPS verifications passed
+
+---
 
 **📍 Browser Test:**
 
+Open browser and test:
+
 ```
 1. Visit: https://samnghethaycu.com
-   - Should show: Laravel welcome page ✅
+   Expected: Laravel welcome page ✅
 
 2. Visit: https://samnghethaycu.com/admin
-   - Should show: 404 Not Found ✅
+   Expected: 404 Not Found ✅
 
 3. Open browser console (F12)
-   - Should show: No errors ✅
+   Expected: No errors ✅
+
+4. Check Network tab (F12 → Network)
+   Expected: No failed requests to /vendor/livewire/* or /js/filament/* ✅
 ```
+
+✅ **Checkpoint 14:** Browser tests passed
 
 ---
 
 ### **✅ ROLLBACK COMPLETE CHECKLIST:**
 
+**LOCAL (Windows):**
 ```
-✅ Filament package removed (composer remove)
-✅ Autoloader rebuilt (composer dump-autoload)
-✅ Filament files deleted (AdminPanelProvider, config)
-✅ User model reverted (removed FilamentUser interface)
-✅ Caches cleared locally
-✅ Local verification passed
-✅ Changes committed and pushed to GitHub
-✅ Changes deployed to VPS (deploy-sam)
-✅ Caches rebuilt on VPS
-✅ Published assets deleted from VPS (CRITICAL!)
-✅ Admin routes removed (php artisan route:list)
-✅ Admin panel inaccessible (404 at /admin)
-✅ Admin user deleted (optional)
-✅ Laravel welcome page working
+✅ BƯỚC 1: Filament files deleted (AdminPanelProvider, config/filament.php)
+✅ BƯỚC 2: Filament package removed (composer remove filament/filament -W)
+✅ BƯỚC 3: filament:upgrade script removed from composer.json
+✅ BƯỚC 4: Autoloader rebuilt (composer dump-autoload) - NO ERRORS
+✅ BƯỚC 5: User model reverted (removed FilamentUser interface & canAccessPanel method)
+✅ BƯỚC 6: Caches cleared locally (php artisan optimize:clear)
+✅ BƯỚC 7: Local verification passed (no filament package, no admin routes)
+✅ BƯỚC 8: Changes committed and pushed to GitHub
+```
+
+**VPS (Production):**
+```
+✅ BƯỚC 8: public/ permissions fixed (sudo chown -R deploy:www-data public/)
+✅ BƯỚC 9: Bootstrap cache cleared (rm -f bootstrap/cache/*.php)
+✅ BƯỚC 10: Code pulled from GitHub (git reset --hard origin/main)
+✅ BƯỚC 11: Composer dependencies reinstalled (34 Filament packages removed)
+✅ BƯỚC 12: Published assets deleted (livewire, filament JS/CSS/fonts)
+✅ BƯỚC 13: Admin user deleted from database (optional)
+✅ BƯỚC 14: Caches rebuilt and PHP-FPM reloaded
+✅ BƯỚC 15: All verifications passed:
+   ✅ No filament packages (composer show | grep filament)
+   ✅ No admin routes (php artisan route:list | grep admin)
+   ✅ Assets return 404 (curl livewire.min.js)
+   ✅ Laravel welcome page working
+   ✅ Admin panel inaccessible (404 at /admin)
+   ✅ Database connection working (php artisan db:show)
+```
+
+**TOTAL TIME:** ~15-20 minutes (Local: 5-10 min, VPS: 5-10 min, Verification: 2-3 min)
 ✅ Website functioning normally
 ```
 
