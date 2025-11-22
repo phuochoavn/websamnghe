@@ -1,7 +1,7 @@
 # 🗄️ WORKFLOW 6: DATABASE SCHEMA
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 6.0 Professional Vietnamese (Complete Edition)
+> **Phiên bản:** 6.0 Professional Vietnamese (Complete Edition)
 > **Thời gian thực tế:** 25-35 phút
 > **Mục tiêu:** 23 tables + 15 models + 9 Filament resources + ROLLBACK guide
 
@@ -34,7 +34,7 @@ Sau khi đã có Filament admin panel working (WF-5), bây giờ xây dựng:
 ✅ **Eloquent Models Ready:**
 - 15 models với fillable & casts đầy đủ
 - SoftDeletes traits where applicable
-- Type casting cho data consistency
+- Ép kiểu dữ liệu cho data consistency
 - Ready for relationships (WF-7)
 
 ✅ **Filament Resources Generated:**
@@ -189,15 +189,15 @@ php artisan make:migration create_order_status_histories_table
 php artisan make:migration add_fields_to_users_table
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
-Created Migration: 2025_11_22_123456_create_categories_table
-Created Migration: 2025_11_22_123457_create_brands_table
+Đã tạo Migration: 2025_11_22_123456_create_categories_table
+Đã tạo Migration: 2025_11_22_123457_create_brands_table
 ...
 ```
 
-✅ **Checkpoint 1.0:** 15 migration files created
+✅ **Checkpoint 1.0:** 15 file migration đã tạo
 
 ---
 
@@ -222,39 +222,39 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Chạy migrations.
      */
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
 
-            // Basic info
+            // Thông tin cơ bản
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->string('image')->nullable();
 
-            // Nested categories (self-referencing)
+            // Danh mục lồng nhau (tự tham chiếu)
             $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
 
-            // Display order
+            // Thứ tự hiển thị
             $table->integer('order')->default(0);
 
-            // Status
+            // Trạng thái
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();
             $table->softDeletes();
 
-            // Indexes for performance
+            // Chỉ mục để tối ưu hiệu suất
             $table->index(['slug', 'is_active']);
             $table->index('parent_id');
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Hoàn tác migrations.
      */
     public function down(): void
     {
@@ -263,9 +263,9 @@ return new class extends Migration
 };
 ```
 
-**Save (Ctrl+S) và đóng Notepad**
+**Lưu (Ctrl+S) và đóng Notepad**
 
-✅ **Checkpoint 1.1:** Categories migration created
+✅ **Checkpoint 1.1:** Categories migration đã tạo
 
 ---
 
@@ -291,16 +291,16 @@ return new class extends Migration
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
 
-            // Basic info
+            // Thông tin cơ bản
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
 
-            // Brand assets
+            // Tài sản thương hiệu
             $table->string('logo')->nullable();
             $table->string('website')->nullable();
 
-            // Status
+            // Trạng thái
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();
@@ -317,9 +317,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.2:** Brands migration created
+✅ **Checkpoint 1.2:** Brands migration đã tạo
 
 ---
 
@@ -365,9 +365,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.3:** Post Categories migration created
+✅ **Checkpoint 1.3:** Post Categories migration đã tạo
 
 ---
 
@@ -393,37 +393,37 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-            // Foreign keys
+            // Khóa ngoại
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->foreignId('brand_id')->nullable()->constrained()->nullOnDelete();
 
-            // Basic info
+            // Thông tin cơ bản
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('short_description')->nullable();
             $table->longText('description')->nullable();
 
-            // Pricing
+            // Giá cả
             $table->decimal('price', 12, 2);
             $table->decimal('sale_price', 12, 2)->nullable();
             $table->decimal('cost_price', 12, 2)->nullable();
 
-            // Inventory
+            // Tồn kho
             $table->string('sku')->unique();
             $table->string('barcode')->nullable();
             $table->integer('stock_quantity')->default(0);
             $table->integer('min_stock_alert')->default(10);
 
-            // Dimensions & weight (for shipping)
+            // Kích thước & trọng lượng (cho vận chuyển)
             $table->decimal('weight', 8, 2)->nullable();
             $table->decimal('length', 8, 2)->nullable();
             $table->decimal('width', 8, 2)->nullable();
             $table->decimal('height', 8, 2)->nullable();
 
-            // Media
+            // Phương tiện
             $table->string('featured_image')->nullable();
 
-            // Status & features
+            // Trạng thái & tính năng
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_active')->default(true);
             $table->boolean('manage_stock')->default(true);
@@ -436,7 +436,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // Indexes
+            // Chỉ mục
             $table->index(['slug', 'is_active', 'is_featured']);
             $table->index(['category_id', 'brand_id']);
             $table->index('sku');
@@ -450,9 +450,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.4:** Products migration created
+✅ **Checkpoint 1.4:** Products migration đã tạo
 
 ---
 
@@ -479,24 +479,24 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
 
-            // Variant info
-            $table->string('name'); // e.g., "500g", "Màu đỏ - Size M"
+            // Thông tin biến thể
+            $table->string('name'); // ví dụ: "500g", "Màu đỏ - Size M"
             $table->string('sku')->unique();
 
-            // Pricing (override product price)
+            // Giá cả (ghi đè giá sản phẩm)
             $table->decimal('price', 12, 2);
             $table->decimal('sale_price', 12, 2)->nullable();
 
-            // Inventory
+            // Tồn kho
             $table->integer('stock_quantity')->default(0);
 
-            // Media
+            // Phương tiện
             $table->string('image')->nullable();
 
-            // Attributes (JSON: {size: "M", color: "red"})
+            // Thuộc tính (JSON: {size: "M", color: "red"})
             $table->json('attributes')->nullable();
 
-            // Status
+            // Trạng thái
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();
@@ -514,9 +514,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.5:** Product Variants migration created
+✅ **Checkpoint 1.5:** Product Variants migration đã tạo
 
 ---
 
@@ -561,9 +561,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.6:** Product Images migration created
+✅ **Checkpoint 1.6:** Product Images migration đã tạo
 
 ---
 
@@ -591,20 +591,20 @@ return new class extends Migration
             $table->foreignId('post_category_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-            // Content
+            // Nội dung
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('excerpt')->nullable();
             $table->longText('content');
 
-            // Media
+            // Phương tiện
             $table->string('featured_image')->nullable();
 
-            // Publishing
+            // Xuất bản
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->timestamp('published_at')->nullable();
 
-            // Analytics
+            // Phân tích
             $table->integer('views_count')->default(0);
 
             // SEO
@@ -627,9 +627,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.7:** Posts migration created
+✅ **Checkpoint 1.7:** Posts migration đã tạo
 
 ---
 
@@ -656,11 +656,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-            // Contact info
+            // Thông tin liên hệ
             $table->string('full_name');
             $table->string('phone');
 
-            // Address details (Vietnam structure)
+            // Chi tiết địa chỉ (cấu trúc Việt Nam)
             $table->string('address_line_1');
             $table->string('address_line_2')->nullable();
             $table->string('city'); // Tỉnh/Thành phố
@@ -668,7 +668,7 @@ return new class extends Migration
             $table->string('ward')->nullable(); // Phường/Xã
             $table->string('postal_code')->nullable();
 
-            // Type
+            // Loại
             $table->enum('type', ['shipping', 'billing'])->default('shipping');
             $table->boolean('is_default')->default(false);
 
@@ -686,9 +686,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.8:** Addresses migration created
+✅ **Checkpoint 1.8:** Addresses migration đã tạo
 
 ---
 
@@ -714,28 +714,28 @@ return new class extends Migration
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
 
-            // Coupon info
+            // Thông tin mã giảm giá
             $table->string('code')->unique();
             $table->string('name');
             $table->text('description')->nullable();
 
-            // Discount rules
+            // Quy tắc giảm giá
             $table->enum('discount_type', ['fixed', 'percentage']);
             $table->decimal('discount_value', 12, 2);
 
-            // Constraints
+            // Ràng buộc
             $table->decimal('min_purchase_amount', 12, 2)->nullable();
             $table->decimal('max_discount_amount', 12, 2)->nullable();
 
-            // Usage limits
-            $table->integer('usage_limit')->nullable(); // Total uses
-            $table->integer('usage_limit_per_user')->nullable(); // Per user
+            // Giới hạn sử dụng
+            $table->integer('usage_limit')->nullable(); // Tổng số lần dùng
+            $table->integer('usage_limit_per_user')->nullable(); // Mỗi người dùng
 
-            // Validity period
+            // Thời hạn hiệu lực
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('expires_at')->nullable();
 
-            // Status
+            // Trạng thái
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();
@@ -753,9 +753,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.9:** Coupons migration created
+✅ **Checkpoint 1.9:** Coupons migration đã tạo
 
 ---
 
@@ -782,12 +782,12 @@ return new class extends Migration
             $table->id();
             $table->string('order_number')->unique();
 
-            // Relationships
+            // Quan hệ
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('shipping_address_id')->nullable()->constrained('addresses')->nullOnDelete();
             $table->foreignId('coupon_id')->nullable()->constrained()->nullOnDelete();
 
-            // Order status
+            // Trạng thái đơn hàng
             $table->enum('status', [
                 'pending',      // Chờ xác nhận
                 'processing',   // Đang xử lý
@@ -798,22 +798,22 @@ return new class extends Migration
                 'refunded'      // Đã hoàn tiền
             ])->default('pending');
 
-            // Payment
+            // Thanh toán
             $table->enum('payment_method', ['cod', 'vnpay', 'momo'])->default('cod');
             $table->enum('payment_status', ['pending', 'paid', 'failed', 'refunded'])->default('pending');
 
-            // Amounts
+            // Số tiền
             $table->decimal('subtotal', 12, 2);
             $table->decimal('tax', 12, 2)->default(0);
             $table->decimal('shipping_fee', 12, 2)->default(0);
             $table->decimal('discount_amount', 12, 2)->default(0);
             $table->decimal('total', 12, 2);
 
-            // Notes
+            // Ghi chú
             $table->text('customer_note')->nullable();
             $table->text('admin_note')->nullable();
 
-            // Payment tracking
+            // Thanh toán tracking
             $table->string('transaction_id')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamp('shipped_at')->nullable();
@@ -834,9 +834,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.10:** Orders migration created
+✅ **Checkpoint 1.10:** Orders migration đã tạo
 
 ---
 
@@ -865,14 +865,14 @@ return new class extends Migration
             $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('product_variant_id')->nullable()->constrained()->nullOnDelete();
 
-            // Snapshot data (để giữ lại thông tin khi product bị xóa)
+            // Dữ liệu snapshot (để giữ lại thông tin khi product bị xóa)
             $table->string('product_name');
             $table->string('product_sku');
             $table->decimal('price', 12, 2);
             $table->integer('quantity');
             $table->decimal('subtotal', 12, 2);
 
-            // Variant details (JSON snapshot)
+            // Chi tiết biến thể (JSON snapshot)
             $table->json('variant_attributes')->nullable();
 
             $table->timestamps();
@@ -888,9 +888,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.11:** Order Items migration created
+✅ **Checkpoint 1.11:** Order Items migration đã tạo
 
 ---
 
@@ -919,12 +919,12 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('order_id')->nullable()->constrained()->nullOnDelete();
 
-            // Review content
-            $table->integer('rating'); // 1-5 stars
+            // Nội dung đánh giá
+            $table->integer('rating'); // 1-5 sao
             $table->string('title')->nullable();
             $table->text('comment');
 
-            // Moderation
+            // Kiểm duyệt
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamp('approved_at')->nullable();
 
@@ -943,9 +943,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.12:** Reviews migration created
+✅ **Checkpoint 1.12:** Reviews migration đã tạo
 
 ---
 
@@ -990,9 +990,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.13:** Coupon Usages migration created
+✅ **Checkpoint 1.13:** Coupon Usages migration đã tạo
 
 ---
 
@@ -1020,7 +1020,7 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
 
-            // Status change tracking
+            // Trạng thái change tracking
             $table->string('old_status')->nullable();
             $table->string('new_status');
             $table->text('note')->nullable();
@@ -1038,9 +1038,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.14:** Order Status Histories migration created
+✅ **Checkpoint 1.14:** Order Status Histories migration đã tạo
 
 ---
 
@@ -1091,9 +1091,9 @@ return new class extends Migration
 };
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 1.15:** Users table extension migration created
+✅ **Checkpoint 1.15:** Users table extension migration đã tạo
 
 ---
 
@@ -1112,7 +1112,7 @@ ls database\migrations\*_add_fields_*.php | Measure-Object
 # Tổng cộng phải có 15 migration files mới
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 Count    : 14
@@ -1148,7 +1148,7 @@ php artisan make:model Post
 php artisan make:model PostCategory
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
    INFO  Model [app/Models/Category.php] created successfully.
@@ -1161,7 +1161,7 @@ php artisan make:model PostCategory
 - Chúng ta sẽ update User model sau
 - Tổng cộng tạo 14 models mới
 
-✅ **Checkpoint 2.0:** 14 model files created
+✅ **Checkpoint 2.0:** 14 file model đã tạo
 
 ---
 
@@ -1203,9 +1203,9 @@ class Category extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.1:** Category model created
+✅ **Checkpoint 2.1:** Category model đã tạo
 
 ---
 
@@ -1245,9 +1245,9 @@ class Brand extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.2:** Brand model created
+✅ **Checkpoint 2.2:** Brand model đã tạo
 
 ---
 
@@ -1285,9 +1285,9 @@ class PostCategory extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.3:** PostCategory model created
+✅ **Checkpoint 2.3:** PostCategory model đã tạo
 
 ---
 
@@ -1356,9 +1356,9 @@ class Product extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.4:** Product model created
+✅ **Checkpoint 2.4:** Product model đã tạo
 
 ---
 
@@ -1405,9 +1405,9 @@ class ProductVariant extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.5:** ProductVariant model created
+✅ **Checkpoint 2.5:** ProductVariant model đã tạo
 
 ---
 
@@ -1446,9 +1446,9 @@ class ProductImage extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.6:** ProductImage model created
+✅ **Checkpoint 2.6:** ProductImage model đã tạo
 
 ---
 
@@ -1496,9 +1496,9 @@ class Post extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.7:** Post model created
+✅ **Checkpoint 2.7:** Post model đã tạo
 
 ---
 
@@ -1543,9 +1543,9 @@ class Address extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.8:** Address model created
+✅ **Checkpoint 2.8:** Address model đã tạo
 
 ---
 
@@ -1598,9 +1598,9 @@ class Coupon extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.9:** Coupon model created
+✅ **Checkpoint 2.9:** Coupon model đã tạo
 
 ---
 
@@ -1659,9 +1659,9 @@ class Order extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.10:** Order model created
+✅ **Checkpoint 2.10:** Order model đã tạo
 
 ---
 
@@ -1706,9 +1706,9 @@ class OrderItem extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.11:** OrderItem model created
+✅ **Checkpoint 2.11:** OrderItem model đã tạo
 
 ---
 
@@ -1751,9 +1751,9 @@ class Review extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.12:** Review model created
+✅ **Checkpoint 2.12:** Review model đã tạo
 
 ---
 
@@ -1790,9 +1790,9 @@ class CouponUsage extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.13:** CouponUsage model created
+✅ **Checkpoint 2.13:** CouponUsage model đã tạo
 
 ---
 
@@ -1826,9 +1826,9 @@ class OrderStatusHistory extends Model
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
-✅ **Checkpoint 2.14:** OrderStatusHistory model created
+✅ **Checkpoint 2.14:** OrderStatusHistory model đã tạo
 
 ---
 
@@ -1991,7 +1991,7 @@ class User extends Authenticatable implements FilamentUser
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
 ✅ **Checkpoint 2.15:** User model updated
 
@@ -2005,7 +2005,7 @@ ls app\Models\*.php | Measure-Object
 # Phải thấy: Count : 15 (14 mới + 1 User)
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 Count    : 15
@@ -2026,7 +2026,7 @@ Count    : 15
 git status
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 On branch main
@@ -2062,7 +2062,7 @@ MIGRATIONS (15 total):
 MODELS (15 total):
 - All models with fillable and casts configured
 - SoftDeletes traits where applicable
-- Type casting for data consistency
+- Ép kiểu dữ liệu for data consistency
 - Ready for relationships (WORKFLOW-7)
 
 DATABASE STRUCTURE:
@@ -2075,7 +2075,7 @@ DATABASE STRUCTURE:
 Ready for Filament resource generation and deployment."
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 [main abc1234] feat: create complete database schema for e-commerce platform
@@ -2093,7 +2093,7 @@ Ready for Filament resource generation and deployment."
 git push origin main
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 Enumerating objects: 45, done.
@@ -2123,7 +2123,7 @@ cd /var/www/samnghethaycu.com
 deploy-sam
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 🚀 Starting deployment...
@@ -2193,7 +2193,7 @@ abc1234 feat: create complete database schema for e-commerce platform
 php artisan db:show
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
   MySQL ......................................................... 8.0.44
@@ -2236,7 +2236,7 @@ collect(DB::select('SHOW TABLES'))->count()
 exit
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```php
 > Schema::hasTable('products')
@@ -2302,7 +2302,7 @@ Pages:
 - ✅ Adds navigation menu items
 - ✅ Configures basic validation
 
-✅ **Checkpoint 5:** 9 Filament resources generated
+✅ **Checkpoint 5:** 9 Filament resource đã tạo
 
 ---
 
@@ -2318,7 +2318,7 @@ ls app\Filament\Resources\*\Pages\*.php | Measure-Object
 # Phải thấy: Count : 27 (9 resources × 3 pages)
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 Count    : 9
@@ -2372,7 +2372,7 @@ Admin panel now has full CRUD operations!"
 git push origin main
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 [main xyz9876] feat: generate Filament resources for 9 core entities
@@ -2395,7 +2395,7 @@ cd /var/www/samnghethaycu.com
 deploy-sam
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 🚀 Starting deployment...
@@ -2614,7 +2614,7 @@ $user
 exit
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```php
 > App\Models\Category::count()
@@ -2646,7 +2646,7 @@ exit
 
 ```
 PHẦN 1: TẠO MIGRATIONS
-✅ 15 migration files created
+✅ 15 file migration đã tạo
 ✅ All foreign keys configured correctly
 ✅ Indexes added for performance
 ✅ SoftDeletes where applicable
@@ -2671,7 +2671,7 @@ PHẦN 4: DEPLOY & MIGRATE
 ✅ Database structure verified
 
 PHẦN 5: GENERATE FILAMENT RESOURCES
-✅ 9 resources generated with --generate
+✅ 9 resource đã tạo with --generate
 ✅ 27 page files created (9 × 3)
 ✅ Forms auto-generated from schema
 ✅ Tables auto-generated
@@ -2726,7 +2726,7 @@ PHẦN 7: TEST ADMIN PANEL
 
 ✅ ELOQUENT MODELS READY:
 - 15 models with fillable & casts
-- Type casting configured
+- Ép kiểu dữ liệu configured
 - SoftDeletes traits
 - Ready for relationships (WF-7)
 
@@ -2863,7 +2863,7 @@ ls app\Filament\
 # Kết quả: Không còn thư mục Resources
 ```
 
-**Expected:**
+**Mong đợi:**
 
 ```
 Mode                 LastWriteTime         Length Name
@@ -2899,7 +2899,7 @@ ls app\Models\
 # Phải còn lại: User.php
 ```
 
-**Expected:**
+**Mong đợi:**
 
 ```
 Mode                 LastWriteTime         Length Name
@@ -2979,7 +2979,7 @@ class User extends Authenticatable implements FilamentUser
 }
 ```
 
-**Save và đóng**
+**Lưu và đóng**
 
 ✅ **Checkpoint 1.3:** User model restored to WORKFLOW-5 state
 
@@ -3010,7 +3010,7 @@ ls database\migrations\ | Measure-Object
 # Phải còn lại 3 migrations (default Laravel)
 ```
 
-**Expected:**
+**Mong đợi:**
 
 ```
 Count    : 3
@@ -3083,7 +3083,7 @@ Reason: [Your reason here, e.g., 'Need to redesign schema']"
 git push origin main
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 [main abc1234] revert: rollback database schema to WORKFLOW-5 state
@@ -3124,7 +3124,7 @@ ls -lh ~/backup-before-rollback-*.sql
 # Phải thấy file backup với size > 0
 ```
 
-**Expected:**
+**Mong đợi:**
 
 ```
 -rw-r--r-- 1 deploy deploy 15K Nov 22 15:30 backup-before-rollback-20251122-153045.sql
@@ -3147,7 +3147,7 @@ git pull origin main
 deploy-sam
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
 🚀 Starting deployment...
@@ -3170,7 +3170,7 @@ abc1234 revert: rollback database schema to WORKFLOW-5 state
 php artisan migrate:status
 ```
 
-**Expected:**
+**Mong đợi:**
 
 ```
 Migration name ................................................ Batch / Status
@@ -3192,7 +3192,7 @@ php artisan migrate:rollback --step=1
 # php artisan migrate:rollback --batch=2
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
    INFO  Rolling back migrations.
@@ -3221,7 +3221,7 @@ php artisan migrate:rollback --step=1
 php artisan migrate:status
 ```
 
-**Expected:**
+**Mong đợi:**
 
 ```
 Migration name ................................................ Batch / Status
@@ -3238,7 +3238,7 @@ Migration name ................................................ Batch / Status
 php artisan db:show
 ```
 
-**Expected:**
+**Mong đợi:**
 
 ```
 Tables ........................................................ 9
@@ -3275,7 +3275,7 @@ php artisan view:cache
 sudo systemctl reload php8.4-fpm
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```
    INFO  Clearing cached bootstrap files.
@@ -3339,7 +3339,7 @@ $user
 exit
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 
 ```php
 > collect(DB::select('SHOW TABLES'))->count()
@@ -3376,7 +3376,7 @@ exit
 5. No errors in browser console (F12)
 ```
 
-**Expected:**
+**Mong đợi:**
 
 ```
 Sidebar Navigation:
@@ -3411,7 +3411,7 @@ PHẦN 3: VERIFICATION
 ✅ Only 9 tables exist (down from 23)
 ✅ Only 1 model exists (User.php)
 ✅ No Filament resources exist
-✅ Admin panel accessible (Dashboard only)
+✅ Truy cập admin panel thành công (Dashboard only)
 ✅ No errors in browser
 ✅ User can login successfully
 ✅ Database consistent
@@ -3958,22 +3958,22 @@ deploy-sam
 └─────────────────┘
 ```
 
-**Legend:**
-- `─┤` : Foreign key relationship
-- `1:N` : One-to-Many (hasMany)
-- `N:1` : Many-to-One (belongsTo)
-- `N:M` : Many-to-Many (belongsToMany via pivot)
-- `Self Ref` : Self-referencing (categories parent-child)
+**Chú giải:**
+- `─┤` : Quan hệ khóa ngoại
+- `1:N` : Một-nhiều (hasMany)
+- `N:1` : Nhiều-một (belongsTo)
+- `N:M` : Nhiều-nhiều (belongsToMany qua pivot)
+- `Self Ref` : Tự tham chiếu (danh mục cha-con)
 
 **Note:** Relationships sẽ được implement trong WORKFLOW-7!
 
 ---
 
-**Created:** 2025-11-22
-**Updated:** 2025-11-22
-**Version:** 6.0 Professional Vietnamese (Complete Edition)
-**Time:** 25-35 minutes actual
-**Format:** Standardized with WORKFLOW-5 Professional Vietnamese Edition
+**Tạo ngày:** 2025-11-22
+**Cập nhật:** 2025-11-22
+**Phiên bản:** 6.0 Professional Vietnamese (Complete Edition)
+**Thời gian:** 25-35 minutes actual
+**Định dạng:** Standardized with WORKFLOW-5 Professional Vietnamese Edition
 
 ---
 
