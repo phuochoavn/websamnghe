@@ -556,11 +556,62 @@ Post
 
 ## 💻 Development Workflow
 
-### Local Development Setup
+### Current Production Workflow (WORKFLOW 1-5 Complete)
+
+Our deployment is fully automated with **8-step automated deployment** via `deploy-sam` command.
+
+#### **Local Development → Production Flow:**
 
 ```bash
-# Clone repository (when shared)
-git clone <repository-url>
+# 1. LOCAL (Windows): Make changes
+cd C:\Projects\samnghethaycu
+# Edit code, create migrations, update models, etc.
+
+# 2. LOCAL: Test changes
+php artisan migrate      # Test migrations
+php artisan test         # Run tests (optional)
+
+# 3. LOCAL: Commit to GitHub
+git add .
+git commit -m "feat(products): add product gallery feature"
+git push origin main     # Push to GitHub
+
+# 4. VPS: Deploy (SSH as deploy user)
+ssh deploy@69.62.82.145
+deploy-sam              # One command deployment!
+# ✅ 8 automated steps:
+#    1. Git pull from GitHub
+#    2. Check .env exists
+#    3. Fix bootstrap/cache
+#    4. Composer install (production)
+#    5. Run migrations
+#    6. Clear & rebuild cache
+#    7. Fix permissions
+#    8. Reload PHP-FPM
+```
+
+#### **8-Step Deployment Process (`deploy-sam`):**
+
+Created in WORKFLOW-4, the `deploy-sam` command automates:
+
+1. ✅ **Git Pull** - Latest code from GitHub
+2. ✅ **Environment Check** - Verify .env exists (not in Git)
+3. ✅ **Bootstrap Cache Fix** - Ensure real directory, not symlink
+4. ✅ **Dependencies** - `composer install --no-dev --optimize-autoloader`
+5. ✅ **Database** - `php artisan migrate --force`
+6. ✅ **Cache** - Clear all, rebuild config/route/view cache
+7. ✅ **Permissions** - `www-data:www-data` for storage & cache
+8. ✅ **Reload** - PHP-FPM reload for zero-downtime
+
+**Time:** ~30-60 seconds per deployment
+
+---
+
+### Local Development Setup (For New Developers)
+
+```bash
+# Clone repository
+git clone https://github.com/phuochoavn/websamnghe.git
 cd websamnghe
 
 # Install PHP dependencies
@@ -573,19 +624,25 @@ npm install
 cp .env.example .env
 php artisan key:generate
 
-# Configure database in .env
+# Configure local database (SQLite or MySQL)
+# SQLite (easier for local):
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/database/database.sqlite
+
+# OR MySQL:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=samnghethaycu
-DB_USERNAME=your_user
-DB_PASSWORD=your_password
+DB_DATABASE=samnghethaycu_local
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Install Filament (to sync with VPS)
+composer require filament/filament:"^3.2" -W
+php artisan filament:install --panels
 
 # Run migrations
 php artisan migrate
-
-# Seed database (optional)
-php artisan db:seed
 
 # Create storage symlink
 php artisan storage:link
@@ -598,40 +655,89 @@ php artisan serve
 npm run dev
 ```
 
-### Daily Workflow
+**Access:**
+- Website: http://localhost:8000
+- Admin: http://localhost:8000/admin
 
-1. **Start of Day**
-   ```bash
-   git fetch origin
-   git pull origin main
-   composer install
-   npm install
-   php artisan migrate
-   ```
+---
 
-2. **Create Feature Branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+### Daily Development Workflow
 
-3. **Development**
-   - Make code changes
-   - Test locally
-   - Write/update tests
-   - Check code quality
+#### **For Backend Features (Models, Migrations, Filament):**
 
-4. **Before Commit**
-   ```bash
-   php artisan test
-   php artisan pint  # Code formatting (if configured)
-   ```
+```bash
+# 1. Pull latest from main
+git pull origin main
 
-5. **Commit & Push**
-   ```bash
-   git add .
-   git commit -m "feat(scope): description"
-   git push origin feature/your-feature-name
-   ```
+# 2. Create feature branch (optional, for team work)
+git checkout -b feature/add-product-filters
+
+# 3. Make changes locally
+# - Create migrations
+# - Update models
+# - Modify Filament resources
+# - Test locally
+
+# 4. Commit changes
+git add .
+git commit -m "feat(products): add category and price filters"
+
+# 5. Push to GitHub
+git push origin main  # or your branch
+
+# 6. Deploy to VPS
+ssh deploy@69.62.82.145
+deploy-sam
+
+# 7. Verify on production
+curl https://samnghethaycu.com/health
+# Visit https://samnghethaycu.com/admin
+```
+
+#### **For Frontend Features (Blade, CSS, JS):**
+
+```bash
+# 1. Make changes locally
+# Edit resources/views/, resources/css/, resources/js/
+
+# 2. Build assets
+npm run build  # Production build
+
+# 3. Commit & push
+git add .
+git commit -m "feat(ui): add product carousel on homepage"
+git push origin main
+
+# 4. Deploy
+ssh deploy@69.62.82.145
+deploy-sam
+```
+
+---
+
+### Quick Commands Reference
+
+#### **Local Development:**
+```bash
+php artisan serve               # Start dev server (port 8000)
+php artisan migrate             # Run migrations
+php artisan db:seed             # Seed database
+php artisan tinker              # Laravel REPL
+php artisan route:list          # List all routes
+php artisan make:model Product  # Create model
+npm run dev                     # Vite dev server (hot reload)
+npm run build                   # Build for production
+```
+
+#### **VPS Production:**
+```bash
+ssh deploy@69.62.82.145        # SSH to VPS
+deploy-sam                      # Deploy latest code
+tail -f storage/logs/laravel.log  # Watch logs
+php artisan optimize:clear      # Clear all cache
+sudo systemctl status nginx     # Check Nginx
+sudo systemctl status mysql     # Check MySQL
+```
 
 ---
 
@@ -642,8 +748,76 @@ npm run dev
 ```
 VPS IP: 69.62.82.145
 OS: Ubuntu 24.04 LTS
-User: deploy (group: deploy, sudo, www-data)
+Domain: samnghethaycu.com (with SSL)
 Web Root: /var/www/samnghethaycu.com
+```
+
+### Credentials Quick Reference
+
+**⚠️ IMPORTANT:** These credentials are for development/staging. Change in production!
+
+#### **VPS Access:**
+```bash
+# Deploy User (daily use)
+ssh deploy@69.62.82.145
+Password: Deploy@2025
+
+# Root User (VPS setup only)
+ssh root@69.62.82.145
+Password: [From VPS provider]
+```
+
+#### **MySQL Database:**
+```bash
+# Laravel Database User
+Host: localhost (127.0.0.1)
+Port: 3306
+Database: samnghethaycu
+Username: samnghethaycu_user
+Password: SamNghe@DB2025
+
+# Root User (admin tasks)
+Username: root
+Password: RootMySQL@2025
+
+# Connection command:
+mysql -u samnghethaycu_user -p samnghethaycu
+```
+
+#### **Laravel Admin Panel:**
+```
+URL: https://samnghethaycu.com/admin
+Email: admin@samnghethaycu.com
+Password: Admin@123456
+```
+
+#### **GitHub Repository:**
+```
+Repository: https://github.com/phuochoavn/websamnghe
+SSH: git@github.com:phuochoavn/websamnghe.git
+Branch: main
+```
+
+#### **Credentials File on VPS:**
+```bash
+# View saved credentials
+cat ~/credentials/database.txt
+```
+
+#### **Key File Locations:**
+```bash
+# VPS
+/var/www/samnghethaycu.com          # Laravel root
+/var/www/samnghethaycu.com/.env     # Production config
+~/scripts/deploy-sam.sh             # Deployment script
+~/credentials/database.txt          # Database credentials
+/etc/nginx/sites-available/samnghethaycu.com  # Nginx config
+/var/log/nginx/samnghethaycu-*.log  # Nginx logs
+storage/logs/laravel.log            # Laravel logs
+
+# Local (Windows)
+C:\Projects\samnghethaycu           # Laravel root
+C:\Projects\samnghethaycu\.env      # Local config
 ```
 
 ### Deployment Process

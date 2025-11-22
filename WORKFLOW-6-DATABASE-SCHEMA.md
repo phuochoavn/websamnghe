@@ -183,6 +183,157 @@ Level 5 (Mở rộng bảng có sẵn):
 
 ---
 
+## PHẦN 0: SYNC LOCAL CODE (CRITICAL!)
+
+**Thời gian:** 5 phút
+
+**⚠️ QUAN TRỌNG:** Nếu local code chưa có Filament, PHẢI install trước!
+
+### 0.1. Kiểm Tra Filament Đã Cài Chưa
+
+**📍 Trên Windows PowerShell:**
+
+```powershell
+cd C:\Projects\samnghethaycu
+
+# Check Filament routes
+php artisan route:list | Select-String "admin"
+
+# ✅ Nếu thấy admin routes → Filament đã cài, skip đến PHẦN 1
+# ❌ Nếu không thấy gì → Chưa có Filament, làm tiếp 0.2
+```
+
+### 0.2. Install Filament Locally (Nếu Chưa Có)
+
+**📍 Trên Windows PowerShell:**
+
+```powershell
+# Install Filament v3
+composer require filament/filament:"^3.2" -W
+
+# ⏳ Chờ 1-2 phút...
+# ✅ Phải thấy: Package manifest generated successfully.
+
+# Install Filament panels
+php artisan filament:install --panels
+
+# Chọn options:
+# - Panel name: admin (default, nhấn Enter)
+# - Panel path: admin (default, nhấn Enter)
+```
+
+### 0.3. Update User Model (Nếu Chưa Có FilamentUser)
+
+**Kiểm tra User model:**
+
+```powershell
+# Mở User model
+notepad app\Models\User.php
+
+# Tìm dòng: use Illuminate\Foundation\Auth\User as Authenticatable;
+# Kiểm tra có: implements FilamentUser không?
+```
+
+**Nếu CHƯA có `implements FilamentUser`, cập nhật:**
+
+```powershell
+notepad app\Models\User.php
+```
+
+**Thêm vào đầu file (sau namespace):**
+
+```php
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+```
+
+**Sửa dòng class:**
+
+```php
+// Từ:
+class User extends Authenticatable
+
+// Thành:
+class User extends Authenticatable implements FilamentUser
+```
+
+**Thêm method vào cuối class (trước dấu `}` cuối cùng):**
+
+```php
+/**
+ * Determine if user can access Filament panel
+ */
+public function canAccessPanel(Panel $panel): bool
+{
+    return true; // Tất cả users có thể access admin (sửa sau nếu cần)
+}
+```
+
+**Save file (Ctrl+S).**
+
+### 0.4. Configure Vietnamese Locale
+
+**Mở config/app.php:**
+
+```powershell
+notepad config\app.php
+```
+
+**Tìm và sửa:**
+
+```php
+// Tìm dòng:
+'locale' => env('APP_LOCALE', 'en'),
+// Sửa thành:
+'locale' => env('APP_LOCALE', 'vi'),
+
+// Tìm dòng:
+'timezone' => env('APP_TIMEZONE', 'UTC'),
+// Sửa thành:
+'timezone' => env('APP_TIMEZONE', 'Asia/Ho_Chi_Minh'),
+```
+
+**Save file.**
+
+### 0.5. Verify Installation
+
+```powershell
+# Check Filament routes
+php artisan route:list | Select-String "admin"
+
+# ✅ Phải thấy:
+# GET|HEAD  admin ................ filament.admin.pages.dashboard
+# GET|HEAD  admin/login .......... filament.admin.auth.login
+# POST      admin/logout ......... filament.admin.auth.logout
+```
+
+### 0.6. Create Local Admin User (Optional)
+
+```powershell
+# Tạo admin user để test local
+php artisan make:filament-user
+
+# Nhập thông tin:
+# Name: Admin
+# Email: admin@local.test
+# Password: admin123
+```
+
+### 0.7. Test Local Admin Panel (Optional)
+
+```powershell
+# Start local server
+php artisan serve
+
+# Mở browser: http://localhost:8000/admin
+# ✅ Phải thấy Filament login page
+# Login với: admin@local.test / admin123
+```
+
+✅ **Checkpoint 0:** Filament đã cài xong trên local, sẵn sàng tạo migrations!
+
+---
+
 ## PHẦN 1: TẠO MIGRATIONS (LOCAL)
 
 **Thời gian:** 12 phút
