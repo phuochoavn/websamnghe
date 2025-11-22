@@ -895,108 +895,283 @@ Configure User      →    Push changes   →    deploy-sam ✨
 
 **Thời gian:** 3-5 phút
 
-**⚠️ CRITICAL ORDER:** Phải xóa Filament files TRƯỚC, rồi mới xóa package. Nếu xóa package trước sẽ gặp lỗi "Class Filament\PanelProvider not found"!
+**⚠️ THỨ TỰ QUAN TRỌNG:** Phải xóa Filament files TRƯỚC, rồi mới xóa package. Nếu xóa package trước sẽ gặp lỗi "Class Filament\PanelProvider not found"!
 
 **📍 Trên Windows (Local):**
+
+---
+
+### **BƯỚC 1: Xóa Filament Files (QUAN TRỌNG - TRƯỚC TIÊN!)**
 
 ```powershell
 cd C:\Projects\samnghethaycu
 
-# BƯỚC 1: Delete Filament files FIRST (CRITICAL!)
+# Xóa thư mục Filament providers
 Remove-Item -Recurse -Force app\Providers\Filament -ErrorAction SilentlyContinue
+
+# Xóa file config Filament
 Remove-Item -Force config\filament.php -ErrorAction SilentlyContinue
 
-# Verify files deleted
+# Kiểm tra đã xóa thành công
 ls app\Providers\
-# Should NOT show: Filament directory
+# Kết quả mong đợi: KHÔNG thấy thư mục "Filament"
 
 ls config\filament.php
-# Should show: File not found (error is expected)
-
-# BƯỚC 2: Remove Filament package
-composer remove filament/filament -W
-
-# Expected output:
-# Removing filament/filament (v4.2.3)
-# ...
-# Package operations: 0 installs, 0 updates, 34 removals
-# (May show error about filament:upgrade - this is OK, will fix in next step)
-
-# BƯỚC 3: Remove filament:upgrade script from composer.json
-code composer.json
-
-# Trong VS Code, tìm section "scripts" -> "post-autoload-dump"
-# XÓA dòng: "@php artisan filament:upgrade"
-#
-# BEFORE (3 dòng):
-# "post-autoload-dump": [
-#     "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-#     "@php artisan package:discover --ansi",
-#     "@php artisan filament:upgrade"   <-- XÓA DÒNG NÀY
-# ],
-#
-# AFTER (2 dòng):
-# "post-autoload-dump": [
-#     "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-#     "@php artisan package:discover --ansi"
-# ],
-#
-# Save file (Ctrl+S)
-
-# BƯỚC 4: Rebuild autoloader
-composer dump-autoload
-
-# Expected output:
-# Generating optimized autoload files
-# > Illuminate\Foundation\ComposerScripts::postAutoloadDump
-# > @php artisan package:discover --ansi
-#
-#    INFO  Discovering packages.
-#
-#   laravel/pail .................................... DONE
-#   laravel/sail .................................... DONE
-#   laravel/tinker .................................. DONE
-#   ...
-#
-# (Should complete WITHOUT errors - no filament:upgrade error)
+# Kết quả mong đợi: Lỗi "File not found" (đây là kết quả đúng!)
 ```
 
-✅ **Checkpoint 1:** Filament files, package, and scripts removed locally
+**Expected output:**
+
+```
+Directory: C:\Projects\samnghethaycu\app\Providers
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+------         2/24/2025   5:49 AM            361 AppServiceProvider.php
+
+ls : Cannot find path 'C:\Projects\samnghethaycu\config\filament.php' because it does not exist.
+```
+
+✅ **Checkpoint 1.1:** Filament files đã xóa
 
 ---
 
-### **BƯỚC 4: Revert User Model**
+### **BƯỚC 2: Remove Filament Package**
+
+```powershell
+# Remove Filament và tất cả dependencies (34 packages)
+composer remove filament/filament -W
+```
+
+**Expected output:**
+
+```
+./composer.json has been updated
+Running composer update filament/filament --with-all-dependencies
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 0 installs, 0 updates, 34 removals
+  - Removing filament/filament (v4.2.3)
+  - Removing livewire/livewire (v3.7.0)
+  ... (32 other packages)
+
+Writing lock file
+Installing dependencies from lock file
+Package operations: 0 installs, 0 updates, 34 removals
+  - Removing filament/filament (v4.2.3)
+  ... (removing 34 packages)
+
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  laravel/pail .................................. DONE
+  laravel/sail .................................. DONE
+  laravel/tinker ................................ DONE
+  ...
+```
+
+**⚠️ Có thể thấy lỗi này (BÌNH THƯỜNG, sẽ fix ở bước tiếp theo):**
+
+```
+> @php artisan filament:upgrade
+
+   ERROR  There are no commands defined in the "filament" namespace.
+
+Script @php artisan filament:upgrade handling the post-autoload-dump event returned with error code 1
+```
+
+**Lỗi này XẢY RA vì:** Script `filament:upgrade` vẫn còn trong `composer.json`, nhưng package đã bị xóa. Sẽ fix ở BƯỚC 3.
+
+✅ **Checkpoint 1.2:** Filament package đã remove (34 packages removed)
+
+---
+
+### **BƯỚC 3: Xóa Script `filament:upgrade` Khỏi composer.json**
+
+**⚠️ QUAN TRỌNG:** Script này được Filament tự động thêm vào khi cài đặt. Bây giờ package đã xóa, cần remove script này để tránh lỗi!
+
+```powershell
+# Mở composer.json trong VS Code
+code composer.json
+```
+
+**Trong VS Code:**
+
+**Tìm section `"scripts"` → `"post-autoload-dump"`**
+
+**NẾU thấy dòng `"@php artisan filament:upgrade"` → XÓA dòng đó!**
+
+**BEFORE (có 3 dòng):**
+
+```json
+"post-autoload-dump": [
+    "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+    "@php artisan package:discover --ansi",
+    "@php artisan filament:upgrade"   ← XÓA DÒNG NÀY!
+],
+```
+
+**AFTER (còn 2 dòng):**
+
+```json
+"post-autoload-dump": [
+    "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+    "@php artisan package:discover --ansi"
+],
+```
+
+**Save file (Ctrl+S hoặc File → Save)**
+
+**📝 Lưu ý:**
+- Chỉ cần xóa dòng `"@php artisan filament:upgrade"`
+- Giữ nguyên 2 dòng còn lại
+- Nhớ xóa dấu phẩy (comma) ở dòng trên nếu cần
+
+---
+
+**Hoặc nếu muốn nhanh hơn (không cần mở VS Code):**
+
+```powershell
+# Reset composer.json về trạng thái clean từ git (nếu chưa sửa gì)
+git checkout composer.json
+
+# Hoặc git restore (Laravel 12)
+git restore composer.json
+```
+
+✅ **Checkpoint 1.3:** Script `filament:upgrade` đã xóa khỏi composer.json
+
+---
+
+### **BƯỚC 4: Rebuild Autoloader (Verify No Errors)**
+
+```powershell
+# Rebuild autoloader để verify không còn lỗi
+composer dump-autoload
+```
+
+**Expected output (KHÔNG CÒN LỖI!):**
+
+```
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  laravel/pail .................................. DONE
+  laravel/sail .................................. DONE
+  laravel/tinker ................................ DONE
+  nesbot/carbon ................................. DONE
+  nunomaduro/collision .......................... DONE
+  nunomaduro/termwind ........................... DONE
+
+✅ NO ERRORS! (Không còn lỗi "filament:upgrade" nữa)
+```
+
+✅ **Checkpoint 1.4:** Autoloader rebuilt successfully - NO ERRORS
+
+---
+
+### **BƯỚC 5: Fix Redis Configuration (QUAN TRỌNG cho Windows Local!)**
+
+**⚠️ VẤN ĐỀ:** Windows local KHÔNG có Redis server, nhưng `.env` đang config để dùng Redis → Gây lỗi khi chạy `php artisan optimize:clear`!
+
+**Lỗi bạn sẽ gặp nếu không fix:**
+
+```
+Error: Class "Redis" not found
+at vendor\laravel\framework\src\Illuminate\Redis\Connectors\PhpRedisConnector.php:80
+```
+
+**📍 FIX NGAY (2 phút):**
+
+```powershell
+# Mở .env file
+code .env
+```
+
+**Trong VS Code, tìm và SỬA các dòng này:**
+
+**BEFORE (đang dùng Redis - gây lỗi trên Windows):**
+
+```env
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+```
+
+**AFTER (dùng file driver - hoạt động tốt trên Windows):**
+
+```env
+CACHE_STORE=file
+SESSION_DRIVER=file
+QUEUE_CONNECTION=database
+```
+
+**HOẶC nếu muốn giữ nguyên config Redis (comment Redis config):**
+
+```env
+# Comment Redis connection (thêm # vào đầu mỗi dòng)
+# REDIS_CLIENT=phpredis
+# REDIS_HOST=127.0.0.1
+# REDIS_PASSWORD=null
+# REDIS_PORT=6379
+```
+
+**Save file (Ctrl+S)**
+
+**📝 Giải thích:**
+
+| Driver | Windows Local | VPS Production |
+|--------|---------------|----------------|
+| **Redis** | ❌ Không có → Lỗi | ✅ Đã cài, dùng được |
+| **File** | ✅ Hoạt động tốt | ⚠️ Chậm hơn Redis |
+| **Database** | ✅ Hoạt động tốt | ⚠️ Chậm hơn Redis |
+
+**Kết luận:**
+- **Windows local**: Dùng `file` hoặc `database` driver
+- **VPS production**: Dùng `redis` driver (đã có Redis server)
+
+✅ **Checkpoint 1.5:** Redis configuration fixed cho Windows local
+
+---
+
+### **BƯỚC 6: Revert User Model**
 
 **📍 Trên Windows:**
 
 **Option A: Manual Edit (Recommended)**
 
 ```powershell
-# Open User model in editor
+# Mở User model trong editor
 code app\Models\User.php
 ```
 
-**Xóa các dòng này:**
+**Xóa các dòng liên quan đến Filament:**
 
 ```php
-// Line ~5-6: Remove these imports
+// Dòng ~5-6: XÓA các import này
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
-// Line ~10: Remove FilamentUser interface
-class User extends Authenticatable implements FilamentUser  // ❌ Remove
+// Dòng ~10: XÓA "implements FilamentUser"
+class User extends Authenticatable implements FilamentUser  // ❌ XÓA
 
-// Change to:
-class User extends Authenticatable  // ✅ Keep only this
+// Thay bằng:
+class User extends Authenticatable  // ✅ Chỉ giữ lại dòng này
 
-// Line ~35-42: Remove entire canAccessPanel method
-public function canAccessPanel(Panel $panel): bool  // ❌ Remove this method
+// Dòng ~35-42: XÓA toàn bộ method canAccessPanel
+public function canAccessPanel(Panel $panel): bool  // ❌ XÓA method này
 {
     return str_ends_with($this->email, '@samnghethaycu.com');
 }
 ```
 
-**User.php sau khi revert:**
+**User.php SAU KHI REVERT (clean Laravel default):**
 
 ```php
 <?php
@@ -1032,85 +1207,138 @@ class User extends Authenticatable
 }
 ```
 
-**Save file (Ctrl+S)**
+**Save file (Ctrl+S hoặc File → Save)**
 
-**Option B: Git Revert (If you committed User model separately)**
+---
+
+**Option B: Git Revert (Nếu đã commit User model riêng)**
 
 ```powershell
-# Find the commit that added FilamentUser
+# Tìm commit đã thêm FilamentUser
 git log --oneline app\Models\User.php
 
-# Revert that specific commit
+# Revert commit đó
 git revert <commit-hash> --no-commit
 
-# Then continue with BƯỚC 5
+# Tiếp tục với BƯỚC 7
 ```
 
-✅ **Checkpoint 2:** User model reverted
+✅ **Checkpoint 1.6:** User model đã revert về trạng thái Laravel default
 
 ---
 
-### **BƯỚC 5: Clear Caches**
+### **BƯỚC 7: Clear Caches**
 
 **📍 Trên Windows:**
 
 ```powershell
+# Clear tất cả caches
 php artisan optimize:clear
-
-# Expected output:
-# Configuration cache cleared successfully.
-# Route cache cleared successfully.
-# View cache cleared successfully.
-# Compiled services and packages files removed successfully.
-# Caches cleared successfully.
 ```
 
-✅ **Checkpoint 3:** Caches cleared
+**Expected output (SAU KHI đã fix Redis ở BƯỚC 5):**
+
+```
+   INFO  Clearing cached bootstrap files.
+
+  config ................................................................................................. 1.52ms DONE
+  cache .................................................................................................. 5.02ms DONE
+  compiled ............................................................................................... 0.86ms DONE
+  events ................................................................................................. 0.50ms DONE
+  routes ................................................................................................. 0.44ms DONE
+  views .................................................................................................. 8.05ms DONE
+```
+
+**⚠️ NẾU VẪN GẶP LỖI "Class Redis not found":**
+
+→ Bạn đã bỏ qua **BƯỚC 5: Fix Redis Configuration**! Quay lại BƯỚC 5 và fix .env file!
+
+✅ **Checkpoint 1.7:** Caches đã clear thành công - NO ERRORS
 
 ---
 
-### **BƯỚC 6: Verify Locally**
+### **BƯỚC 8: Verify Locally**
 
 **📍 Trên Windows:**
 
 ```powershell
-# Check Filament package removed
+# 1. Kiểm tra Filament package đã remove
 composer show | Select-String "filament"
-# Should show: (empty)
+# Kết quả mong đợi: (empty - không có kết quả)
 
-# Check routes (should have no admin routes)
+# 2. Kiểm tra routes (không còn admin routes)
 php artisan route:list | Select-String "admin"
-# Should show: (empty)
+# Kết quả mong đợi: (empty - không có kết quả)
 
-# Test Laravel still works
+# 3. Test Laravel vẫn hoạt động
 php artisan --version
-# Should show: Laravel Framework 12.x.x
+# Kết quả mong đợi: Laravel Framework 12.39.0
 ```
 
-✅ **Checkpoint 4:** Local verification passed
+**Expected output:**
+
+```powershell
+# composer show | Select-String "filament"
+(no output - Filament đã remove)
+
+# php artisan route:list | Select-String "admin"
+(no output - Không còn admin routes)
+
+# php artisan --version
+Laravel Framework 12.39.0
+```
+
+✅ **Checkpoint 1.8:** Local verification passed - Laravel hoạt động bình thường
 
 ---
 
-### **BƯỚC 7: Commit & Push**
+### **BƯỚC 9: Commit & Push to GitHub**
 
 **📍 Trên Windows:**
 
 ```powershell
-# Check changes
+# Kiểm tra những thay đổi
 git status
+```
 
-# Should show:
-# - modified: composer.json
-# - modified: composer.lock
-# - deleted: app/Providers/Filament/
-# - deleted: config/filament.php
-# - modified: app/Models/User.php
+**Expected git status:**
 
-# Add all changes
-git add .
+```
+On branch main
+Changes not staged for commit:
+  modified:   .env
+  modified:   app/Models/User.php
+  modified:   composer.json
+  modified:   composer.lock
 
-# Commit
-git commit -m "revert: remove Filament admin panel and restore to WORKFLOW-4 state"
+Untracked files:
+  (nothing)
+
+Deleted:
+  app/Providers/Filament/AdminPanelProvider.php
+  config/filament.php
+```
+
+**Commit và push:**
+
+```powershell
+# Add tất cả thay đổi (EXCEPT .env!)
+git add composer.json composer.lock app/Models/User.php
+
+# Add deleted files
+git add app/Providers/Filament/
+git add config/filament.php
+
+# Commit với message rõ ràng
+git commit -m "revert: remove Filament admin panel and restore to WORKFLOW-4 state
+
+- Removed Filament package and 34 dependencies
+- Reverted User model to Laravel default (removed FilamentUser interface)
+- Removed AdminPanelProvider and Filament config
+- Fixed composer.json scripts (removed filament:upgrade)
+- Fixed .env Redis config for Windows local development
+
+Back to clean Laravel 12 state (WORKFLOW-4)."
 
 # Push to GitHub
 git push origin main
@@ -1120,7 +1348,7 @@ git push origin main
 
 ```
 [main abc1234] revert: remove Filament admin panel and restore to WORKFLOW-4 state
- X files changed, X insertions(+), XXX deletions(-)
+ 5 files changed, 5 insertions(+), 350 deletions(-)
  delete mode 100644 app/Providers/Filament/AdminPanelProvider.php
  delete mode 100644 config/filament.php
 
@@ -1128,7 +1356,9 @@ To https://github.com/phuochoavn/websamnghe.git
    def5678..abc1234  main -> main
 ```
 
-✅ **Checkpoint 5:** Changes committed and pushed to GitHub
+**⚠️ LƯU Ý:** KHÔNG commit file `.env` vì nó chứa thông tin local development! File này đã được bảo vệ bởi `.gitignore`.
+
+✅ **Checkpoint 1.9:** Changes committed and pushed to GitHub
 
 ---
 
@@ -1152,7 +1382,7 @@ cd /var/www/samnghethaycu.com
 
 ---
 
-### **BƯỚC 8: Fix public/ Permissions (CRITICAL!)**
+### **BƯỚC 10: Fix public/ Permissions (CRITICAL!)**
 
 **⚠️ QUAN TRỌNG:** Phải fix permissions TRƯỚC KHI git pull, nếu không sẽ gặp lỗi "Permission denied"!
 
@@ -1171,11 +1401,11 @@ ls -ld public/
 drwxr-xr-x 6 deploy www-data 4096 Nov 21 13:22 public/
 ```
 
-✅ **Checkpoint 6:** Public directory ownership fixed
+✅ **Checkpoint 2.1:** Public directory ownership fixed
 
 ---
 
-### **BƯỚC 9: Clear Bootstrap Cache Files (CRITICAL!)**
+### **BƯỚC 11: Clear Bootstrap Cache Files (CRITICAL!)**
 
 **⚠️ QUAN TRỌNG:** Phải clear cache files TRƯỚC KHI git pull để tránh lỗi ClassLoader!
 
@@ -1201,11 +1431,11 @@ drwxr-xr-x 4 deploy www-data 4096 Nov 21 00:03 ..
 -rw-r--r-- 1 deploy www-data   39 Nov 21 00:03 .gitignore
 ```
 
-✅ **Checkpoint 7:** Bootstrap cache cleared
+✅ **Checkpoint 2.2:** Bootstrap cache cleared
 
 ---
 
-### **BƯỚC 10: Git Pull Changes from GitHub**
+### **BƯỚC 12: Git Pull Changes from GitHub**
 
 **📍 Trên VPS:**
 
@@ -1231,13 +1461,13 @@ error: unable to unlink old 'public/css/filament/filament/app.css': Permission d
 ...
 ```
 
-**Fix:** Go back to BƯỚC 8 and run `sudo chown -R deploy:www-data public/` again!
+**Fix:** Go back to BƯỚC 10 and run `sudo chown -R deploy:www-data public/` again!
 
-✅ **Checkpoint 8:** Code pulled from GitHub
+✅ **Checkpoint 2.3:** Code pulled from GitHub
 
 ---
 
-### **BƯỚC 11: Reinstall Composer Dependencies**
+### **BƯỚC 13: Reinstall Composer Dependencies**
 
 **📍 Trên VPS:**
 
@@ -1289,11 +1519,11 @@ Generating optimized autoload files
 
 This is normal! The package is being removed but cache still references it. Continue to next step to fix.
 
-✅ **Checkpoint 9:** Composer dependencies reinstalled (34 packages removed)
+✅ **Checkpoint 2.4:** Composer dependencies reinstalled (34 packages removed)
 
 ---
 
-### **BƯỚC 12: XÓA PUBLISHED ASSETS (CRITICAL!)**
+### **BƯỚC 14: XÓA PUBLISHED ASSETS (CRITICAL!)**
 
 **📍 Trên VPS:**
 
@@ -1345,11 +1575,11 @@ server: nginx/1.24.0 (Ubuntu)
 content-type: text/html
 ```
 
-✅ **Checkpoint 10:** Published assets deleted from VPS
+✅ **Checkpoint 2.5:** Published assets deleted from VPS
 
 ---
 
-### **BƯỚC 13: Remove Admin User (Optional)**
+### **BƯỚC 15: Remove Admin User (Optional)**
 
 **📍 Trên VPS:**
 
@@ -1395,11 +1625,11 @@ exit
 = 0
 ```
 
-✅ **Checkpoint 11:** Admin user deleted from database
+✅ **Checkpoint 2.6:** Admin user deleted from database (optional)
 
 ---
 
-### **BƯỚC 14: Rebuild Cache and Reload PHP-FPM**
+### **BƯỚC 16: Rebuild Cache and Reload PHP-FPM**
 
 **📍 Trên VPS:**
 
@@ -1439,7 +1669,7 @@ sudo systemctl reload php8.4-fpm
    INFO  Blade templates cached successfully.
 ```
 
-✅ **Checkpoint 12:** Caches rebuilt and PHP-FPM reloaded
+✅ **Checkpoint 2.7:** Caches rebuilt and PHP-FPM reloaded
 
 ---
 
@@ -1507,7 +1737,7 @@ php artisan route:list
   samnghethaycu / users ..................................................................................... 32.00 KB
 ```
 
-✅ **Checkpoint 13:** All VPS verifications passed
+✅ **Checkpoint 3.1:** All VPS terminal verifications passed
 
 ---
 
@@ -1529,44 +1759,51 @@ Open browser and test:
    Expected: No failed requests to /vendor/livewire/* or /js/filament/* ✅
 ```
 
-✅ **Checkpoint 14:** Browser tests passed
+✅ **Checkpoint 3.2:** Browser tests passed - Rollback hoàn tất!
 
 ---
 
 ### **✅ ROLLBACK COMPLETE CHECKLIST:**
 
-**LOCAL (Windows):**
+**PHẦN 1: LOCAL (Windows):**
 ```
 ✅ BƯỚC 1: Filament files deleted (AdminPanelProvider, config/filament.php)
-✅ BƯỚC 2: Filament package removed (composer remove filament/filament -W)
+✅ BƯỚC 2: Filament package removed (composer remove filament/filament -W - 34 packages)
 ✅ BƯỚC 3: filament:upgrade script removed from composer.json
 ✅ BƯỚC 4: Autoloader rebuilt (composer dump-autoload) - NO ERRORS
-✅ BƯỚC 5: User model reverted (removed FilamentUser interface & canAccessPanel method)
-✅ BƯỚC 6: Caches cleared locally (php artisan optimize:clear)
-✅ BƯỚC 7: Local verification passed (no filament package, no admin routes)
-✅ BƯỚC 8: Changes committed and pushed to GitHub
+✅ BƯỚC 5: Redis configuration fixed (.env: CACHE_STORE=file, SESSION_DRIVER=file)
+✅ BƯỚC 6: User model reverted (removed FilamentUser interface & canAccessPanel method)
+✅ BƯỚC 7: Caches cleared locally (php artisan optimize:clear) - NO REDIS ERRORS
+✅ BƯỚC 8: Local verification passed (no filament package, no admin routes, Laravel works)
+✅ BƯỚC 9: Changes committed and pushed to GitHub (NOT including .env file)
 ```
 
-**VPS (Production):**
+**PHẦN 2: VPS (Production):**
 ```
-✅ BƯỚC 8: public/ permissions fixed (sudo chown -R deploy:www-data public/)
-✅ BƯỚC 9: Bootstrap cache cleared (rm -f bootstrap/cache/*.php)
-✅ BƯỚC 10: Code pulled from GitHub (git reset --hard origin/main)
-✅ BƯỚC 11: Composer dependencies reinstalled (34 Filament packages removed)
-✅ BƯỚC 12: Published assets deleted (livewire, filament JS/CSS/fonts)
-✅ BƯỚC 13: Admin user deleted from database (optional)
-✅ BƯỚC 14: Caches rebuilt and PHP-FPM reloaded
-✅ BƯỚC 15: All verifications passed:
-   ✅ No filament packages (composer show | grep filament)
-   ✅ No admin routes (php artisan route:list | grep admin)
-   ✅ Assets return 404 (curl livewire.min.js)
-   ✅ Laravel welcome page working
-   ✅ Admin panel inaccessible (404 at /admin)
-   ✅ Database connection working (php artisan db:show)
+✅ BƯỚC 10: public/ permissions fixed (sudo chown -R deploy:www-data public/)
+✅ BƯỚC 11: Bootstrap cache cleared (rm -f bootstrap/cache/*.php)
+✅ BƯỚC 12: Code pulled from GitHub (git reset --hard origin/main)
+✅ BƯỚC 13: Composer dependencies reinstalled (34 Filament packages removed)
+✅ BƯỚC 14: Published assets deleted (livewire, filament JS/CSS/fonts với sudo)
+✅ BƯỚC 15: Admin user deleted from database (optional)
+✅ BƯỚC 16: Caches rebuilt and PHP-FPM reloaded
+
+**PHẦN 3: VERIFICATION:**
+   ✅ No filament packages (composer show | grep filament → empty)
+   ✅ No admin routes (php artisan route:list | grep admin → empty)
+   ✅ Assets return 404 (curl livewire.min.js → HTTP/2 404)
+   ✅ Laravel welcome page working (https://samnghethaycu.com → 200 OK)
+   ✅ Admin panel inaccessible (https://samnghethaycu.com/admin → 404)
+   ✅ Database connection working (php artisan db:show → 9 tables)
+   ✅ Browser console no errors (F12 → no 404 errors)
 ```
 
-**TOTAL TIME:** ~15-20 minutes (Local: 5-10 min, VPS: 5-10 min, Verification: 2-3 min)
-✅ Website functioning normally
+**TOTAL TIME:** ~15-25 minutes
+- **Local (Windows):** 7-12 phút (9 bước + Redis fix)
+- **VPS (Production):** 5-10 phút (7 bước)
+- **Verification:** 2-3 phút
+
+✅ **Website functioning normally - Back to WORKFLOW-4 state!**
 ```
 
 ---
