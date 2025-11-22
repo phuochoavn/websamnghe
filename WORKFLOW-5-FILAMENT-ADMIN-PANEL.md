@@ -184,69 +184,78 @@ You can now access the panel at: /admin
 code app\Providers\Filament\AdminPanelProvider.php
 ```
 
-**Tìm dòng `->path('admin')` và thêm `->locale('vi')` NGAY SAU đó:**
+**Xóa toàn bộ nội dung file cũ và thay thế bằng code mới bên dưới:**
 
-**TRƯỚC KHI SỬA (file mặc định):**
+**Copy TOÀN BỘ code này vào file `app\Providers\Filament\AdminPanelProvider.php`:**
 
 ```php
-public function panel(Panel $panel): Panel
+<?php
+
+namespace App\Providers\Filament;
+
+use Filament\Http\Middleware\Authenticate;
+use Filament\Http\Middleware\AuthenticateSession;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Pages\Dashboard;
+use Filament\Panel;
+use Filament\PanelProvider;
+use Filament\Support\Colors\Color;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+
+class AdminPanelProvider extends PanelProvider
 {
-    return $panel
-        ->default()
-        ->id('admin')
-        ->path('admin')
-        ->login()  // ← Locale sẽ thêm TRƯỚC dòng này
-        ->colors([
-            'primary' => Color::Amber,
-        ])
-        // ... phần còn lại
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            ->default()
+            ->id('admin')
+            ->path('admin')
+            ->locale('vi')  // ← Vietnamese locale cho admin panel
+            ->login()
+            ->colors([
+                'primary' => Color::Amber,
+            ])
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->pages([
+                Dashboard::class,
+            ])
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->widgets([
+                AccountWidget::class,
+                FilamentInfoWidget::class,
+            ])
+            ->middleware([
+                EncryptCookies::class,
+                AddQueuedCookiesToResponse::class,
+                StartSession::class,
+                AuthenticateSession::class,
+                ShareErrorsFromSession::class,
+                VerifyCsrfToken::class,
+                SubstituteBindings::class,
+                DisableBladeIconComponents::class,
+                DispatchServingFilamentEvent::class,
+            ])
+            ->authMiddleware([
+                Authenticate::class,
+            ]);
+    }
 }
 ```
 
-**SAU KHI THÊM `->locale('vi')`:**
+**📝 Lưu ý:**
+- Dòng quan trọng nhất: `->locale('vi')` (dòng 30)
+- Copy paste TOÀN BỘ code từ `<?php` đến dấu `}` cuối cùng
 
-```php
-public function panel(Panel $panel): Panel
-{
-    return $panel
-        ->default()
-        ->id('admin')
-        ->path('admin')
-        ->locale('vi')  // ← THÊM DÒNG NÀY cho tiếng Việt
-        ->login()
-        ->colors([
-            'primary' => Color::Amber,
-        ])
-        ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-        ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-        ->pages([
-            Dashboard::class,
-        ])
-        ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-        ->widgets([
-            AccountWidget::class,
-            FilamentInfoWidget::class,
-        ])
-        ->middleware([
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            AuthenticateSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
-            SubstituteBindings::class,
-            DisableBladeIconComponents::class,
-            DispatchServingFilamentEvent::class,
-        ])
-        ->authMiddleware([
-            Authenticate::class,
-        ]);
-}
-```
-
-**📝 Lưu ý:** Chỉ cần thêm 1 dòng `->locale('vi')` vào đúng vị trí (sau `->path('admin')`), giữ nguyên toàn bộ code còn lại!
-
-**Save file (Ctrl+S)**
+**Save file (Ctrl+S hoặc File → Save)**
 
 ✅ **Checkpoint 1.3:** Vietnamese locale configured
 
