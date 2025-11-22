@@ -1,79 +1,141 @@
 # 🗄️ WORKFLOW 6: DATABASE SCHEMA
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 3.0 Reorganized
+> **Version:** 6.0 Professional Vietnamese (Complete Edition)
 > **Thời gian thực tế:** 25-35 phút
-> **Mục tiêu:** 23 tables + 15 models + 9 Filament resources
+> **Mục tiêu:** 23 tables + 15 models + 9 Filament resources + ROLLBACK guide
 
 ---
 
-## 📋 PREREQUISITES
+## 📖 WORKFLOW NÀY LÀM GÌ?
 
-### ✅ Must Complete First
+### 🎯 Mục đích:
 
+**Tạo database schema hoàn chỉnh cho e-commerce platform với migrations, models, và Filament CRUD resources.**
+
+Sau khi đã có Filament admin panel working (WF-5), bây giờ xây dựng:
+- Database schema với 15 migrations (23 bảng tổng cộng)
+- 15 Eloquent models với fillable và casts
+- 9 Filament resources tự động generate
+- CRUD operations hoàn chỉnh trong admin panel
+- Sẵn sàng cho business logic (WF-7)
+
+**📝 Note:** Workflow này tập trung vào DATABASE STRUCTURE, chưa có relationships. Relationships sẽ được thêm trong WORKFLOW-7.
+
+### 🎁 Kết quả sau workflow:
+
+✅ **Database Schema Complete:**
+- 23 bảng (15 custom + 8 Laravel system)
+- Foreign keys và indexes được tối ưu
+- Soft deletes cho data recovery
+- Enum types cho business logic
+- Migration rollback có thể undo
+
+✅ **Eloquent Models Ready:**
+- 15 models với fillable & casts đầy đủ
+- SoftDeletes traits where applicable
+- Type casting cho data consistency
+- Ready for relationships (WF-7)
+
+✅ **Filament Resources Generated:**
+- 9 auto-generated CRUD resources
+- Form fields tự động từ database schema
+- Table columns với filters cơ bản
+- List/Create/Edit pages working
+- Navigation menu tự động
+
+✅ **Production Deployed:**
+- Database schema deployed lên VPS
+- Admin panel có đầy đủ CRUD operations
+- Test data có thể tạo được
+- Ready for customization (WF-8)
+
+### ⚠️ PREREQUISITES:
+
+**PHẢI hoàn thành trước:**
 ```
-✅ WORKFLOW-1: VPS Infrastructure
-✅ WORKFLOW-2: Laravel Installation
-✅ WORKFLOW-3: Git Workflow Setup
-✅ WORKFLOW-4: Deployment Automation
-✅ WORKFLOW-5: Filament Admin Panel
+✅ WORKFLOW-1: VPS Infrastructure (LEMP + SSL)
+✅ WORKFLOW-2: Laravel Installation (Laravel working)
+✅ WORKFLOW-3: Git Workflow Setup (Git automation)
+✅ WORKFLOW-4: Deployment Automation (deploy-sam command)
+✅ WORKFLOW-5: Filament Admin Panel (Dashboard accessible)
 ✅ Admin panel working at: https://samnghethaycu.com/admin
 ```
 
-### ✅ Quick Verification
+**📍 Trên Windows - Verify trước khi bắt đầu:**
 
-**Browser:**
+```powershell
+# Check Laravel working locally
+cd C:\Projects\samnghethaycu
+php artisan --version
+# Phải thấy: Laravel Framework 12.x.x
 
+# Check database connection
+php artisan db:show
+# Phải thấy: database info (MySQL hoặc SQLite local)
 ```
-https://samnghethaycu.com/admin
-```
 
-**Should see:** Filament dashboard (logged in)
-
-**SSH test:**
+**📍 Trên VPS - Verify Filament working:**
 
 ```bash
 ssh deploy@69.62.82.145
 
 cd /var/www/samnghethaycu.com
 
-# Check database connection
-php artisan db:show
-# Should show: samnghethaycu database
-
-# Check Filament
+# Check Filament installed
 php artisan route:list | grep admin
-# Should show admin routes
+# Phải thấy: nhiều admin routes
+
+# Test admin panel
+curl -I https://samnghethaycu.com/admin
+# Phải thấy: HTTP/2 200
 ```
 
-**All OK?** → Continue!
+**Browser test:**
+
+```
+https://samnghethaycu.com/admin
+```
+
+**Should see:** Filament dashboard (có thể login được)
+
+**Nếu bất kỳ check nào FAIL → DỪNG LẠI, hoàn thành WF-1 đến WF-5 trước!**
+
+### 💡 Triết lý:
+
+**Database-first design → Git-driven deployment → Auto-generate admin panel → Customize later**
+
+- Tạo migrations chính xác ngay từ đầu (ít phải sửa sau)
+- Models đơn giản trước, relationships sau (WF-7)
+- Filament auto-generate để có CRUD nhanh
+- Customize UI sau khi logic hoạn chỉnh (WF-8)
 
 ---
 
-## 🎯 WHAT WE'LL BUILD
+## 🎯 NHỮNG GÌ CHÚNG TA SẼ XÂY DỰNG
 
 ```
 23 Database Tables:
 ├── Core E-Commerce (8 tables)
-│   ├── users
-│   ├── products
-│   ├── product_variants
-│   ├── product_images
-│   ├── categories
-│   ├── brands
-│   ├── orders
-│   └── order_items
+│   ├── users (đã có từ Laravel, sẽ mở rộng)
+│   ├── products (sản phẩm chính)
+│   ├── product_variants (biến thể: size, màu)
+│   ├── product_images (thư viện ảnh)
+│   ├── categories (danh mục có cây)
+│   ├── brands (thương hiệu)
+│   ├── orders (đơn hàng)
+│   └── order_items (chi tiết đơn hàng)
 │
 ├── Supporting Tables (7 tables)
-│   ├── addresses
-│   ├── reviews
-│   ├── coupons
-│   ├── coupon_usages
-│   ├── order_status_histories
-│   ├── posts
-│   └── post_categories
+│   ├── addresses (địa chỉ giao hàng)
+│   ├── reviews (đánh giá sản phẩm)
+│   ├── coupons (mã giảm giá)
+│   ├── coupon_usages (lịch sử dùng coupon)
+│   ├── order_status_histories (audit trail)
+│   ├── posts (bài viết blog)
+│   └── post_categories (danh mục blog)
 │
-└── Laravel System (8 tables - already exist)
+└── Laravel System (8 tables - đã có)
     ├── migrations
     ├── password_reset_tokens
     ├── sessions
@@ -83,44 +145,72 @@ php artisan route:list | grep admin
 15 Eloquent Models + 9 Filament Resources
 ```
 
-**Philosophy:** Database-first design, Git-driven deployment!
+**Migration order matters!** Parent tables trước, child tables sau:
+```
+1. categories, brands, post_categories (độc lập)
+2. products, posts (cần categories)
+3. product_variants, product_images (cần products)
+4. addresses (cần users)
+5. coupons (độc lập)
+6. orders (cần users, addresses, coupons)
+7. order_items (cần orders, products)
+8. reviews (cần products, users, orders)
+9. coupon_usages (cần coupons, users, orders)
+10. order_status_histories (cần orders)
+11. users (mở rộng fields)
+```
 
 ---
 
-## PART 1: CREATE MIGRATIONS (LOCAL)
+## PHẦN 1: TẠO MIGRATIONS (LOCAL)
 
-**Time:** 10 phút
+**Thời gian:** 12 phút
 
-**Windows PowerShell:**
+**📍 Trên Windows PowerShell:**
 
 ```powershell
 cd C:\Projects\samnghethaycu
 
-# Create all migrations at once
+# Tạo tất cả migrations cùng lúc (sẽ có timestamp tự động)
 php artisan make:migration create_categories_table
 php artisan make:migration create_brands_table
+php artisan make:migration create_post_categories_table
 php artisan make:migration create_products_table
 php artisan make:migration create_product_variants_table
 php artisan make:migration create_product_images_table
+php artisan make:migration create_posts_table
 php artisan make:migration create_addresses_table
+php artisan make:migration create_coupons_table
 php artisan make:migration create_orders_table
 php artisan make:migration create_order_items_table
-php artisan make:migration create_order_status_histories_table
 php artisan make:migration create_reviews_table
-php artisan make:migration create_coupons_table
 php artisan make:migration create_coupon_usages_table
-php artisan make:migration create_posts_table
-php artisan make:migration create_post_categories_table
+php artisan make:migration create_order_status_histories_table
 php artisan make:migration add_fields_to_users_table
 ```
 
+**Expected output:**
+
+```
+Created Migration: 2025_11_22_123456_create_categories_table
+Created Migration: 2025_11_22_123457_create_brands_table
+...
+```
+
+✅ **Checkpoint 1.0:** 15 migration files created
+
+---
+
 ### 1.1. Categories Migration
 
+**📍 Windows PowerShell:**
+
 ```powershell
+# Tìm file migration mới nhất cho categories
 notepad database\migrations\*_create_categories_table.php
 ```
 
-**Code:**
+**Xóa toàn bộ nội dung và thay bằng code sau:**
 
 ```php
 <?php
@@ -131,30 +221,53 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+
+            // Basic info
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->string('image')->nullable();
+
+            // Nested categories (self-referencing)
             $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
+
+            // Display order
             $table->integer('order')->default(0);
+
+            // Status
             $table->boolean('is_active')->default(true);
+
             $table->timestamps();
             $table->softDeletes();
 
+            // Indexes for performance
             $table->index(['slug', 'is_active']);
+            $table->index('parent_id');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('categories');
     }
 };
 ```
+
+**Save (Ctrl+S) và đóng Notepad**
+
+✅ **Checkpoint 1.1:** Categories migration created
+
+---
 
 ### 1.2. Brands Migration
 
@@ -177,12 +290,19 @@ return new class extends Migration
     {
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
+
+            // Basic info
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
+
+            // Brand assets
             $table->string('logo')->nullable();
             $table->string('website')->nullable();
+
+            // Status
             $table->boolean('is_active')->default(true);
+
             $table->timestamps();
             $table->softDeletes();
 
@@ -197,519 +317,13 @@ return new class extends Migration
 };
 ```
 
-### 1.3. Products Migration
+**Save và đóng**
 
-```powershell
-notepad database\migrations\*_create_products_table.php
-```
+✅ **Checkpoint 1.2:** Brands migration created
 
-**Code:**
+---
 
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('products', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('brand_id')->nullable()->constrained()->nullOnDelete();
-
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('short_description')->nullable();
-            $table->longText('description')->nullable();
-
-            $table->decimal('price', 12, 2);
-            $table->decimal('sale_price', 12, 2)->nullable();
-            $table->decimal('cost_price', 12, 2)->nullable();
-
-            $table->string('sku')->unique();
-            $table->string('barcode')->nullable();
-
-            $table->integer('stock_quantity')->default(0);
-            $table->integer('min_stock_alert')->default(10);
-
-            $table->decimal('weight', 8, 2)->nullable();
-            $table->decimal('length', 8, 2)->nullable();
-            $table->decimal('width', 8, 2)->nullable();
-            $table->decimal('height', 8, 2)->nullable();
-
-            $table->string('featured_image')->nullable();
-
-            $table->boolean('is_featured')->default(false);
-            $table->boolean('is_active')->default(true);
-            $table->boolean('manage_stock')->default(true);
-
-            $table->text('meta_title')->nullable();
-            $table->text('meta_description')->nullable();
-            $table->text('meta_keywords')->nullable();
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['slug', 'is_active', 'is_featured']);
-            $table->index(['category_id', 'brand_id']);
-            $table->index('sku');
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('products');
-    }
-};
-```
-
-### 1.4. Product Variants Migration
-
-```powershell
-notepad database\migrations\*_create_product_variants_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('product_variants', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-
-            $table->string('name');
-            $table->string('sku')->unique();
-
-            $table->decimal('price', 12, 2);
-            $table->decimal('sale_price', 12, 2)->nullable();
-
-            $table->integer('stock_quantity')->default(0);
-
-            $table->string('image')->nullable();
-
-            $table->json('attributes')->nullable();
-
-            $table->boolean('is_active')->default(true);
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['product_id', 'is_active']);
-            $table->index('sku');
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('product_variants');
-    }
-};
-```
-
-### 1.5. Product Images Migration
-
-```powershell
-notepad database\migrations\*_create_product_images_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('product_images', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-
-            $table->string('image_path');
-            $table->string('alt_text')->nullable();
-            $table->integer('order')->default(0);
-            $table->boolean('is_primary')->default(false);
-
-            $table->timestamps();
-
-            $table->index(['product_id', 'order']);
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('product_images');
-    }
-};
-```
-
-### 1.6. Addresses Migration
-
-```powershell
-notepad database\migrations\*_create_addresses_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('addresses', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-
-            $table->string('full_name');
-            $table->string('phone');
-            $table->string('address_line_1');
-            $table->string('address_line_2')->nullable();
-            $table->string('city');
-            $table->string('district')->nullable();
-            $table->string('ward')->nullable();
-            $table->string('postal_code')->nullable();
-
-            $table->enum('type', ['shipping', 'billing'])->default('shipping');
-            $table->boolean('is_default')->default(false);
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['user_id', 'is_default']);
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('addresses');
-    }
-};
-```
-
-### 1.7. Orders Migration
-
-```powershell
-notepad database\migrations\*_create_orders_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->string('order_number')->unique();
-
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('shipping_address_id')->nullable()->constrained('addresses')->nullOnDelete();
-            $table->foreignId('coupon_id')->nullable()->constrained()->nullOnDelete();
-
-            $table->enum('status', [
-                'pending',
-                'processing',
-                'packed',
-                'shipped',
-                'delivered',
-                'cancelled',
-                'refunded'
-            ])->default('pending');
-
-            $table->enum('payment_method', ['cod', 'vnpay', 'momo'])->default('cod');
-            $table->enum('payment_status', ['pending', 'paid', 'failed', 'refunded'])->default('pending');
-
-            $table->decimal('subtotal', 12, 2);
-            $table->decimal('tax', 12, 2)->default(0);
-            $table->decimal('shipping_fee', 12, 2)->default(0);
-            $table->decimal('discount_amount', 12, 2)->default(0);
-            $table->decimal('total', 12, 2);
-
-            $table->text('customer_note')->nullable();
-            $table->text('admin_note')->nullable();
-
-            $table->string('transaction_id')->nullable();
-            $table->timestamp('paid_at')->nullable();
-            $table->timestamp('shipped_at')->nullable();
-            $table->timestamp('delivered_at')->nullable();
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['order_number', 'status', 'payment_status']);
-            $table->index(['user_id', 'created_at']);
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('orders');
-    }
-};
-```
-
-### 1.8. Order Items Migration
-
-```powershell
-notepad database\migrations\*_create_order_items_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('product_variant_id')->nullable()->constrained()->nullOnDelete();
-
-            $table->string('product_name');
-            $table->string('product_sku');
-            $table->decimal('price', 12, 2);
-            $table->integer('quantity');
-            $table->decimal('subtotal', 12, 2);
-
-            $table->json('variant_attributes')->nullable();
-
-            $table->timestamps();
-
-            $table->index(['order_id', 'product_id']);
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('order_items');
-    }
-};
-```
-
-### 1.9. Order Status Histories Migration
-
-```powershell
-notepad database\migrations\*_create_order_status_histories_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('order_status_histories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-
-            $table->string('old_status')->nullable();
-            $table->string('new_status');
-            $table->text('note')->nullable();
-
-            $table->timestamps();
-
-            $table->index(['order_id', 'created_at']);
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('order_status_histories');
-    }
-};
-```
-
-### 1.10. Reviews Migration
-
-```powershell
-notepad database\migrations\*_create_reviews_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('order_id')->nullable()->constrained()->nullOnDelete();
-
-            $table->integer('rating');
-            $table->string('title')->nullable();
-            $table->text('comment');
-
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-
-            $table->timestamp('approved_at')->nullable();
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['product_id', 'status', 'rating']);
-            $table->index(['user_id', 'created_at']);
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('reviews');
-    }
-};
-```
-
-### 1.11. Coupons Migration
-
-```powershell
-notepad database\migrations\*_create_coupons_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('coupons', function (Blueprint $table) {
-            $table->id();
-
-            $table->string('code')->unique();
-            $table->string('name');
-            $table->text('description')->nullable();
-
-            $table->enum('discount_type', ['fixed', 'percentage']);
-            $table->decimal('discount_value', 12, 2);
-
-            $table->decimal('min_purchase_amount', 12, 2)->nullable();
-            $table->decimal('max_discount_amount', 12, 2)->nullable();
-
-            $table->integer('usage_limit')->nullable();
-            $table->integer('usage_limit_per_user')->nullable();
-
-            $table->timestamp('starts_at')->nullable();
-            $table->timestamp('expires_at')->nullable();
-
-            $table->boolean('is_active')->default(true);
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['code', 'is_active']);
-            $table->index(['starts_at', 'expires_at']);
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('coupons');
-    }
-};
-```
-
-### 1.12. Coupon Usages Migration
-
-```powershell
-notepad database\migrations\*_create_coupon_usages_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('coupon_usages', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('coupon_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-
-            $table->decimal('discount_amount', 12, 2);
-
-            $table->timestamps();
-
-            $table->index(['coupon_id', 'user_id']);
-            $table->index('order_id');
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('coupon_usages');
-    }
-};
-```
-
-### 1.13. Post Categories Migration
+### 1.3. Post Categories Migration
 
 ```powershell
 notepad database\migrations\*_create_post_categories_table.php
@@ -751,7 +365,209 @@ return new class extends Migration
 };
 ```
 
-### 1.14. Posts Migration
+**Save và đóng**
+
+✅ **Checkpoint 1.3:** Post Categories migration created
+
+---
+
+### 1.4. Products Migration
+
+```powershell
+notepad database\migrations\*_create_products_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('products', function (Blueprint $table) {
+            $table->id();
+
+            // Foreign keys
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('brand_id')->nullable()->constrained()->nullOnDelete();
+
+            // Basic info
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('short_description')->nullable();
+            $table->longText('description')->nullable();
+
+            // Pricing
+            $table->decimal('price', 12, 2);
+            $table->decimal('sale_price', 12, 2)->nullable();
+            $table->decimal('cost_price', 12, 2)->nullable();
+
+            // Inventory
+            $table->string('sku')->unique();
+            $table->string('barcode')->nullable();
+            $table->integer('stock_quantity')->default(0);
+            $table->integer('min_stock_alert')->default(10);
+
+            // Dimensions & weight (for shipping)
+            $table->decimal('weight', 8, 2)->nullable();
+            $table->decimal('length', 8, 2)->nullable();
+            $table->decimal('width', 8, 2)->nullable();
+            $table->decimal('height', 8, 2)->nullable();
+
+            // Media
+            $table->string('featured_image')->nullable();
+
+            // Status & features
+            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->boolean('manage_stock')->default(true);
+
+            // SEO
+            $table->text('meta_title')->nullable();
+            $table->text('meta_description')->nullable();
+            $table->text('meta_keywords')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            // Indexes
+            $table->index(['slug', 'is_active', 'is_featured']);
+            $table->index(['category_id', 'brand_id']);
+            $table->index('sku');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('products');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.4:** Products migration created
+
+---
+
+### 1.5. Product Variants Migration
+
+```powershell
+notepad database\migrations\*_create_product_variants_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('product_variants', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+
+            // Variant info
+            $table->string('name'); // e.g., "500g", "Màu đỏ - Size M"
+            $table->string('sku')->unique();
+
+            // Pricing (override product price)
+            $table->decimal('price', 12, 2);
+            $table->decimal('sale_price', 12, 2)->nullable();
+
+            // Inventory
+            $table->integer('stock_quantity')->default(0);
+
+            // Media
+            $table->string('image')->nullable();
+
+            // Attributes (JSON: {size: "M", color: "red"})
+            $table->json('attributes')->nullable();
+
+            // Status
+            $table->boolean('is_active')->default(true);
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['product_id', 'is_active']);
+            $table->index('sku');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('product_variants');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.5:** Product Variants migration created
+
+---
+
+### 1.6. Product Images Migration
+
+```powershell
+notepad database\migrations\*_create_product_images_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('product_images', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+
+            $table->string('image_path');
+            $table->string('alt_text')->nullable();
+            $table->integer('order')->default(0);
+            $table->boolean('is_primary')->default(false);
+
+            $table->timestamps();
+
+            $table->index(['product_id', 'order']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('product_images');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.6:** Product Images migration created
+
+---
+
+### 1.7. Posts Migration
 
 ```powershell
 notepad database\migrations\*_create_posts_table.php
@@ -775,19 +591,23 @@ return new class extends Migration
             $table->foreignId('post_category_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
+            // Content
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('excerpt')->nullable();
             $table->longText('content');
 
+            // Media
             $table->string('featured_image')->nullable();
 
+            // Publishing
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
-
             $table->timestamp('published_at')->nullable();
 
+            // Analytics
             $table->integer('views_count')->default(0);
 
+            // SEO
             $table->text('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();
@@ -807,7 +627,426 @@ return new class extends Migration
 };
 ```
 
+**Save và đóng**
+
+✅ **Checkpoint 1.7:** Posts migration created
+
+---
+
+### 1.8. Addresses Migration
+
+```powershell
+notepad database\migrations\*_create_addresses_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('addresses', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
+            // Contact info
+            $table->string('full_name');
+            $table->string('phone');
+
+            // Address details (Vietnam structure)
+            $table->string('address_line_1');
+            $table->string('address_line_2')->nullable();
+            $table->string('city'); // Tỉnh/Thành phố
+            $table->string('district')->nullable(); // Quận/Huyện
+            $table->string('ward')->nullable(); // Phường/Xã
+            $table->string('postal_code')->nullable();
+
+            // Type
+            $table->enum('type', ['shipping', 'billing'])->default('shipping');
+            $table->boolean('is_default')->default(false);
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['user_id', 'is_default']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('addresses');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.8:** Addresses migration created
+
+---
+
+### 1.9. Coupons Migration
+
+```powershell
+notepad database\migrations\*_create_coupons_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('coupons', function (Blueprint $table) {
+            $table->id();
+
+            // Coupon info
+            $table->string('code')->unique();
+            $table->string('name');
+            $table->text('description')->nullable();
+
+            // Discount rules
+            $table->enum('discount_type', ['fixed', 'percentage']);
+            $table->decimal('discount_value', 12, 2);
+
+            // Constraints
+            $table->decimal('min_purchase_amount', 12, 2)->nullable();
+            $table->decimal('max_discount_amount', 12, 2)->nullable();
+
+            // Usage limits
+            $table->integer('usage_limit')->nullable(); // Total uses
+            $table->integer('usage_limit_per_user')->nullable(); // Per user
+
+            // Validity period
+            $table->timestamp('starts_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+
+            // Status
+            $table->boolean('is_active')->default(true);
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['code', 'is_active']);
+            $table->index(['starts_at', 'expires_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('coupons');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.9:** Coupons migration created
+
+---
+
+### 1.10. Orders Migration
+
+```powershell
+notepad database\migrations\*_create_orders_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('orders', function (Blueprint $table) {
+            $table->id();
+            $table->string('order_number')->unique();
+
+            // Relationships
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('shipping_address_id')->nullable()->constrained('addresses')->nullOnDelete();
+            $table->foreignId('coupon_id')->nullable()->constrained()->nullOnDelete();
+
+            // Order status
+            $table->enum('status', [
+                'pending',      // Chờ xác nhận
+                'processing',   // Đang xử lý
+                'packed',       // Đã đóng gói
+                'shipped',      // Đang giao
+                'delivered',    // Đã giao
+                'cancelled',    // Đã hủy
+                'refunded'      // Đã hoàn tiền
+            ])->default('pending');
+
+            // Payment
+            $table->enum('payment_method', ['cod', 'vnpay', 'momo'])->default('cod');
+            $table->enum('payment_status', ['pending', 'paid', 'failed', 'refunded'])->default('pending');
+
+            // Amounts
+            $table->decimal('subtotal', 12, 2);
+            $table->decimal('tax', 12, 2)->default(0);
+            $table->decimal('shipping_fee', 12, 2)->default(0);
+            $table->decimal('discount_amount', 12, 2)->default(0);
+            $table->decimal('total', 12, 2);
+
+            // Notes
+            $table->text('customer_note')->nullable();
+            $table->text('admin_note')->nullable();
+
+            // Payment tracking
+            $table->string('transaction_id')->nullable();
+            $table->timestamp('paid_at')->nullable();
+            $table->timestamp('shipped_at')->nullable();
+            $table->timestamp('delivered_at')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['order_number', 'status', 'payment_status']);
+            $table->index(['user_id', 'created_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('orders');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.10:** Orders migration created
+
+---
+
+### 1.11. Order Items Migration
+
+```powershell
+notepad database\migrations\*_create_order_items_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('order_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('product_variant_id')->nullable()->constrained()->nullOnDelete();
+
+            // Snapshot data (để giữ lại thông tin khi product bị xóa)
+            $table->string('product_name');
+            $table->string('product_sku');
+            $table->decimal('price', 12, 2);
+            $table->integer('quantity');
+            $table->decimal('subtotal', 12, 2);
+
+            // Variant details (JSON snapshot)
+            $table->json('variant_attributes')->nullable();
+
+            $table->timestamps();
+
+            $table->index(['order_id', 'product_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('order_items');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.11:** Order Items migration created
+
+---
+
+### 1.12. Reviews Migration
+
+```powershell
+notepad database\migrations\*_create_reviews_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('reviews', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('order_id')->nullable()->constrained()->nullOnDelete();
+
+            // Review content
+            $table->integer('rating'); // 1-5 stars
+            $table->string('title')->nullable();
+            $table->text('comment');
+
+            // Moderation
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->timestamp('approved_at')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['product_id', 'status', 'rating']);
+            $table->index(['user_id', 'created_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('reviews');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.12:** Reviews migration created
+
+---
+
+### 1.13. Coupon Usages Migration
+
+```powershell
+notepad database\migrations\*_create_coupon_usages_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('coupon_usages', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('coupon_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+
+            $table->decimal('discount_amount', 12, 2);
+
+            $table->timestamps();
+
+            $table->index(['coupon_id', 'user_id']);
+            $table->index('order_id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('coupon_usages');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.13:** Coupon Usages migration created
+
+---
+
+### 1.14. Order Status Histories Migration
+
+```powershell
+notepad database\migrations\*_create_order_status_histories_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('order_status_histories', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+
+            // Status change tracking
+            $table->string('old_status')->nullable();
+            $table->string('new_status');
+            $table->text('note')->nullable();
+
+            $table->timestamps();
+
+            $table->index(['order_id', 'created_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('order_status_histories');
+    }
+};
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.14:** Order Status Histories migration created
+
+---
+
 ### 1.15. Update Users Table
+
+**📝 Lưu ý:** Đây là migration thêm fields vào bảng `users` có sẵn, KHÔNG phải tạo mới!
 
 ```powershell
 notepad database\migrations\*_add_fields_to_users_table.php
@@ -852,18 +1091,47 @@ return new class extends Migration
 };
 ```
 
-✅ **Checkpoint 1:** All migrations created
+**Save và đóng**
+
+✅ **Checkpoint 1.15:** Users table extension migration created
 
 ---
 
-## PART 2: CREATE MODELS (LOCAL)
+### 1.16. Verify All Migrations
 
-**Time:** 8 phút
-
-**PowerShell:**
+**📍 Windows PowerShell:**
 
 ```powershell
-# Create all models at once
+# Kiểm tra có bao nhiêu migration files
+ls database\migrations\*_create_*.php | Measure-Object
+# Phải thấy: Count : 14 (không tính users vì là add_fields)
+
+ls database\migrations\*_add_fields_*.php | Measure-Object
+# Phải thấy: Count : 1
+
+# Tổng cộng phải có 15 migration files mới
+```
+
+**Expected output:**
+
+```
+Count    : 14
+...
+Count    : 1
+```
+
+✅ **Checkpoint 1:** Tất cả 15 migrations đã tạo xong
+
+---
+
+## PHẦN 2: TẠO MODELS (LOCAL)
+
+**Thời gian:** 10 phút
+
+**📍 Windows PowerShell:**
+
+```powershell
+# Tạo tất cả models cùng lúc
 php artisan make:model Category
 php artisan make:model Brand
 php artisan make:model Product
@@ -880,7 +1148,22 @@ php artisan make:model Post
 php artisan make:model PostCategory
 ```
 
-**Note:** We'll add relationships in WORKFLOW-7. For now, just basic models with fillable fields.
+**Expected output:**
+
+```
+   INFO  Model [app/Models/Category.php] created successfully.
+   INFO  Model [app/Models/Brand.php] created successfully.
+...
+```
+
+**📝 Note:**
+- User model đã có sẵn, không cần tạo
+- Chúng ta sẽ update User model sau
+- Tổng cộng tạo 14 models mới
+
+✅ **Checkpoint 2.0:** 14 model files created
+
+---
 
 ### 2.1. Category Model
 
@@ -888,7 +1171,7 @@ php artisan make:model PostCategory
 notepad app\Models\Category.php
 ```
 
-**Code:**
+**Xóa toàn bộ và thay bằng:**
 
 ```php
 <?php
@@ -915,9 +1198,16 @@ class Category extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'order' => 'integer',
     ];
 }
 ```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.1:** Category model created
+
+---
 
 ### 2.2. Brand Model
 
@@ -955,7 +1245,53 @@ class Brand extends Model
 }
 ```
 
-### 2.3. Product Model
+**Save và đóng**
+
+✅ **Checkpoint 2.2:** Brand model created
+
+---
+
+### 2.3. PostCategory Model
+
+```powershell
+notepad app\Models\PostCategory.php
+```
+
+**Code:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class PostCategory extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.3:** PostCategory model created
+
+---
+
+### 2.4. Product Model
 
 ```powershell
 notepad app\Models\Product.php
@@ -1008,6 +1344,11 @@ class Product extends Model
         'sale_price' => 'decimal:2',
         'cost_price' => 'decimal:2',
         'weight' => 'decimal:2',
+        'length' => 'decimal:2',
+        'width' => 'decimal:2',
+        'height' => 'decimal:2',
+        'stock_quantity' => 'integer',
+        'min_stock_alert' => 'integer',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
         'manage_stock' => 'boolean',
@@ -1015,11 +1356,19 @@ class Product extends Model
 }
 ```
 
-### 2.4. Other Models (Quick Creation)
+**Save và đóng**
 
-**For remaining models, create with basic fillable and casts:**
+✅ **Checkpoint 2.4:** Product model created
 
-**ProductVariant.php:**
+---
+
+### 2.5. ProductVariant Model
+
+```powershell
+notepad app\Models\ProductVariant.php
+```
+
+**Code:**
 
 ```php
 <?php
@@ -1035,20 +1384,40 @@ class ProductVariant extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'product_id', 'name', 'sku', 'price', 'sale_price',
-        'stock_quantity', 'image', 'attributes', 'is_active',
+        'product_id',
+        'name',
+        'sku',
+        'price',
+        'sale_price',
+        'stock_quantity',
+        'image',
+        'attributes',
+        'is_active',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'sale_price' => 'decimal:2',
+        'stock_quantity' => 'integer',
         'attributes' => 'array',
         'is_active' => 'boolean',
     ];
 }
 ```
 
-**ProductImage.php:**
+**Save và đóng**
+
+✅ **Checkpoint 2.5:** ProductVariant model created
+
+---
+
+### 2.6. ProductImage Model
+
+```powershell
+notepad app\Models\ProductImage.php
+```
+
+**Code:**
 
 ```php
 <?php
@@ -1063,211 +1432,33 @@ class ProductImage extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id', 'image_path', 'alt_text', 'order', 'is_primary',
+        'product_id',
+        'image_path',
+        'alt_text',
+        'order',
+        'is_primary',
     ];
 
     protected $casts = [
+        'order' => 'integer',
         'is_primary' => 'boolean',
     ];
 }
 ```
 
-**Address.php:**
+**Save và đóng**
 
-```php
-<?php
+✅ **Checkpoint 2.6:** ProductImage model created
 
-namespace App\Models;
+---
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+### 2.7. Post Model
 
-class Address extends Model
-{
-    use HasFactory, SoftDeletes;
-
-    protected $fillable = [
-        'user_id', 'full_name', 'phone', 'address_line_1', 'address_line_2',
-        'city', 'district', 'ward', 'postal_code', 'type', 'is_default',
-    ];
-
-    protected $casts = [
-        'is_default' => 'boolean',
-    ];
-}
+```powershell
+notepad app\Models\Post.php
 ```
 
-**Order.php:**
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Order extends Model
-{
-    use HasFactory, SoftDeletes;
-
-    protected $fillable = [
-        'order_number', 'user_id', 'shipping_address_id', 'coupon_id',
-        'status', 'payment_method', 'payment_status',
-        'subtotal', 'tax', 'shipping_fee', 'discount_amount', 'total',
-        'customer_note', 'admin_note', 'transaction_id',
-        'paid_at', 'shipped_at', 'delivered_at',
-    ];
-
-    protected $casts = [
-        'subtotal' => 'decimal:2',
-        'tax' => 'decimal:2',
-        'shipping_fee' => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'total' => 'decimal:2',
-        'paid_at' => 'datetime',
-        'shipped_at' => 'datetime',
-        'delivered_at' => 'datetime',
-    ];
-}
-```
-
-**OrderItem.php:**
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class OrderItem extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
-        'order_id', 'product_id', 'product_variant_id',
-        'product_name', 'product_sku', 'price', 'quantity', 'subtotal',
-        'variant_attributes',
-    ];
-
-    protected $casts = [
-        'price' => 'decimal:2',
-        'subtotal' => 'decimal:2',
-        'variant_attributes' => 'array',
-    ];
-}
-```
-
-**OrderStatusHistory.php:**
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class OrderStatusHistory extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
-        'order_id', 'user_id', 'old_status', 'new_status', 'note',
-    ];
-}
-```
-
-**Review.php:**
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Review extends Model
-{
-    use HasFactory, SoftDeletes;
-
-    protected $fillable = [
-        'product_id', 'user_id', 'order_id',
-        'rating', 'title', 'comment', 'status', 'approved_at',
-    ];
-
-    protected $casts = [
-        'rating' => 'integer',
-        'approved_at' => 'datetime',
-    ];
-}
-```
-
-**Coupon.php:**
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Coupon extends Model
-{
-    use HasFactory, SoftDeletes;
-
-    protected $fillable = [
-        'code', 'name', 'description',
-        'discount_type', 'discount_value',
-        'min_purchase_amount', 'max_discount_amount',
-        'usage_limit', 'usage_limit_per_user',
-        'starts_at', 'expires_at', 'is_active',
-    ];
-
-    protected $casts = [
-        'discount_value' => 'decimal:2',
-        'min_purchase_amount' => 'decimal:2',
-        'max_discount_amount' => 'decimal:2',
-        'starts_at' => 'datetime',
-        'expires_at' => 'datetime',
-        'is_active' => 'boolean',
-    ];
-}
-```
-
-**CouponUsage.php:**
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class CouponUsage extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
-        'coupon_id', 'user_id', 'order_id', 'discount_amount',
-    ];
-
-    protected $casts = [
-        'discount_amount' => 'decimal:2',
-    ];
-}
-```
-
-**Post.php:**
+**Code:**
 
 ```php
 <?php
@@ -1283,10 +1474,19 @@ class Post extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'post_category_id', 'user_id',
-        'title', 'slug', 'excerpt', 'content',
-        'featured_image', 'status', 'published_at', 'views_count',
-        'meta_title', 'meta_description', 'meta_keywords',
+        'post_category_id',
+        'user_id',
+        'title',
+        'slug',
+        'excerpt',
+        'content',
+        'featured_image',
+        'status',
+        'published_at',
+        'views_count',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
     ];
 
     protected $casts = [
@@ -1296,7 +1496,19 @@ class Post extends Model
 }
 ```
 
-**PostCategory.php:**
+**Save và đóng**
+
+✅ **Checkpoint 2.7:** Post model created
+
+---
+
+### 2.8. Address Model
+
+```powershell
+notepad app\Models\Address.php
+```
+
+**Code:**
 
 ```php
 <?php
@@ -1307,79 +1519,756 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PostCategory extends Model
+class Address extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name', 'slug', 'description', 'is_active',
+        'user_id',
+        'full_name',
+        'phone',
+        'address_line_1',
+        'address_line_2',
+        'city',
+        'district',
+        'ward',
+        'postal_code',
+        'type',
+        'is_default',
     ];
 
     protected $casts = [
+        'is_default' => 'boolean',
+    ];
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.8:** Address model created
+
+---
+
+### 2.9. Coupon Model
+
+```powershell
+notepad app\Models\Coupon.php
+```
+
+**Code:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Coupon extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'code',
+        'name',
+        'description',
+        'discount_type',
+        'discount_value',
+        'min_purchase_amount',
+        'max_discount_amount',
+        'usage_limit',
+        'usage_limit_per_user',
+        'starts_at',
+        'expires_at',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'discount_value' => 'decimal:2',
+        'min_purchase_amount' => 'decimal:2',
+        'max_discount_amount' => 'decimal:2',
+        'usage_limit' => 'integer',
+        'usage_limit_per_user' => 'integer',
+        'starts_at' => 'datetime',
+        'expires_at' => 'datetime',
         'is_active' => 'boolean',
     ];
 }
 ```
 
-✅ **Checkpoint 2:** All models created
+**Save và đóng**
+
+✅ **Checkpoint 2.9:** Coupon model created
 
 ---
 
-## PART 3: COMMIT & DEPLOY
-
-**Time:** 3 phút
-
-**PowerShell:**
+### 2.10. Order Model
 
 ```powershell
-# Check changes
-git status
+notepad app\Models\Order.php
+```
 
-# Add all
+**Code:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Order extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'order_number',
+        'user_id',
+        'shipping_address_id',
+        'coupon_id',
+        'status',
+        'payment_method',
+        'payment_status',
+        'subtotal',
+        'tax',
+        'shipping_fee',
+        'discount_amount',
+        'total',
+        'customer_note',
+        'admin_note',
+        'transaction_id',
+        'paid_at',
+        'shipped_at',
+        'delivered_at',
+    ];
+
+    protected $casts = [
+        'subtotal' => 'decimal:2',
+        'tax' => 'decimal:2',
+        'shipping_fee' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
+        'total' => 'decimal:2',
+        'paid_at' => 'datetime',
+        'shipped_at' => 'datetime',
+        'delivered_at' => 'datetime',
+    ];
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.10:** Order model created
+
+---
+
+### 2.11. OrderItem Model
+
+```powershell
+notepad app\Models\OrderItem.php
+```
+
+**Code:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class OrderItem extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'order_id',
+        'product_id',
+        'product_variant_id',
+        'product_name',
+        'product_sku',
+        'price',
+        'quantity',
+        'subtotal',
+        'variant_attributes',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'quantity' => 'integer',
+        'subtotal' => 'decimal:2',
+        'variant_attributes' => 'array',
+    ];
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.11:** OrderItem model created
+
+---
+
+### 2.12. Review Model
+
+```powershell
+notepad app\Models\Review.php
+```
+
+**Code:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Review extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'product_id',
+        'user_id',
+        'order_id',
+        'rating',
+        'title',
+        'comment',
+        'status',
+        'approved_at',
+    ];
+
+    protected $casts = [
+        'rating' => 'integer',
+        'approved_at' => 'datetime',
+    ];
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.12:** Review model created
+
+---
+
+### 2.13. CouponUsage Model
+
+```powershell
+notepad app\Models\CouponUsage.php
+```
+
+**Code:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class CouponUsage extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'coupon_id',
+        'user_id',
+        'order_id',
+        'discount_amount',
+    ];
+
+    protected $casts = [
+        'discount_amount' => 'decimal:2',
+    ];
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.13:** CouponUsage model created
+
+---
+
+### 2.14. OrderStatusHistory Model
+
+```powershell
+notepad app\Models\OrderStatusHistory.php
+```
+
+**Code:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class OrderStatusHistory extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'order_id',
+        'user_id',
+        'old_status',
+        'new_status',
+        'note',
+    ];
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.14:** OrderStatusHistory model created
+
+---
+
+### 2.15. Update User Model
+
+**⚠️ CRITICAL:** User model đã có sẵn, chúng ta chỉ UPDATE thêm fields!
+
+```powershell
+notepad app\Models\User.php
+```
+
+**Tìm dòng `protected $fillable = [...]` và UPDATE:**
+
+**BEFORE:**
+
+```php
+protected $fillable = [
+    'name',
+    'email',
+    'password',
+];
+```
+
+**AFTER (thêm các fields mới):**
+
+```php
+protected $fillable = [
+    'name',
+    'email',
+    'password',
+    'phone',
+    'avatar',
+    'date_of_birth',
+    'gender',
+    'last_login_at',
+];
+```
+
+**Tìm dòng `protected function casts(): array` và UPDATE:**
+
+**BEFORE:**
+
+```php
+protected function casts(): array
+{
+    return [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+}
+```
+
+**AFTER (thêm casts mới):**
+
+```php
+protected function casts(): array
+{
+    return [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'date_of_birth' => 'date',
+        'last_login_at' => 'datetime',
+    ];
+}
+```
+
+**Thêm SoftDeletes trait (sau dòng `use HasFactory, Notifiable;`):**
+
+**BEFORE:**
+
+```php
+class User extends Authenticatable implements FilamentUser
+{
+    use HasFactory, Notifiable;
+```
+
+**AFTER:**
+
+```php
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class User extends Authenticatable implements FilamentUser
+{
+    use HasFactory, Notifiable, SoftDeletes;
+```
+
+**Nhớ thêm use statement ở đầu file:**
+
+```php
+use Illuminate\Database\Eloquent\SoftDeletes;
+```
+
+**FULL CODE của User model sau khi update:**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+
+class User extends Authenticatable implements FilamentUser
+{
+    use HasFactory, Notifiable, SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'phone',
+        'avatar',
+        'date_of_birth',
+        'gender',
+        'last_login_at',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'date_of_birth' => 'date',
+            'last_login_at' => 'datetime',
+        ];
+    }
+
+    /**
+     * Determine if the user can access the Filament admin panel.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Allow access if email ends with @samnghethaycu.com
+        return str_ends_with($this->email, '@samnghethaycu.com');
+    }
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 2.15:** User model updated
+
+---
+
+### 2.16. Verify All Models
+
+```powershell
+# Đếm tất cả models (không tính User vì đã có sẵn)
+ls app\Models\*.php | Measure-Object
+# Phải thấy: Count : 15 (14 mới + 1 User)
+```
+
+**Expected output:**
+
+```
+Count    : 15
+```
+
+✅ **Checkpoint 2:** Tất cả 15 models đã hoàn thành
+
+---
+
+## PHẦN 3: COMMIT & PUSH (LOCAL)
+
+**Thời gian:** 3 phút
+
+**📍 Windows PowerShell:**
+
+```powershell
+# Kiểm tra changes
+git status
+```
+
+**Expected output:**
+
+```
+On branch main
+Changes not staged for commit:
+  modified:   app/Models/User.php
+
+Untracked files:
+  app/Models/Address.php
+  app/Models/Brand.php
+  app/Models/Category.php
+  ... (14 models)
+  database/migrations/..._create_categories_table.php
+  database/migrations/..._create_brands_table.php
+  ... (15 migrations)
+```
+
+**Add all changes:**
+
+```powershell
 git add .
 
-# Commit
-git commit -m "feat: create database schema with 23 tables and 15 models
+# Commit với message chi tiết
+git commit -m "feat: create complete database schema for e-commerce platform
 
-- 15 migrations: categories, brands, products, variants, images,
-  addresses, orders, order_items, reviews, coupons, posts, etc.
-- 15 Eloquent models with fillable and casts
-- Ready for Filament resource generation
+MIGRATIONS (15 total):
+- Core e-commerce: categories, brands, products, variants, images
+- Orders system: orders, order_items, order_status_histories
+- Customer data: addresses, reviews
+- Promotions: coupons, coupon_usages
+- Blog: posts, post_categories
+- Users extension: added phone, avatar, birth date, gender, last_login
 
-Database schema ready for production deployment."
+MODELS (15 total):
+- All models with fillable and casts configured
+- SoftDeletes traits where applicable
+- Type casting for data consistency
+- Ready for relationships (WORKFLOW-7)
 
-# Push
+DATABASE STRUCTURE:
+- 23 tables total (15 custom + 8 Laravel system)
+- Foreign keys with cascade/null actions
+- Indexes for performance optimization
+- Enum types for business logic
+- JSON fields for flexible data
+
+Ready for Filament resource generation and deployment."
+```
+
+**Expected output:**
+
+```
+[main abc1234] feat: create complete database schema for e-commerce platform
+ 30 files changed, 1500 insertions(+)
+ create mode 100644 app/Models/Address.php
+ create mode 100644 app/Models/Brand.php
+ ...
+ create mode 100644 database/migrations/..._create_categories_table.php
+ ...
+```
+
+**Push to GitHub:**
+
+```powershell
 git push origin main
 ```
 
-**On VPS:**
+**Expected output:**
+
+```
+Enumerating objects: 45, done.
+Counting objects: 100% (45/45), done.
+...
+To https://github.com/phuochoavn/websamnghe.git
+   def5678..abc1234  main -> main
+```
+
+✅ **Checkpoint 3:** Code committed and pushed to GitHub
+
+---
+
+## PHẦN 4: DEPLOY LÊN VPS & RUN MIGRATIONS
+
+**Thời gian:** 5 phút
+
+**📍 Trên VPS:**
 
 ```bash
+# SSH to VPS
 ssh deploy@69.62.82.145
 
 cd /var/www/samnghethaycu.com
 
-# Deploy!
+# Deploy với automation script
 deploy-sam
-
-# Migrations will auto-run
-# Should see: Migration table created successfully
-# Should see: Migrated: YYYY_MM_DD_create_categories_table
-# ... (all 15 migrations)
 ```
 
-✅ **Checkpoint 3:** Database deployed to VPS
+**Expected output:**
+
+```
+🚀 Starting deployment...
+
+📂 Current directory: /var/www/samnghethaycu.com
+
+📥 Step 1/8: Pulling latest code from GitHub...
+✅ Code updated
+abc1234 feat: create complete database schema for e-commerce platform
+
+🔍 Step 2/8: Checking .env file...
+✅ .env exists
+
+🔧 Step 3/8: Checking bootstrap/cache...
+✅ bootstrap/cache is directory
+
+📦 Step 4/8: Installing Composer dependencies...
+✅ Dependencies installed
+
+🗄️  Step 5/8: Running database migrations...
+
+   INFO  Running migrations.
+
+  2025_11_22_123456_create_categories_table .................... 15.23ms DONE
+  2025_11_22_123457_create_brands_table ....................... 12.45ms DONE
+  2025_11_22_123458_create_post_categories_table ............... 10.67ms DONE
+  2025_11_22_123459_create_products_table ..................... 25.89ms DONE
+  2025_11_22_123500_create_product_variants_table ............. 18.34ms DONE
+  2025_11_22_123501_create_product_images_table ............... 14.56ms DONE
+  2025_11_22_123502_create_posts_table ........................ 20.12ms DONE
+  2025_11_22_123503_create_addresses_table .................... 16.78ms DONE
+  2025_11_22_123504_create_coupons_table ...................... 19.23ms DONE
+  2025_11_22_123505_create_orders_table ....................... 28.91ms DONE
+  2025_11_22_123506_create_order_items_table .................. 17.45ms DONE
+  2025_11_22_123507_create_reviews_table ...................... 15.67ms DONE
+  2025_11_22_123508_create_coupon_usages_table ................ 13.89ms DONE
+  2025_11_22_123509_create_order_status_histories_table ....... 14.23ms DONE
+  2025_11_22_123510_add_fields_to_users_table ................. 11.56ms DONE
+
+✅ Migrations complete
+
+🧹 Step 6/8: Clearing caches...
+✅ Caches rebuilt
+
+🔐 Step 7/8: Fixing permissions...
+✅ Permissions fixed
+
+🔄 Step 8/8: Reloading PHP-FPM...
+✅ PHP-FPM reloaded
+
+🎉 Deployment completed successfully!
+
+🌐 Website: https://samnghethaycu.com
+🔧 Admin: https://samnghethaycu.com/admin
+```
+
+✅ **Checkpoint 4:** Database migrated to VPS successfully
 
 ---
 
-## PART 4: GENERATE FILAMENT RESOURCES
+### Verify Database Tables
 
-**Time:** 7 phút
+**📍 Trên VPS:**
 
-**On LOCAL Windows:**
+```bash
+# Kiểm tra database
+php artisan db:show
+```
+
+**Expected output:**
+
+```
+  MySQL ......................................................... 8.0.44
+  Connection .................................................... mysql
+  Database .................................................. samnghethaycu
+  Host .......................................................... 127.0.0.1
+  Port .......................................................... 3306
+  Username .............................................. samnghethaycu_user
+  Tables ........................................................ 23
+  Total Size ................................................ 512.00 KB
+```
+
+**Kiểm tra các bảng cụ thể:**
+
+```bash
+# List all tables
+php artisan db:table --database=mysql
+
+# Or via tinker
+php artisan tinker
+```
+
+**In tinker:**
+
+```php
+// Check if tables exist
+Schema::hasTable('products')
+// Should return: true
+
+Schema::hasTable('orders')
+// Should return: true
+
+Schema::hasTable('categories')
+// Should return: true
+
+// Count tables
+collect(DB::select('SHOW TABLES'))->count()
+// Should return: 23
+
+exit
+```
+
+**Expected output:**
+
+```php
+> Schema::hasTable('products')
+= true
+
+> Schema::hasTable('orders')
+= true
+
+> collect(DB::select('SHOW TABLES'))->count()
+= 23
+```
+
+✅ **Checkpoint 4.1:** Database verified - 23 tables exist
+
+---
+
+## PHẦN 5: GENERATE FILAMENT RESOURCES (LOCAL)
+
+**Thời gian:** 8 phút
+
+**📝 Lưu ý quan trọng:**
+- Làm trên LOCAL Windows trước
+- `--generate` flag sẽ tự động tạo forms & tables từ database schema
+- Chỉ tạo resources cho các entities chính (9 resources)
+- Không tạo cho các bảng phụ trợ (ProductImage, OrderItem, CouponUsage, OrderStatusHistory)
+
+**📍 Windows PowerShell:**
 
 ```powershell
-# Generate resources for main entities
+cd C:\Projects\samnghethaycu
+
+# Generate Filament resources với --generate flag
 php artisan make:filament-resource Product --generate
 php artisan make:filament-resource Category --generate
 php artisan make:filament-resource Brand --generate
@@ -1391,59 +2280,142 @@ php artisan make:filament-resource PostCategory --generate
 php artisan make:filament-resource Address --generate
 ```
 
-**What --generate does:**
-- Creates Resource class
-- Auto-generates form fields
-- Auto-generates table columns
-- Creates List, Create, Edit pages
-- Detects relationships
+**Expected output (for each command):**
+
+```
+   INFO  Filament resource [app/Filament/Resources/ProductResource.php] created successfully.
+
+The following resource has been created:
+
+Resource: app\Filament\Resources\ProductResource.php
+Pages:
+  - app\Filament\Resources\ProductResource\Pages\ListProducts.php
+  - app\Filament\Resources\ProductResource\Pages\CreateProduct.php
+  - app\Filament\Resources\ProductResource\Pages\EditProduct.php
+```
+
+**📝 What `--generate` does:**
+- ✅ Auto-generates form fields based on database columns
+- ✅ Auto-generates table columns
+- ✅ Detects foreign keys and creates Select fields
+- ✅ Creates List, Create, Edit pages
+- ✅ Adds navigation menu items
+- ✅ Configures basic validation
+
+✅ **Checkpoint 5:** 9 Filament resources generated
+
+---
+
+### Verify Resources Created
+
+```powershell
+# Kiểm tra resource files
+ls app\Filament\Resources\*Resource.php | Measure-Object
+# Phải thấy: Count : 9
+
+# Kiểm tra pages
+ls app\Filament\Resources\*\Pages\*.php | Measure-Object
+# Phải thấy: Count : 27 (9 resources × 3 pages)
+```
 
 **Expected output:**
 
 ```
-Successfully created Product!
-
-Resource: app\Filament\Resources\ProductResource.php
-Pages:
-- app\Filament\Resources\ProductResource\Pages\ListProducts.php
-- app\Filament\Resources\ProductResource\Pages\CreateProduct.php
-- app\Filament\Resources\ProductResource\Pages\EditProduct.php
+Count    : 9
+...
+Count    : 27
 ```
 
-**Commit & Deploy:**
-
-```powershell
-git add .
-git commit -m "feat: generate Filament resources for 9 core entities
-
-Auto-generated CRUD resources with forms, tables, and pages:
-- ProductResource (e-commerce)
-- CategoryResource, BrandResource
-- OrderResource, ReviewResource
-- CouponResource (promotions)
-- PostResource, PostCategoryResource (blog)
-- AddressResource (shipping)
-
-Admin panel now has full CRUD operations."
-
-git push origin main
-```
-
-**On VPS:**
-
-```bash
-deploy-sam
-```
-
-✅ **Checkpoint 4:** Filament resources generated
+✅ **Checkpoint 5.1:** All resource files verified
 
 ---
 
-## PART 5: TEST ADMIN PANEL
+## PHẦN 6: COMMIT & DEPLOY FILAMENT RESOURCES
 
-**Time:** 5 phút
+**Thời gian:** 3 phút
 
-**Browser:**
+**📍 Windows PowerShell:**
+
+```powershell
+# Check changes
+git status
+
+# Add all Filament resources
+git add app/Filament/
+
+# Commit
+git commit -m "feat: generate Filament resources for 9 core entities
+
+AUTO-GENERATED RESOURCES:
+- ProductResource (e-commerce core)
+- CategoryResource (product categorization)
+- BrandResource (product brands)
+- OrderResource (order management)
+- ReviewResource (customer reviews)
+- CouponResource (discount codes)
+- PostResource (blog posts)
+- PostCategoryResource (blog categories)
+- AddressResource (shipping addresses)
+
+FEATURES:
+- Auto-generated forms with all database fields
+- Auto-generated table columns
+- Select fields for foreign keys
+- List/Create/Edit pages
+- Navigation menu items
+- Basic validation rules
+
+Total: 9 resources × 3 pages = 27 files
+Admin panel now has full CRUD operations!"
+
+# Push to GitHub
+git push origin main
+```
+
+**Expected output:**
+
+```
+[main xyz9876] feat: generate Filament resources for 9 core entities
+ 27 files changed, 2500 insertions(+)
+ create mode 100644 app/Filament/Resources/ProductResource.php
+ ...
+To https://github.com/phuochoavn/websamnghe.git
+   abc1234..xyz9876  main -> main
+```
+
+**Deploy to VPS:**
+
+```bash
+# SSH if not already connected
+ssh deploy@69.62.82.145
+
+cd /var/www/samnghethaycu.com
+
+# Deploy!
+deploy-sam
+```
+
+**Expected output:**
+
+```
+🚀 Starting deployment...
+...
+📥 Step 1/8: Pulling latest code from GitHub...
+✅ Code updated
+xyz9876 feat: generate Filament resources for 9 core entities
+...
+🎉 Deployment completed successfully!
+```
+
+✅ **Checkpoint 6:** Filament resources deployed to production
+
+---
+
+## PHẦN 7: TEST ADMIN PANEL & CREATE SAMPLE DATA
+
+**Thời gian:** 8 phút
+
+**📍 Browser:**
 
 ```
 https://samnghethaycu.com/admin
@@ -1451,54 +2423,152 @@ https://samnghethaycu.com/admin
 
 **Login:** admin@samnghethaycu.com / Admin@123456
 
-**Test CRUD operations:**
+**Should see:** Dashboard với sidebar navigation hiển thị 9 resources mới!
 
-### 5.1. Create Category
+```
+Sidebar Navigation:
+├── Dashboard
+├── Products
+├── Categories
+├── Brands
+├── Orders
+├── Reviews
+├── Coupons
+├── Posts
+├── Post Categories
+└── Addresses
+```
+
+✅ **Checkpoint 7.0:** Admin panel showing all resources
+
+---
+
+### 7.1. Test Create Category
 
 **Navigate:** Categories → Create
 
-**Fill:**
+**Fill form:**
 - Name: `Sâm Hàn Quốc`
-- Description: `Sản phẩm sâm nhập khẩu từ Hàn Quốc`
-- Is Active: ✅
+- Slug: `sam-han-quoc` (auto-generated from name)
+- Description: `Sản phẩm sâm nhập khẩu từ Hàn Quốc, chất lượng cao`
+- Order: `1`
+- Is Active: ✅ (checked)
 
-**Save**
+**Click "Create"**
 
-**Should see:** Category created successfully!
+**Should see:** ✅ Success notification "Category created successfully!"
 
-### 5.2. Create Brand
+**Should redirect to:** Categories list page
+
+**Should see:** 1 category in the table
+
+✅ **Checkpoint 7.1:** Category CRUD working
+
+---
+
+### 7.2. Test Create Brand
 
 **Navigate:** Brands → Create
 
 **Fill:**
 - Name: `KGC Cheong Kwan Jang`
-- Description: `Thương hiệu sâm nổi tiếng từ Hàn Quốc`
+- Slug: `kgc-cheong-kwan-jang`
+- Description: `Thương hiệu sâm nổi tiếng từ Hàn Quốc, hơn 120 năm lịch sử`
 - Website: `https://www.kgcus.com`
 - Is Active: ✅
 
-**Save**
+**Create**
 
-### 5.3. Create Product
+**Should see:** ✅ "Brand created successfully!"
+
+✅ **Checkpoint 7.2:** Brand CRUD working
+
+---
+
+### 7.3. Test Create Product
 
 **Navigate:** Products → Create
 
-**Fill:**
+**Fill basic info:**
 - Name: `Sâm Tươi Hàn Quốc 6 Năm Tuổi`
-- Category: `Sâm Hàn Quốc`
-- Brand: `KGC Cheong Kwan Jang`
+- Slug: `sam-tuoi-han-quoc-6-nam-tuoi`
+- Category: Select "Sâm Hàn Quốc"
+- Brand: Select "KGC Cheong Kwan Jang"
+- Short Description: `Sâm tươi 6 năm tuổi chất lượng cao từ Hàn Quốc`
+
+**Fill pricing:**
 - Price: `450000`
 - Sale Price: `399000`
+- Cost Price: `300000`
+
+**Fill inventory:**
 - SKU: `SAM-HQ-6Y-001`
 - Stock Quantity: `50`
+- Min Stock Alert: `10`
+- Manage Stock: ✅
+
+**Fill status:**
+- Is Featured: ✅
 - Is Active: ✅
 
-**Save**
+**Create**
 
-**Should see:** Product created successfully!
+**Should see:** ✅ "Product created successfully!"
 
-### 5.4. Verify Database
+**Should see:** Product in list with:
+- Name displayed
+- Category: "Sâm Hàn Quốc"
+- Brand: "KGC Cheong Kwan Jang"
+- Price: ₫399,000 (formatted)
+- Stock: 50
 
-**SSH to VPS:**
+✅ **Checkpoint 7.3:** Product CRUD working with relationships
+
+---
+
+### 7.4. Test Create Post Category
+
+**Navigate:** Post Categories → Create
+
+**Fill:**
+- Name: `Sức khỏe & Dinh dưỡng`
+- Slug: `suc-khoe-dinh-duong`
+- Description: `Các bài viết về sức khỏe và dinh dưỡng`
+- Is Active: ✅
+
+**Create**
+
+**Should see:** ✅ Success
+
+✅ **Checkpoint 7.4:** Post Category CRUD working
+
+---
+
+### 7.5. Test Create Post
+
+**Navigate:** Posts → Create
+
+**Fill:**
+- Title: `Lợi ích của sâm Hàn Quốc đối với sức khỏe`
+- Slug: `loi-ich-cua-sam-han-quoc`
+- Post Category: Select "Sức khỏe & Dinh dưỡng"
+- User: Select "Admin" (your admin user)
+- Excerpt: `Tìm hiểu về các lợi ích tuyệt vời của sâm Hàn Quốc`
+- Content: `Sâm Hàn Quốc là một trong những vị thuốc quý...`
+- Status: `published`
+- Published At: (today's date)
+
+**Create**
+
+**Should see:** ✅ Post created
+
+✅ **Checkpoint 7.5:** Post CRUD working
+
+---
+
+### 7.6. Verify Database Records on VPS
+
+**📍 SSH to VPS:**
 
 ```bash
 cd /var/www/samnghethaycu.com
@@ -1506,193 +2576,1405 @@ cd /var/www/samnghethaycu.com
 php artisan tinker
 ```
 
-**In Tinker:**
+**In tinker:**
 
 ```php
-// Check tables
-Schema::hasTable('products')
-// Should return: true
-
-// Count records
-App\Models\Product::count()
-// Should return: 1
-
+// Check all tables have data
 App\Models\Category::count()
 // Should return: 1
 
 App\Models\Brand::count()
 // Should return: 1
 
-// Fetch product with relationships
-$product = App\Models\Product::with('category', 'brand')->first();
+App\Models\Product::count()
+// Should return: 1
+
+App\Models\PostCategory::count()
+// Should return: 1
+
+App\Models\Post::count()
+// Should return: 1
+
+// Test with relationships (will work in WORKFLOW-7)
+$product = App\Models\Product::first();
 $product->name
-// Error expected: relationships not defined yet (WORKFLOW-7 will fix)
+// Should return: "Sâm Tươi Hàn Quốc 6 Năm Tuổi"
+
+$product->category_id
+// Should return: 1
+
+$product->brand_id
+// Should return: 1
+
+// Test User model updates
+$user = App\Models\User::first();
+$user
+// Should show: phone, avatar, date_of_birth, gender, last_login_at columns
 
 exit
 ```
 
-✅ **Checkpoint 5:** Admin panel CRUD working!
+**Expected output:**
+
+```php
+> App\Models\Category::count()
+= 1
+
+> App\Models\Brand::count()
+= 1
+
+> App\Models\Product::count()
+= 1
+
+> $product = App\Models\Product::first();
+= App\Models\Product {#5678
+    id: 1,
+    category_id: 1,
+    brand_id: 1,
+    name: "Sâm Tươi Hàn Quốc 6 Năm Tuổi",
+    ...
+  }
+```
+
+✅ **Checkpoint 7.6:** Database records verified
 
 ---
 
-## VERIFICATION
+## ✅ VERIFICATION - HOÀN THÀNH WORKFLOW 6
 
-### Final Checklist
+### Full Workflow Checklist
 
-- [ ] 15 migrations created ✅
-- [ ] 15 models created ✅
-- [ ] Database deployed to VPS ✅
-- [ ] 9 Filament resources generated ✅
-- [ ] Admin panel showing all resources ✅
-- [ ] Can create categories, brands, products ✅
-- [ ] Records visible in database ✅
-- [ ] Git commit & push successful ✅
+```
+PHẦN 1: TẠO MIGRATIONS
+✅ 15 migration files created
+✅ All foreign keys configured correctly
+✅ Indexes added for performance
+✅ SoftDeletes where applicable
+✅ Enum types for business logic
 
-**All checked?** → SUCCESS! 🎉
+PHẦN 2: TẠO MODELS
+✅ 14 new models created
+✅ 1 existing model (User) updated
+✅ All fillable arrays configured
+✅ All casts configured correctly
+✅ SoftDeletes traits added
+
+PHẦN 3: COMMIT & PUSH
+✅ Code committed locally
+✅ Pushed to GitHub successfully
+✅ Commit message descriptive
+
+PHẦN 4: DEPLOY & MIGRATE
+✅ Deployed via deploy-sam
+✅ All 15 migrations ran successfully
+✅ 23 tables exist in database
+✅ Database structure verified
+
+PHẦN 5: GENERATE FILAMENT RESOURCES
+✅ 9 resources generated with --generate
+✅ 27 page files created (9 × 3)
+✅ Forms auto-generated from schema
+✅ Tables auto-generated
+
+PHẦN 6: DEPLOY RESOURCES
+✅ Resources committed and pushed
+✅ Deployed to production
+✅ Navigation menu updated
+
+PHẦN 7: TEST ADMIN PANEL
+✅ All 9 resources visible in sidebar
+✅ Can create Category
+✅ Can create Brand
+✅ Can create Product with relationships
+✅ Can create Post Category
+✅ Can create Post
+✅ Database records verified on VPS
+✅ User model updated fields working
+```
+
+**Final test:**
+
+**📍 Browser:**
+
+```
+1. Visit: https://samnghethaycu.com/admin
+2. Login successfully
+3. See all 9 resources in sidebar
+4. Click Products → See 1 product
+5. Click Categories → See 1 category
+6. Click Brands → See 1 brand
+7. Click Posts → See 1 post
+8. All pages load without errors
+```
+
+**All working?** → SUCCESS! 🎉
 
 ---
 
-## ✅ WORKFLOW 5 COMPLETE!
+## 🎉 WORKFLOW 6 COMPLETE!
 
-### Database Ready:
-
-```
-✅ 23 tables created (15 custom + 8 Laravel system)
-✅ 15 Eloquent models with fillable & casts
-✅ 9 Filament resources auto-generated
-✅ Admin panel CRUD operations working
-✅ Database deployed to production VPS
-✅ Basic data entry tested
-✅ Git-driven deployment verified
-```
-
-### What We Have Now:
+### Bạn đã có:
 
 ```
-Admin Panel Resources:
-├── Products (CRUD working)
-├── Categories (CRUD working)
-├── Brands (CRUD working)
-├── Orders (CRUD working)
-├── Reviews (CRUD working)
-├── Coupons (CRUD working)
-├── Posts (CRUD working)
-├── Post Categories (CRUD working)
-└── Addresses (CRUD working)
+✅ DATABASE SCHEMA COMPLETE:
+- 23 tables total (15 custom + 8 Laravel)
+- Foreign keys with proper constraints
+- Indexes for query performance
+- SoftDeletes for data recovery
+- Enum types for validation
+- JSON fields for flexibility
+
+✅ ELOQUENT MODELS READY:
+- 15 models with fillable & casts
+- Type casting configured
+- SoftDeletes traits
+- Ready for relationships (WF-7)
+
+✅ FILAMENT ADMIN PANEL FUNCTIONAL:
+- 9 auto-generated CRUD resources
+- Forms with all database fields
+- Tables with columns and filters
+- Navigation menu working
+- Can create/edit/delete records
+
+✅ PRODUCTION DEPLOYED:
+- Database schema on VPS
+- Models accessible
+- Admin panel fully functional
+- Test data created successfully
+
+✅ GIT WORKFLOW VERIFIED:
+- Local → GitHub → VPS pipeline working
+- deploy-sam automation successful
+- Migrations auto-run on deploy
+```
+
+### Current Admin Panel Resources:
+
+```
+Admin Panel (https://samnghethaycu.com/admin):
+├── Products (CRUD working ✅)
+├── Categories (CRUD working ✅)
+├── Brands (CRUD working ✅)
+├── Orders (CRUD working ✅)
+├── Reviews (CRUD working ✅)
+├── Coupons (CRUD working ✅)
+├── Posts (CRUD working ✅)
+├── Post Categories (CRUD working ✅)
+└── Addresses (CRUD working ✅)
 ```
 
 ### What's Missing (Next Workflows):
 
 ```
-⏳ Model relationships (belongsTo, hasMany, etc.)
-⏳ Business logic methods
-⏳ Accessors & mutators
-⏳ Scopes and query builders
-⏳ Filament customization (tabs, filters, widgets)
-⏳ Sample data seeders
+⏳ Model relationships (belongsTo, hasMany, etc.) → WORKFLOW-7
+⏳ Business logic methods (URL helpers, calculations) → WORKFLOW-7
+⏳ Accessors & mutators (formatted prices, status labels) → WORKFLOW-7
+⏳ Scopes and query builders (active(), featured()) → WORKFLOW-7
+⏳ Filament customization (tabs, filters, widgets, actions) → WORKFLOW-8
+⏳ Vietnamese sample data (categories, products, posts) → WORKFLOW-9
 ```
 
-### Next Step:
+### Database Structure Created:
 
 ```
-→ WORKFLOW-7-MODEL-BUSINESS-LOGIC.md
-  Add relationships, business logic, and methods to all 15 models
+E-Commerce Core:
+- users (customers & admin) ✅
+- products (main catalog) ✅
+- product_variants (sizes, colors) ✅
+- product_images (gallery) ✅
+- categories (nested tree) ✅
+- brands ✅
+
+Order Management:
+- orders (main orders) ✅
+- order_items (line items) ✅
+- order_status_histories (audit trail) ✅
+- addresses (shipping/billing) ✅
+
+Marketing:
+- coupons (discount codes) ✅
+- coupon_usages (tracking) ✅
+- reviews (product ratings) ✅
+
+Content:
+- posts (blog articles) ✅
+- post_categories ✅
+```
+
+### Deployment Workflow Verified:
+
+```
+LOCAL (Windows)          GITHUB              VPS (Production)
+───────────────          ──────              ────────────────
+Create migrations   →    Push code      →    deploy-sam ✨
+Create models       →    Push changes   →    → Migrations auto-run
+Generate resources  →    Push resources →    → Resources available
+                                              → Admin panel working!
+```
+
+---
+
+## 🚀 NEXT STEP:
+
+```
+✅ WORKFLOW-1: VPS Infrastructure
+✅ WORKFLOW-2: Laravel Installation
+✅ WORKFLOW-3: Git Workflow Setup
+✅ WORKFLOW-4: Deployment Automation
+✅ WORKFLOW-5: Filament Admin Panel
+✅ WORKFLOW-6: Database Schema (YOU ARE HERE! ✅)
+→ WORKFLOW-7: MODEL BUSINESS LOGIC
+  Add 50+ relationships, scopes, accessors, mutators, and helper methods
+  Time: 30-40 minutes
+  File: WORKFLOW-7-MODEL-BUSINESS-LOGIC.md
+```
+
+---
+
+## 🔄 ROLLBACK: XÓA DATABASE SCHEMA VỀ WORKFLOW-5
+
+**Nếu muốn xóa toàn bộ database schema và quay về trạng thái WORKFLOW-5 (chỉ có Filament, chưa có database):**
+
+**⚠️ IMPORTANT:** Rollback sẽ xóa:
+- Tất cả 15 migrations
+- Tất cả 15 models (trừ User - sẽ restore về version cũ)
+- Tất cả 9 Filament resources
+- Tất cả data trong database
+
+### PHẦN 1: ROLLBACK TRÊN LOCAL (Windows)
+
+**Thời gian:** 5-8 phút
+
+**⚠️ THỨ TỰ QUAN TRỌNG:** Xóa Filament resources TRƯỚC, models SAU, migrations CUỐI!
+
+#### BƯỚC 1: Xóa Filament Resources
+
+**📍 Windows PowerShell:**
+
+```powershell
+cd C:\Projects\samnghethaycu
+
+# Xóa toàn bộ thư mục Resources
+Remove-Item -Recurse -Force app\Filament\Resources\ -ErrorAction SilentlyContinue
+
+# Verify đã xóa
+ls app\Filament\
+# Kết quả: Không còn thư mục Resources
+```
+
+**Expected:**
+
+```
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+(empty - no Resources directory)
+```
+
+✅ **Checkpoint 1.1:** Filament resources deleted
+
+---
+
+#### BƯỚC 2: Xóa Models (Trừ User)
+
+```powershell
+# Xóa 14 models mới (GIỮ LẠI User.php)
+Remove-Item app\Models\Address.php
+Remove-Item app\Models\Brand.php
+Remove-Item app\Models\Category.php
+Remove-Item app\Models\Coupon.php
+Remove-Item app\Models\CouponUsage.php
+Remove-Item app\Models\Order.php
+Remove-Item app\Models\OrderItem.php
+Remove-Item app\Models\OrderStatusHistory.php
+Remove-Item app\Models\Post.php
+Remove-Item app\Models\PostCategory.php
+Remove-Item app\Models\Product.php
+Remove-Item app\Models\ProductImage.php
+Remove-Item app\Models\ProductVariant.php
+Remove-Item app\Models\Review.php
+
+# Verify
+ls app\Models\
+# Phải còn lại: User.php
+```
+
+**Expected:**
+
+```
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         11/22/2025   2:00 PM           2345 User.php
+```
+
+✅ **Checkpoint 1.2:** 14 models deleted, User.php retained
+
+---
+
+#### BƯỚC 3: Restore User Model về Version WORKFLOW-5
+
+**Option A: Git Restore (Recommended)**
+
+```powershell
+# Tìm commit của WORKFLOW-5
+git log --oneline --grep="Filament" | Select-Object -First 5
+
+# Restore User.php về version WORKFLOW-5
+git checkout <commit-hash-of-workflow-5> -- app/Models/User.php
+```
+
+**Option B: Manual Edit**
+
+```powershell
+notepad app\Models\User.php
+```
+
+**Xóa các dòng đã thêm trong WORKFLOW-6:**
+
+- Xóa `'phone', 'avatar', 'date_of_birth', 'gender', 'last_login_at'` khỏi `$fillable`
+- Xóa `'date_of_birth' => 'date', 'last_login_at' => 'datetime'` khỏi `casts()`
+- Xóa `, SoftDeletes` khỏi `use HasFactory, Notifiable, SoftDeletes;`
+- Xóa `use Illuminate\Database\Eloquent\SoftDeletes;` ở đầu file
+
+**User.php SAU KHI RESTORE (giống WORKFLOW-5):**
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+
+class User extends Authenticatable implements FilamentUser
+{
+    use HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return str_ends_with($this->email, '@samnghethaycu.com');
+    }
+}
+```
+
+**Save và đóng**
+
+✅ **Checkpoint 1.3:** User model restored to WORKFLOW-5 state
+
+---
+
+#### BƯỚC 4: Xóa Migration Files
+
+```powershell
+# Xóa 15 migration files của WORKFLOW-6
+Remove-Item database\migrations\*_create_categories_table.php
+Remove-Item database\migrations\*_create_brands_table.php
+Remove-Item database\migrations\*_create_post_categories_table.php
+Remove-Item database\migrations\*_create_products_table.php
+Remove-Item database\migrations\*_create_product_variants_table.php
+Remove-Item database\migrations\*_create_product_images_table.php
+Remove-Item database\migrations\*_create_posts_table.php
+Remove-Item database\migrations\*_create_addresses_table.php
+Remove-Item database\migrations\*_create_coupons_table.php
+Remove-Item database\migrations\*_create_orders_table.php
+Remove-Item database\migrations\*_create_order_items_table.php
+Remove-Item database\migrations\*_create_reviews_table.php
+Remove-Item database\migrations\*_create_coupon_usages_table.php
+Remove-Item database\migrations\*_create_order_status_histories_table.php
+Remove-Item database\migrations\*_add_fields_to_users_table.php
+
+# Verify
+ls database\migrations\ | Measure-Object
+# Phải còn lại 3 migrations (default Laravel)
+```
+
+**Expected:**
+
+```
+Count    : 3
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         10/01/2025  10:00 AM           1234 0001_01_01_000000_create_users_table.php
+-a----         10/01/2025  10:00 AM            567 0001_01_01_000001_create_cache_table.php
+-a----         10/01/2025  10:00 AM            890 0001_01_01_000002_create_jobs_table.php
+```
+
+✅ **Checkpoint 1.4:** All WORKFLOW-6 migrations deleted
+
+---
+
+#### BƯỚC 5: Verify Locally
+
+```powershell
+# Check models
+ls app\Models\
+# Phải chỉ có: User.php
+
+# Check migrations
+ls database\migrations\ | Measure-Object
+# Phải có: Count : 3
+
+# Check Filament resources
+ls app\Filament\Resources\ -ErrorAction SilentlyContinue
+# Phải lỗi: Cannot find path (đúng!)
+
+# Test Laravel still works
+php artisan --version
+# Phải thấy: Laravel Framework 12.x.x
+```
+
+✅ **Checkpoint 1.5:** Local verification passed
+
+---
+
+#### BƯỚC 6: Commit & Push Rollback
+
+```powershell
+# Check changes
+git status
+
+# Add all deletions and modifications
+git add .
+
+# Commit với message rõ ràng
+git commit -m "revert: rollback database schema to WORKFLOW-5 state
+
+REMOVED:
+- 15 database migrations (all WORKFLOW-6 tables)
+- 14 Eloquent models (kept User.php)
+- 9 Filament resources (Products, Categories, Orders, etc.)
+
+RESTORED:
+- User model to WORKFLOW-5 version (removed WF-6 fields)
+
+RESULT:
+- Back to clean Laravel + Filament state
+- Only 3 default migrations (users, cache, jobs)
+- Only 1 model (User with FilamentUser)
+- No custom Filament resources
+- Database will be rolled back on VPS deployment
+
+Reason: [Your reason here, e.g., 'Need to redesign schema']"
+
+# Push to GitHub
+git push origin main
+```
+
+**Expected output:**
+
+```
+[main abc1234] revert: rollback database schema to WORKFLOW-5 state
+ 44 files changed, 50 insertions(+), 3500 deletions(-)
+ delete mode 100644 app/Filament/Resources/ProductResource.php
+ delete mode 100644 app/Models/Product.php
+ ...
+To https://github.com/phuochoavn/websamnghe.git
+   xyz9876..abc1234  main -> main
+```
+
+✅ **Checkpoint 1:** Local rollback complete and pushed
+
+---
+
+### PHẦN 2: ROLLBACK TRÊN VPS
+
+**Thời gian:** 5-10 phút
+
+**⚠️ CRITICAL:** Database rollback sẽ XÓA TẤT CẢ DATA trong 15 bảng custom!
+
+#### BƯỚC 7: Backup Database TRƯỚC KHI ROLLBACK
+
+**📍 Trên VPS:**
+
+```bash
+ssh deploy@69.62.82.145
+
+cd /var/www/samnghethaycu.com
+
+# Backup database (QUAN TRỌNG!)
+php artisan db:seed --class=DatabaseSeeder --no-interaction || true
+mysqldump -u samnghethaycu_user -p samnghethaycu > ~/backup-before-rollback-$(date +%Y%m%d-%H%M%S).sql
+# Enter password khi được hỏi (check ~/credentials/database.txt)
+
+# Verify backup created
+ls -lh ~/backup-before-rollback-*.sql
+# Phải thấy file backup với size > 0
+```
+
+**Expected:**
+
+```
+-rw-r--r-- 1 deploy deploy 15K Nov 22 15:30 backup-before-rollback-20251122-153045.sql
+```
+
+✅ **Checkpoint 2.1:** Database backed up
+
+---
+
+#### BƯỚC 8: Pull Rollback Code from GitHub
+
+```bash
+cd /var/www/samnghethaycu.com
+
+# Pull rollback commit
+git fetch origin
+git pull origin main
+
+# Or use deploy-sam (will auto-pull)
+deploy-sam
+```
+
+**Expected output:**
+
+```
+🚀 Starting deployment...
+📥 Step 1/8: Pulling latest code from GitHub...
+✅ Code updated
+abc1234 revert: rollback database schema to WORKFLOW-5 state
+...
+```
+
+✅ **Checkpoint 2.2:** Rollback code pulled
+
+---
+
+#### BƯỚC 9: Rollback Database Migrations
+
+**⚠️ CRITICAL:** Bước này sẽ XÓA 15 bảng và TẤT CẢ DATA!
+
+```bash
+# Kiểm tra migrations hiện tại
+php artisan migrate:status
+```
+
+**Expected:**
+
+```
+Migration name ................................................ Batch / Status
+0001_01_01_000000_create_users_table ....................... [1] Ran
+0001_01_01_000001_create_cache_table ....................... [1] Ran
+0001_01_01_000002_create_jobs_table ........................ [1] Ran
+2025_11_22_123456_create_categories_table .................. [2] Ran
+2025_11_22_123457_create_brands_table ...................... [2] Ran
+... (tất cả 15 migrations của WORKFLOW-6)
+```
+
+**Rollback batch 2 (tất cả WORKFLOW-6 migrations):**
+
+```bash
+# Rollback 1 batch (sẽ xóa tất cả migrations trong batch 2)
+php artisan migrate:rollback --step=1
+
+# Nếu có nhiều batches, có thể rollback specific batch
+# php artisan migrate:rollback --batch=2
+```
+
+**Expected output:**
+
+```
+   INFO  Rolling back migrations.
+
+  2025_11_22_123510_add_fields_to_users_table ................. 8.23ms DONE
+  2025_11_22_123509_create_order_status_histories_table ....... 6.45ms DONE
+  2025_11_22_123508_create_coupon_usages_table ................ 5.67ms DONE
+  2025_11_22_123507_create_reviews_table ...................... 7.89ms DONE
+  2025_11_22_123506_create_order_items_table .................. 6.12ms DONE
+  2025_11_22_123505_create_orders_table ....................... 8.91ms DONE
+  2025_11_22_123504_create_coupons_table ...................... 7.23ms DONE
+  2025_11_22_123503_create_addresses_table .................... 6.78ms DONE
+  2025_11_22_123502_create_posts_table ........................ 8.12ms DONE
+  2025_11_22_123501_create_product_images_table ............... 5.56ms DONE
+  2025_11_22_123500_create_product_variants_table ............. 7.34ms DONE
+  2025_11_22_123459_create_products_table ..................... 9.89ms DONE
+  2025_11_22_123458_create_post_categories_table .............. 6.67ms DONE
+  2025_11_22_123457_create_brands_table ....................... 5.45ms DONE
+  2025_11_22_123456_create_categories_table ................... 6.23ms DONE
+```
+
+**Verify rollback:**
+
+```bash
+# Check migrations status
+php artisan migrate:status
+```
+
+**Expected:**
+
+```
+Migration name ................................................ Batch / Status
+0001_01_01_000000_create_users_table ....................... [1] Ran
+0001_01_01_000001_create_cache_table ....................... [1] Ran
+0001_01_01_000002_create_jobs_table ........................ [1] Ran
+
+(No WORKFLOW-6 migrations listed)
+```
+
+**Check database:**
+
+```bash
+php artisan db:show
+```
+
+**Expected:**
+
+```
+Tables ........................................................ 9
+(Down from 23 to 9 - correct!)
+
+Schema / Table
+- cache
+- cache_locks
+- failed_jobs
+- job_batches
+- jobs
+- migrations
+- password_reset_tokens
+- sessions
+- users
+```
+
+✅ **Checkpoint 2.3:** Database rolled back successfully
+
+---
+
+#### BƯỚC 10: Clear All Caches
+
+```bash
+# Clear application cache
+php artisan optimize:clear
+
+# Rebuild caches
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Reload PHP-FPM
+sudo systemctl reload php8.4-fpm
+```
+
+**Expected output:**
+
+```
+   INFO  Clearing cached bootstrap files.
+   ...
+   INFO  Configuration cached successfully.
+   INFO  Routes cached successfully.
+   INFO  Blade templates cached successfully.
+```
+
+✅ **Checkpoint 2.4:** Caches cleared
+
+---
+
+### PHẦN 3: VERIFICATION - ROLLBACK HOÀN TẤT
+
+**Thời gian:** 3 phút
+
+#### Verify on VPS
+
+**📍 Trên VPS:**
+
+```bash
+cd /var/www/samnghethaycu.com
+
+# 1. Check migrations
+php artisan migrate:status
+# Phải chỉ có 3 migrations (users, cache, jobs)
+
+# 2. Check models exist
+ls app/Models/
+# Phải chỉ có: User.php
+
+# 3. Check Filament resources
+ls app/Filament/Resources/ 2>/dev/null || echo "No resources (correct!)"
+# Phải: No resources (correct!)
+
+# 4. Check database tables
+php artisan db:table --database=mysql | grep -E "(products|categories|orders)" || echo "Tables not found (correct!)"
+# Phải: Tables not found (correct!)
+
+# 5. Check database count
+php artisan tinker
+```
+
+**In tinker:**
+
+```php
+// Count tables
+collect(DB::select('SHOW TABLES'))->count()
+// Should return: 9 (down from 23)
+
+// Verify User model
+App\Models\User::count()
+// Should return: 1 (admin user still exists)
+
+// Verify columns restored
+$user = App\Models\User::first();
+$user
+// Should NOT show: phone, avatar, date_of_birth, gender, last_login_at
+
+exit
+```
+
+**Expected output:**
+
+```php
+> collect(DB::select('SHOW TABLES'))->count()
+= 9
+
+> App\Models\User::count()
+= 1
+
+> $user = App\Models\User::first();
+= App\Models\User {#5678
+    id: 1,
+    name: "Admin",
+    email: "admin@samnghethaycu.com",
+    email_verified_at: null,
+    created_at: "2025-11-21 10:30:00",
+    updated_at: "2025-11-21 10:30:00",
+  }
+(No phone, avatar, etc. - correct!)
+```
+
+✅ **Checkpoint 3.1:** VPS verification passed
+
+---
+
+#### Verify in Browser
+
+**📍 Browser:**
+
+```
+1. Visit: https://samnghethaycu.com/admin
+2. Login: admin@samnghethaycu.com / Admin@123456
+3. Should see: Dashboard ONLY (no Products, Categories, etc.)
+4. Sidebar navigation: Only Dashboard + User menu
+5. No errors in browser console (F12)
+```
+
+**Expected:**
+
+```
+Sidebar Navigation:
+├── Dashboard
+└── (no other resources)
+```
+
+✅ **Checkpoint 3.2:** Browser verification passed
+
+---
+
+### ✅ ROLLBACK COMPLETE CHECKLIST
+
+```
+PHẦN 1: LOCAL ROLLBACK
+✅ Filament resources deleted (9 resources)
+✅ Models deleted (14 models, kept User.php)
+✅ User model restored to WORKFLOW-5 version
+✅ Migration files deleted (15 migrations)
+✅ Local verification passed
+✅ Rollback committed and pushed to GitHub
+
+PHẦN 2: VPS ROLLBACK
+✅ Database backed up before rollback
+✅ Rollback code pulled from GitHub
+✅ Database migrations rolled back (15 tables dropped)
+✅ Users table columns restored (phone, avatar, etc. removed)
+✅ Caches cleared and rebuilt
+✅ PHP-FPM reloaded
+
+PHẦN 3: VERIFICATION
+✅ Only 9 tables exist (down from 23)
+✅ Only 1 model exists (User.php)
+✅ No Filament resources exist
+✅ Admin panel accessible (Dashboard only)
+✅ No errors in browser
+✅ User can login successfully
+✅ Database consistent
+```
+
+**Total Time:** ~15-20 phút
+
+---
+
+### 🎉 Rollback Success!
+
+**Bạn đã về trạng thái WORKFLOW-5:**
+
+```
+✅ Laravel 12 working
+✅ Filament Admin Panel installed
+✅ Admin user exists (admin@samnghethaycu.com)
+✅ Dashboard accessible
+✅ No custom database schema
+✅ No custom Filament resources
+✅ Ready to redo WORKFLOW-6 hoặc làm việc khác
+```
+
+**Database backup location:**
+
+```bash
+# On VPS
+ls -lh ~/backup-before-rollback-*.sql
+
+# To restore backup if needed:
+mysql -u samnghethaycu_user -p samnghethaycu < ~/backup-before-rollback-YYYYMMDD-HHMMSS.sql
 ```
 
 ---
 
 ## 🔧 TROUBLESHOOTING
 
-### Issue: Migration Failed (Foreign Key Constraint)
+### Issue 1: Migration Failed - Foreign Key Constraint
 
 **Error:**
 
 ```
 SQLSTATE[HY000]: General error: 1215 Cannot add foreign key constraint
+(SQL: alter table `products` add constraint `products_category_id_foreign`...)
+```
+
+**Cause:** Parent table chưa được migrate trước child table
+
+**Fix on LOCAL:**
+
+```powershell
+# Check migration order
+ls database\migrations\ | Sort-Object
+
+# Migrations PHẢI theo thứ tự:
+# 1. categories, brands, post_categories (no dependencies)
+# 2. products, posts (need categories)
+# 3. product_variants, product_images (need products)
+# 4. addresses (need users)
+# 5. coupons (no dependencies)
+# 6. orders (need users, addresses, coupons)
+# 7. order_items (need orders, products)
+# 8. reviews (need products, users, orders)
+# 9. coupon_usages (need coupons, users, orders)
+# 10. order_status_histories (need orders)
+```
+
+**If order wrong:**
+
+```powershell
+# Rollback locally
+php artisan migrate:rollback
+
+# Rename migration files to fix timestamp order
+# Example: Change from 2025_11_22_123456 to 2025_11_22_123400
+# Make sure parent tables have earlier timestamps
+
+# Migrate again
+php artisan migrate
+
+# Test successful, then commit and deploy
+git add database/migrations/
+git commit -m "fix: correct migration order for foreign keys"
+git push origin main
+```
+
+**On VPS:**
+
+```bash
+# If already deployed with wrong order
+php artisan migrate:rollback
+
+# Pull fixed migrations
+git pull origin main
+
+# Migrate again
+php artisan migrate --force
+```
+
+✅ **Solution:** Migrations now run in correct order
+
+---
+
+### Issue 2: Filament Resources Not Showing in Sidebar
+
+**Symptom:** Dashboard loads but no Products, Categories, etc. in sidebar
+
+**📍 Check on VPS:**
+
+```bash
+# 1. Verify resource files exist
+ls app/Filament/Resources/
+# Should show: ProductResource.php, CategoryResource.php, etc.
+
+# 2. Check resource registered
+php artisan route:list | grep admin
+# Should show routes for all resources
+
+# 3. Clear Filament cache
+php artisan filament:optimize-clear
+
+# 4. Clear all caches
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+
+# 5. Rebuild Filament assets
+php artisan filament:assets
+
+# 6. Fix permissions
+sudo chown -R www-data:www-data app/Filament/
+sudo chmod -R 755 app/Filament/
+
+# 7. Reload PHP-FPM
+sudo systemctl reload php8.4-fpm
+```
+
+**Check browser console (F12):**
+
+```
+Look for JavaScript errors
+If you see 404 errors for Filament assets:
+→ Run: php artisan filament:assets on VPS
+→ Run: php artisan livewire:publish --assets on VPS
+```
+
+✅ **Solution:** Resources now visible
+
+---
+
+### Issue 3: Cannot Create Records - 500 Error
+
+**Error in browser:** 500 Internal Server Error when clicking "Create"
+
+**📍 Check Laravel logs on VPS:**
+
+```bash
+tail -50 /var/www/samnghethaycu.com/storage/logs/laravel.log
+```
+
+**Common causes:**
+
+**A) Missing fillable field:**
+
+```
+Error: Add [field_name] to fillable property
+```
+
+**Fix:**
+
+```powershell
+# On LOCAL
+notepad app\Models\YourModel.php
+
+# Add missing field to $fillable array
+protected $fillable = [
+    'existing_field',
+    'missing_field', // Add this
+];
+
+# Commit and deploy
+git add app/Models/YourModel.php
+git commit -m "fix: add missing field to fillable"
+git push origin main
+
+# On VPS
+deploy-sam
+```
+
+**B) Database connection issue:**
+
+```bash
+# Test connection
+php artisan db:show
+
+# If fails, check .env
+cat .env | grep DB_
+
+# Verify matches credentials
+cat ~/credentials/database.txt
+
+# Fix .env if wrong
+nano .env
+# Update DB_PASSWORD, DB_DATABASE, etc.
+
+# Clear config cache
+php artisan config:clear
+php artisan config:cache
+```
+
+**C) Validation error:**
+
+Check Filament resource form validation rules - may be too strict
+
+✅ **Solution:** Record creation working
+
+---
+
+### Issue 4: Auto-generated Forms Look Wrong
+
+**Symptom:**
+- All fields in one long column
+- No proper field types (everything is TextInput)
+- Foreign keys show IDs instead of names
+
+**This is NORMAL!**
+
+`--generate` creates BASIC forms. We'll customize in WORKFLOW-8.
+
+**For now:**
+- ✅ Verify CRUD operations work
+- ✅ Don't worry about UI/UX
+- ⏳ Will customize forms in WORKFLOW-8
+
+**Quick improvements (optional):**
+
+```php
+// Example: CategoryResource.php
+public static function form(Form $form): Form
+{
+    return $form
+        ->schema([
+            Forms\Components\TextInput::make('name')
+                ->required()
+                ->maxLength(255)
+                ->live(onBlur: true)
+                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+
+            Forms\Components\TextInput::make('slug')
+                ->required()
+                ->maxLength(255)
+                ->unique(ignoreRecord: true),
+
+            Forms\Components\Textarea::make('description')
+                ->rows(3),
+
+            Forms\Components\FileUpload::make('image')
+                ->image()
+                ->directory('categories'),
+
+            Forms\Components\Select::make('parent_id')
+                ->relationship('parent', 'name')
+                ->searchable()
+                ->preload(),
+
+            Forms\Components\TextInput::make('order')
+                ->numeric()
+                ->default(0),
+
+            Forms\Components\Toggle::make('is_active')
+                ->default(true),
+        ]);
+}
+```
+
+But this is for WORKFLOW-8! For now, just make sure CRUD works.
+
+---
+
+### Issue 5: Database Shows Only 3 Tables After Migration
+
+**Symptom:** `php artisan db:show` shows Tables: 3 instead of 23
+
+**Check:**
+
+```bash
+# Check migration status
+php artisan migrate:status
+```
+
+**If migrations show "Pending":**
+
+```bash
+# Run migrations
+php artisan migrate --force
+
+# Verify
+php artisan db:show
+# Should now show: Tables: 23
+```
+
+**If migrations failed silently:**
+
+```bash
+# Check Laravel logs
+tail -100 storage/logs/laravel.log
+
+# Look for migration errors
+# Fix errors and re-run
+```
+
+✅ **Solution:** All 23 tables created
+
+---
+
+### Issue 6: User Table Missing New Columns
+
+**Symptom:** User model doesn't have phone, avatar, etc.
+
+**Check:**
+
+```bash
+php artisan db:table users --database=mysql
+```
+
+**If columns missing:**
+
+```bash
+# Check migration status
+php artisan migrate:status | grep add_fields_to_users
+
+# If not ran:
+php artisan migrate --force
+
+# If ran but columns still missing:
+# Rollback that specific migration
+php artisan migrate:rollback --step=1
+
+# Run again
+php artisan migrate --force
+```
+
+✅ **Solution:** User table has all columns
+
+---
+
+### Issue 7: Permission Denied on VPS During Deploy
+
+**Error:**
+
+```
+Permission denied: app/Filament/Resources/
 ```
 
 **Fix:**
 
 ```bash
-# Check migration order
-ls -la database/migrations/
+# Fix ownership
+sudo chown -R deploy:www-data /var/www/samnghethaycu.com
 
-# Ensure parent tables are migrated first:
-# 1. categories (before products)
-# 2. brands (before products)
-# 3. products (before product_variants, product_images)
-# 4. users (before orders, reviews, posts)
-# 5. addresses (before orders)
-# 6. orders (before order_items)
+# Fix permissions
+sudo chmod -R 775 /var/www/samnghethaycu.com/app
+sudo chmod -R 775 /var/www/samnghethaycu.com/database
+
+# ACL for deploy user
+sudo setfacl -R -m u:deploy:rwx /var/www/samnghethaycu.com
+sudo setfacl -R -d -m u:deploy:rwx /var/www/samnghethaycu.com
+
+# Try deploy again
+deploy-sam
 ```
 
-**If order is wrong:**
-
-```bash
-# Rollback
-php artisan migrate:rollback
-
-# Rename migration files to fix order
-# (change timestamp prefix)
-
-# Migrate again
-php artisan migrate
-```
-
-### Issue: Filament Resource Not Showing
-
-**Check:**
-
-```bash
-# Verify resource file exists
-ls app/Filament/Resources/ProductResource.php
-
-# Clear Filament cache
-php artisan filament:optimize-clear
-
-# Clear all caches
-php artisan optimize:clear
-
-# Check User model implements FilamentUser
-grep -A 3 "implements FilamentUser" app/Models/User.php
-```
-
-### Issue: Cannot Create Records (500 Error)
-
-**Check logs:**
-
-```bash
-tail -50 storage/logs/laravel.log
-```
-
-**Common causes:**
-
-1. **Missing fillable fields**
-   ```php
-   // Add to model
-   protected $fillable = ['field_name'];
-   ```
-
-2. **Validation error**
-   - Check Filament resource form validation
-
-3. **Database connection**
-   ```bash
-   php artisan db:show
-   ```
-
-### Issue: Auto-generated Forms Look Wrong
-
-**This is normal!** Filament --generate creates basic forms. We'll customize in WORKFLOW-8.
-
-**For now:** Just verify CRUD works, don't worry about UI.
+✅ **Solution:** Deployment successful
 
 ---
 
-**Created:** 2025-11-16
-**Version:** 5.0 Modular
+### Issue 8: Slug Not Auto-Generating
+
+**Symptom:** Creating category/product requires manual slug entry
+
+**This is normal** with `--generate`. Auto-slug will be added in WORKFLOW-7 with Spatie Sluggable.
+
+**For now:** Manually enter slugs or add basic JavaScript:
+
+```php
+// In Resource form
+TextInput::make('name')
+    ->live(onBlur: true)
+    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+
+TextInput::make('slug')
+    ->required(),
+```
+
+Better solution in WORKFLOW-7!
+
+---
+
+### Issue 9: Foreign Keys Show IDs Instead of Names
+
+**Symptom:** Category shows "1" instead of "Sâm Hàn Quốc"
+
+**Fix in Resource:**
+
+```php
+// ProductResource.php
+Forms\Components\Select::make('category_id')
+    ->relationship('category', 'name') // Will work after WORKFLOW-7 adds relationships
+    ->required(),
+```
+
+**But wait!** Relationships haven't been defined yet (WORKFLOW-7).
+
+**For now:** Just verify the ID saves correctly. Pretty display in WORKFLOW-8.
+
+---
+
+### Issue 10: "Class Category not found" Error
+
+**Error:**
+
+```
+Class "App\Models\Category" not found
+```
+
+**Cause:** Composer autoload cache outdated
+
+**Fix:**
+
+```powershell
+# On LOCAL
+composer dump-autoload
+
+# Test
+php artisan tinker
+> App\Models\Category::count()
+> exit
+
+# If works, commit and deploy
+```
+
+```bash
+# On VPS
+composer dump-autoload
+
+# Or use deploy-sam (runs composer install automatically)
+deploy-sam
+```
+
+✅ **Solution:** Models autoloaded correctly
+
+---
+
+## 📊 DATABASE RELATIONSHIPS DIAGRAM
+
+**Visual representation of table relationships:**
+
+```
+┌─────────────────┐
+│     USERS       │
+│  - id           │
+│  - name         │
+│  - email        │
+│  - phone        │
+│  - avatar       │
+└────────┬────────┘
+         │
+         │ 1:N (has many)
+         ├──────────────────────┐
+         │                      │
+         ▼                      ▼
+┌─────────────────┐    ┌─────────────────┐
+│   ADDRESSES     │    │     ORDERS      │
+│  - id           │    │  - id           │
+│  - user_id  ────┤    │  - user_id  ────┤
+│  - full_name    │    │  - order_number │
+│  - phone        │    │  - status       │
+│  - city         │    │  - total        │
+└─────────────────┘    └────────┬────────┘
+         ▲                       │
+         │                       │ 1:N
+         │                       ▼
+         │              ┌─────────────────┐
+         │              │   ORDER_ITEMS   │
+         │              │  - id           │
+         │              │  - order_id ────┤
+         │              │  - product_id   │
+         │              │  - quantity     │
+         │              │  - subtotal     │
+         └──────────────┤  - variant_id   │
+                        └─────────┬───────┘
+                                  │
+                                  │ N:1 (belongs to)
+                                  ▼
+┌─────────────────┐     ┌─────────────────┐
+│   CATEGORIES    │     │    PRODUCTS     │
+│  - id           │     │  - id           │
+│  - name         │     │  - category_id ─┤◄────┐
+│  - slug         │     │  - brand_id     │     │
+│  - parent_id ───┤─┐   │  - name         │     │ N:1
+└─────────────────┘ │   │  - price        │     │
+         ▲          │   │  - sku          │     │
+         │          │   └────────┬────────┘     │
+         │ Self     │            │              │
+         │ Ref      │            │ 1:N          │
+         └──────────┘            ├──────────────┘
+                                 │
+                     ┌───────────┼───────────┐
+                     │           │           │
+                     ▼           ▼           ▼
+          ┌─────────────┐ ┌─────────┐ ┌──────────┐
+          │  VARIANTS   │ │ IMAGES  │ │ REVIEWS  │
+          │- product_id─┤ │-prod_id─┤ │-prod_id──┤
+          │- sku        │ │- path   │ │- user_id │
+          │- price      │ │- order  │ │- rating  │
+          └─────────────┘ └─────────┘ └──────────┘
+
+┌─────────────────┐     ┌─────────────────┐
+│     BRANDS      │     │     COUPONS     │
+│  - id           │     │  - id           │
+│  - name         │     │  - code         │
+│  - logo         │     │  - discount     │
+└─────────────────┘     └────────┬────────┘
+         ▲                        │
+         │ N:1                    │ N:M (via coupon_usages)
+         │                        │
+         └────────────────────────┴──────────┐
+                                             │
+┌─────────────────┐              ┌───────────▼──────┐
+│POST_CATEGORIES  │              │  COUPON_USAGES   │
+│  - id           │              │  - coupon_id     │
+│  - name         │              │  - user_id       │
+└────────┬────────┘              │  - order_id      │
+         │                       └──────────────────┘
+         │ 1:N
+         ▼
+┌─────────────────┐
+│     POSTS       │
+│  - id           │
+│  - category_id ─┤
+│  - user_id      │
+│  - title        │
+│  - content      │
+└─────────────────┘
+```
+
+**Legend:**
+- `─┤` : Foreign key relationship
+- `1:N` : One-to-Many (hasMany)
+- `N:1` : Many-to-One (belongsTo)
+- `N:M` : Many-to-Many (belongsToMany via pivot)
+- `Self Ref` : Self-referencing (categories parent-child)
+
+**Note:** Relationships sẽ được implement trong WORKFLOW-7!
+
+---
+
+**Created:** 2025-11-22
+**Updated:** 2025-11-22
+**Version:** 6.0 Professional Vietnamese (Complete Edition)
 **Time:** 25-35 minutes actual
+**Format:** Standardized with WORKFLOW-5 Professional Vietnamese Edition
 
 ---
 
-**END OF WORKFLOW 5** 🗄️
+**END OF WORKFLOW 6** 🗄️
