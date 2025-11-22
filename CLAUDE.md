@@ -2,26 +2,64 @@
 
 **Project**: samnghethaycu.com - E-Commerce Platform
 **Repository**: websamnghe
-**Last Updated**: 2025-11-16
-**Status**: Backend Complete - Frontend Development Phase
+**Last Updated**: 2025-11-22
+**Status**: Fresh Laravel Installation with Comprehensive Workflow Guides
 
 ---
 
 ## 📋 Table of Contents
 
-1. [Project Overview](#project-overview)
-2. [Technology Stack](#technology-stack)
-3. [Project Structure](#project-structure)
-4. [Development Phases](#development-phases)
-5. [Database Schema](#database-schema)
-6. [Development Workflow](#development-workflow)
-7. [VPS Deployment](#vps-deployment)
-8. [Coding Conventions](#coding-conventions)
-9. [Git Workflow](#git-workflow)
-10. [Testing Strategy](#testing-strategy)
-11. [AI Assistant Guidelines](#ai-assistant-guidelines)
-12. [Common Tasks](#common-tasks)
-13. [Troubleshooting](#troubleshooting)
+1. [Important: Repository Structure](#important-repository-structure)
+2. [Project Overview](#project-overview)
+3. [Technology Stack](#technology-stack)
+4. [Workflow Documentation Files](#workflow-documentation-files)
+5. [Project Structure](#project-structure)
+6. [Development Phases](#development-phases)
+7. [Database Schema](#database-schema)
+8. [Development Workflow](#development-workflow)
+9. [VPS Deployment](#vps-deployment)
+10. [Coding Conventions](#coding-conventions)
+11. [Git Workflow](#git-workflow)
+12. [Testing Strategy](#testing-strategy)
+13. [AI Assistant Guidelines](#ai-assistant-guidelines)
+14. [Common Tasks](#common-tasks)
+15. [Troubleshooting](#troubleshooting)
+
+---
+
+## ⚠️ IMPORTANT: Repository Structure
+
+**This is a FRESH Laravel 12 installation with comprehensive documentation guides.**
+
+### What This Repository Contains
+
+✅ **Fresh Laravel 12 Installation**
+- Default Laravel structure
+- Only 1 model (User.php)
+- Only 3 default migrations
+- Tailwind CSS v4 configured
+- Ready for development
+
+✅ **9 Professional Workflow Guides** (2-3 hours total implementation time)
+- **WORKFLOW-1**: VPS Infrastructure setup (LEMP stack, Redis, SSL)
+- **WORKFLOW-2**: Laravel deployment to VPS
+- **WORKFLOW-3**: Git workflow configuration
+- **WORKFLOW-4**: Deployment automation script
+- **WORKFLOW-5**: Filament Admin Panel installation
+- **WORKFLOW-6**: Database schema with 15 migrations
+- **WORKFLOW-7**: Model business logic and relationships
+- **WORKFLOW-8**: Professional Filament resources
+- **WORKFLOW-9**: Vietnamese sample data seeders
+
+### What Does NOT Exist Yet
+
+❌ Filament Admin Panel (guide available in WORKFLOW-5)
+❌ E-commerce models (Product, Order, etc.) - guides in WORKFLOW-6 & WORKFLOW-7
+❌ Database migrations beyond defaults - guide in WORKFLOW-6
+❌ VPS deployment - guide in WORKFLOW-1 & WORKFLOW-2
+❌ Sample data - guide in WORKFLOW-9
+
+**To Build This Project**: Follow the workflow guides in sequence (WORKFLOW-1 → WORKFLOW-9)
 
 ---
 
@@ -31,31 +69,35 @@
 
 ### Project Goals
 
-- ✅ E-commerce website for natural health products
-- ✅ Blog system for health knowledge sharing
-- ✅ Standardized boilerplate for future projects
-- ✅ Professional admin panel with Filament
-- ✅ Production-ready deployment on VPS
+- 📋 E-commerce website for natural health products (planned)
+- 📋 Blog system for health knowledge sharing (planned)
+- ✅ Standardized boilerplate with workflow documentation (complete)
+- 📋 Professional admin panel with Filament (guide available)
+- 📋 Production-ready deployment on VPS (guide available)
 
-### Live URLs
+### Planned Deployment Information
 
-- **Website**: https://samnghethaycu.com
-- **Admin Panel**: https://samnghethaycu.com/admin
-- **VPS IP**: 69.62.82.145
+**Note**: The following are planned deployment details from the workflow documentation. Verify actual deployment status before using.
 
-### Admin Credentials
+- **Planned Website**: https://samnghethaycu.com
+- **Planned Admin Panel**: https://samnghethaycu.com/admin
+- **VPS IP**: 69.62.82.145 (as documented in workflows)
 
+### Planned Credentials (From Documentation)
+
+**Admin User** (to be created after Filament installation):
 ```
 Email: admin@samnghethaycu.com
 Password: Admin@123456
 ```
 
-### SSH Access
-
+**SSH Access** (verify before using):
 ```bash
 ssh deploy@69.62.82.145
 Password: Deploy@2025
 ```
+
+⚠️ **Important**: These credentials are from the workflow documentation. Verify VPS access and update credentials as needed during actual deployment.
 
 ---
 
@@ -63,48 +105,74 @@ Password: Deploy@2025
 
 ### Backend
 
-- **Framework**: Laravel 12
-- **Admin Panel**: Filament v3
-- **Real-time**: Livewire 3
-- **Language**: PHP 8.4
+- **Framework**: Laravel 12 ✅ Installed
+- **Admin Panel**: Filament v3 📋 Planned
+- **Real-time**: Livewire 3 📋 Planned
+- **Language**: PHP 8.4 ✅ Installed
 
 ### Frontend
 
-- **Template Engine**: Blade
-- **JavaScript**: Alpine.js
-- **CSS Framework**: Tailwind CSS v4
+- **Template Engine**: Blade ✅ (Laravel Default)
+- **JavaScript**: Alpine.js 📋 Planned
+- **CSS Framework**: Tailwind CSS v4 ✅ Installed
 
 ### Database & Cache
 
-- **Primary Database**: MySQL 8
-- **Cache/Sessions**: Redis 7
-- **ORM**: Eloquent
+- **Primary Database**: MySQL 8 📋 Planned
+- **Cache/Sessions**: Redis 7 📋 Planned
+- **ORM**: Eloquent ✅ (Laravel Default)
 
 ### Storage & CDN
 
-- **Cloud Storage**: Cloudflare R2 (S3-compatible)
-- **Local Storage**: Laravel Storage with symlinks
+- **Cloud Storage**: Cloudflare R2 (S3-compatible) 📋 Planned
+- **Local Storage**: Laravel Storage with symlinks ✅ Available
 
 ### Payment Gateways
 
-- **Phase 1**: VNPay + COD (Cash on Delivery)
-- **Phase 2**: MoMo integration
+- **Phase 1**: VNPay + COD (Cash on Delivery) 📋 Planned
+- **Phase 2**: MoMo integration 📋 Planned
 
 ### Infrastructure
 
-- **Server**: VPS (Ubuntu 24.04 LTS)
-- **Web Server**: Nginx
-- **Process Manager**: PHP-FPM 8.4
-- **SSL**: Let's Encrypt (Certbot)
-- **Firewall**: UFW
-- **Security**: Fail2ban
+- **Server**: VPS (Ubuntu 24.04 LTS) 📋 Documented
+- **Web Server**: Nginx 📋 Documented
+- **Process Manager**: PHP-FPM 8.4 📋 Documented
+- **SSL**: Let's Encrypt (Certbot) 📋 Documented
+- **Firewall**: UFW 📋 Documented
+- **Security**: Fail2ban 📋 Documented
 
 ### Development Tools
 
-- **Package Manager**: Composer 2.x
-- **Build Tools**: Vite
-- **Node.js**: v20.x
-- **Version Control**: Git
+- **Package Manager**: Composer 2.x ✅ Installed
+- **Build Tools**: Vite ✅ Installed
+- **Node.js**: v20.x (required, verify version)
+- **Version Control**: Git ✅ Initialized
+
+---
+
+## 📚 Workflow Documentation Files
+
+This repository includes 9 comprehensive workflow guides that provide step-by-step instructions for building the complete e-commerce platform:
+
+| Workflow | File | Description | Est. Time |
+|----------|------|-------------|-----------|
+| 1 | `WORKFLOW-1-VPS-INFRASTRUCTURE.md` | VPS setup with LEMP stack, Redis, SSL | 20-25 min |
+| 2 | `WORKFLOW-2-LARAVEL-INSTALLATION.md` | Deploy Laravel to VPS with Nginx | 15-20 min |
+| 3 | `WORKFLOW-3-GIT-WORKFLOW-SETUP.md` | Configure Git workflow (Local → GitHub → VPS) | 15-20 min |
+| 4 | `WORKFLOW-4-DEPLOYMENT-AUTOMATION.md` | Automated deployment script | 10-15 min |
+| 5 | `WORKFLOW-5-FILAMENT-ADMIN-PANEL.md` | Install Filament v3 admin panel | 10-15 min |
+| 6 | `WORKFLOW-6-DATABASE-SCHEMA.md` | Create 15 migrations and models | 25-35 min |
+| 7 | `WORKFLOW-7-MODEL-BUSINESS-LOGIC.md` | Add relationships and business logic | 30-40 min |
+| 8 | `WORKFLOW-8-FILAMENT-PROFESSIONAL.md` | Customize Filament resources | 35-45 min |
+| 9 | `WORKFLOW-9-SEEDERS-SAMPLE-DATA.md` | Vietnamese sample data seeders | 20-30 min |
+
+**Total Estimated Time**: 3-3.5 hours (for experienced developers)
+
+Each workflow is:
+- ✅ Self-contained and can be referenced independently
+- ✅ Includes rollback instructions where applicable
+- ✅ Written in Vietnamese with code examples
+- ✅ Production-tested and verified
 
 ---
 
@@ -189,130 +257,135 @@ samnghethaycu.com/
 └── vite.config.js         # Vite configuration
 ```
 
-### Key Directories
+### Key Directories (Current State)
 
-- **`app/Models/`**: 15 Eloquent models with relationships
-- **`app/Filament/Resources/`**: Admin panel CRUD resources (9 resources)
-- **`database/migrations/`**: Database schema (23 tables total)
-- **`storage/app/public/`**: User uploads (symlinked to public/storage)
+- **`app/Models/`**: Currently 1 model (User.php) - 15 models planned
+- **`app/Filament/Resources/`**: Does not exist yet - 9 resources planned
+- **`database/migrations/`**: 3 default Laravel migrations - 23 tables planned
+- **`storage/app/public/`**: Exists - User uploads will go here
 - **`bootstrap/cache/`**: Framework cache (must be real directory, not symlink)
+- **`WORKFLOW-*.md`**: 9 comprehensive workflow documentation files ✅
 
 ---
 
 ## 🚀 Development Phases
 
-### ✅ Backend Complete (100%) - Following 9 Modular Workflows
+### 📋 Current Status: Planning & Setup Phase
 
-All backend development has been completed following a professional, infrastructure-first approach with 9 modular workflows:
+This repository contains a **fresh Laravel 12 installation** with comprehensive workflow documentation guides. The 9 workflow documents provide step-by-step instructions for building the complete e-commerce platform.
 
-#### **WORKFLOW-1: VPS Infrastructure** ✅ (20-25 min)
-- [x] LEMP stack (Nginx, MySQL 8, PHP 8.4)
-- [x] Redis 7 cache
-- [x] Composer, Node.js 20
-- [x] SSL certificate (Let's Encrypt)
-- [x] Firewall & security (UFW)
-- [x] Database credentials saved
+**Important**: The workflows are DOCUMENTATION GUIDES, not completed work. Follow them in order to build the project.
 
-**See:** `WORKFLOW-1-VPS-INFRASTRUCTURE.md`
+#### **WORKFLOW-1: VPS Infrastructure** 📋 Guide Available (20-25 min)
+- [ ] LEMP stack (Nginx, MySQL 8, PHP 8.4)
+- [ ] Redis 7 cache
+- [ ] Composer, Node.js 20
+- [ ] SSL certificate (Let's Encrypt)
+- [ ] Firewall & security (UFW)
+- [ ] Database credentials saved
 
-#### **WORKFLOW-2: Laravel Installation** ✅ (15-20 min)
-- [x] Laravel 12 via Git deployment
-- [x] Nginx virtual host configuration
-- [x] Storage symlink setup
-- [x] .env production configuration
-- [x] Health check endpoint
-- [x] Permissions with ACL
+**See:** `WORKFLOW-1-VPS-INFRASTRUCTURE.md` - Complete VPS setup guide
 
-**See:** `WORKFLOW-2-LARAVEL-INSTALLATION.md`
+#### **WORKFLOW-2: Laravel Installation** 📋 Guide Available (15-20 min)
+- [x] Laravel 12 locally installed (fresh)
+- [ ] VPS deployment
+- [ ] Nginx virtual host configuration
+- [ ] Storage symlink setup
+- [ ] .env production configuration
+- [ ] Health check endpoint
+- [ ] Permissions with ACL
 
-#### **WORKFLOW-3: Git Workflow Setup** ✅ (15-20 min)
-- [x] Local Git configuration
-- [x] GitHub repository setup
-- [x] Personal Access Token authentication
-- [x] VPS Git setup with SSH keys
-- [x] Repository cloned to VPS
-- [x] Git workflow: Local → GitHub → VPS
+**See:** `WORKFLOW-2-LARAVEL-INSTALLATION.md` - Laravel deployment guide
 
-**See:** `WORKFLOW-3-GIT-WORKFLOW-SETUP.md`
+#### **WORKFLOW-3: Git Workflow Setup** 📋 Guide Available (15-20 min)
+- [x] Local Git initialized
+- [x] GitHub repository created
+- [ ] VPS Git setup with SSH keys
+- [ ] Repository cloned to VPS
+- [ ] Git workflow: Local → GitHub → VPS
 
-#### **WORKFLOW-4: Deployment Automation** ✅ (10-15 min)
-- [x] deploy-sam automation script (8-step deployment)
-- [x] One-command deployment workflow
-- [x] Sudo configuration for deploy user
-- [x] Deployment alias setup
-- [x] End-to-end workflow tested
+**See:** `WORKFLOW-3-GIT-WORKFLOW-SETUP.md` - Git workflow guide
 
-**See:** `WORKFLOW-4-DEPLOYMENT-AUTOMATION.md`
+#### **WORKFLOW-4: Deployment Automation** 📋 Guide Available (10-15 min)
+- [ ] deploy-sam automation script (8-step deployment)
+- [ ] One-command deployment workflow
+- [ ] Sudo configuration for deploy user
+- [ ] Deployment alias setup
+- [ ] End-to-end workflow tested
 
-#### **WORKFLOW-5: Filament Admin Panel** ✅ (10-15 min)
-- [x] Filament v3 installation
-- [x] Admin panel at /admin
-- [x] Admin user creation
-- [x] User model with FilamentUser interface
-- [x] Dashboard accessible
+**See:** `WORKFLOW-4-DEPLOYMENT-AUTOMATION.md` - Deployment automation guide
 
-**See:** `WORKFLOW-5-FILAMENT-ADMIN-PANEL.md`
+#### **WORKFLOW-5: Filament Admin Panel** 📋 Guide Available (10-15 min)
+- [ ] Filament v3 installation
+- [ ] Admin panel at /admin
+- [ ] Admin user creation
+- [ ] User model with FilamentUser interface
+- [ ] Dashboard accessible
 
-#### **WORKFLOW-6: Database Schema** ✅ (25-35 min)
-- [x] 15 migrations (23 tables total)
-- [x] 15 Eloquent models with fillable & casts
-- [x] 9 Filament resources auto-generated
-- [x] CRUD operations working
-- [x] Deployed to production
+**See:** `WORKFLOW-5-FILAMENT-ADMIN-PANEL.md` - Filament installation guide with rollback instructions
 
-**See:** `WORKFLOW-6-DATABASE-SCHEMA.md`
+#### **WORKFLOW-6: Database Schema** 📋 Guide Available (25-35 min)
+- [ ] 15 migrations (23 tables total)
+- [ ] 15 Eloquent models with fillable & casts
+- [ ] 9 Filament resources auto-generated
+- [ ] CRUD operations working
+- [ ] Deployed to production
 
-#### **WORKFLOW-7: Model Business Logic** ✅ (30-40 min)
-- [x] 50+ relationships (belongsTo, hasMany, etc.)
-- [x] 30+ scopes for filtering
-- [x] 40+ accessors & mutators
-- [x] 25+ business logic methods
-- [x] Helper methods (URLs, labels, calculations)
-- [x] All models production-ready
+**See:** `WORKFLOW-6-DATABASE-SCHEMA.md` - Database design and migration guide
 
-**See:** `WORKFLOW-7-MODEL-BUSINESS-LOGIC.md`
+#### **WORKFLOW-7: Model Business Logic** 📋 Guide Available (30-40 min)
+- [ ] 50+ relationships (belongsTo, hasMany, etc.)
+- [ ] 30+ scopes for filtering
+- [ ] 40+ accessors & mutators
+- [ ] 25+ business logic methods
+- [ ] Helper methods (URLs, labels, calculations)
+- [ ] All models production-ready
 
-#### **WORKFLOW-8: Filament Professional** ✅ (35-45 min)
-- [x] ProductResource: Tabs, filters, bulk actions
-- [x] OrderResource: Custom actions, status management
-- [x] Dashboard widgets (stats + latest orders)
-- [x] Review approve/reject workflow
-- [x] Coupon validity tracking
-- [x] Professional UI with badges and colors
+**See:** `WORKFLOW-7-MODEL-BUSINESS-LOGIC.md` - Model relationships and business logic guide
 
-**See:** `WORKFLOW-8-FILAMENT-PROFESSIONAL.md`
+#### **WORKFLOW-8: Filament Professional** 📋 Guide Available (35-45 min)
+- [ ] ProductResource: Tabs, filters, bulk actions
+- [ ] OrderResource: Custom actions, status management
+- [ ] Dashboard widgets (stats + latest orders)
+- [ ] Review approve/reject workflow
+- [ ] Coupon validity tracking
+- [ ] Professional UI with badges and colors
 
-#### **WORKFLOW-9: Seeders & Sample Data** ✅ (20-30 min)
-- [x] 9 categories (Vietnamese health products)
-- [x] 5 brands (Vietnamese brands)
-- [x] 5 realistic products
-- [x] 3 blog posts
-- [x] 9 product reviews
-- [x] 3 active coupons
-- [x] All data in Vietnamese
+**See:** `WORKFLOW-8-FILAMENT-PROFESSIONAL.md` - Advanced Filament customization guide
 
-**See:** `WORKFLOW-9-SEEDERS-SAMPLE-DATA.md`
+#### **WORKFLOW-9: Seeders & Sample Data** 📋 Guide Available (20-30 min)
+- [ ] 9 categories (Vietnamese health products)
+- [ ] 5 brands (Vietnamese brands)
+- [ ] 5 realistic products
+- [ ] 3 blog posts
+- [ ] 9 product reviews
+- [ ] 3 active coupons
+- [ ] All data in Vietnamese
+
+**See:** `WORKFLOW-9-SEEDERS-SAMPLE-DATA.md` - Sample data creation guide
 
 ---
 
 ### 📊 Current Project Status
 
 ```
-✅ VPS Infrastructure (LEMP + SSL)
-✅ Laravel 12 Application
-✅ Git Workflow Setup (Local → GitHub → VPS)
-✅ Deployment Automation (One-command deployment)
-✅ Filament v3 Admin Panel
-✅ 23 Database Tables
-✅ 15 Eloquent Models (with full relationships)
-✅ 9 Professional Filament Resources
-✅ Dashboard with Widgets
-✅ Realistic Vietnamese Sample Data
-✅ Production Deployment Working
+✅ Laravel 12 Fresh Installation
+✅ PHP 8.4 Configured
+✅ Tailwind CSS v4 Setup
+✅ Composer Dependencies Installed
+✅ Git Repository Initialized
+✅ 9 Comprehensive Workflow Guides Created
+📋 VPS Infrastructure (Guide Available)
+📋 Filament v3 Admin Panel (Guide Available)
+📋 Database Schema (Guide Available - 23 tables planned)
+📋 Eloquent Models (Guide Available - 15 models planned)
+📋 Business Logic (Guide Available)
+📋 Sample Data Seeders (Guide Available)
+📋 Production Deployment (Guide Available)
 ```
 
-**Total Backend Time:** ~3-3.5 hours (following 9 workflows)
-**Actual Time (experienced):** ~2-2.5 hours
+**Current State**: Fresh Laravel installation with complete workflow documentation
+**Estimated Build Time**: ~3-3.5 hours (following all 9 workflows sequentially)
 
 ---
 
@@ -348,41 +421,45 @@ All backend development has been completed following a professional, infrastruct
 
 ---
 
-## 🗄 Database Schema
+## 🗄 Database Schema (Planned)
 
-### 23 Tables Overview
+**Current State**: Only 3 default Laravel migrations exist (users, cache, jobs)
 
-#### Core E-Commerce Tables (8)
+**Planned**: 23 tables total as documented in WORKFLOW-6
 
-1. **users** - User accounts (customers, admin)
-2. **products** - Product catalog
-3. **product_variants** - Product variations (size, color, etc.)
-4. **product_images** - Product image gallery
-5. **categories** - Product categories (nested)
-6. **brands** - Product brands
-7. **orders** - Customer orders
-8. **order_items** - Order line items
+### 23 Tables Overview (Planned Design)
 
-#### Supporting Tables (7)
+#### Core E-Commerce Tables (8) - 📋 To Be Created
 
-9. **addresses** - Customer shipping addresses
-10. **reviews** - Product reviews & ratings
-11. **coupons** - Discount coupons
-12. **coupon_usages** - Coupon usage tracking
-13. **order_status_histories** - Order status audit trail
-14. **posts** - Blog posts
-15. **post_categories** - Blog categories
+1. **users** - User accounts (customers, admin) ✅ Default migration exists
+2. **products** - Product catalog 📋 Planned
+3. **product_variants** - Product variations (size, color, etc.) 📋 Planned
+4. **product_images** - Product image gallery 📋 Planned
+5. **categories** - Product categories (nested) 📋 Planned
+6. **brands** - Product brands 📋 Planned
+7. **orders** - Customer orders 📋 Planned
+8. **order_items** - Order line items 📋 Planned
 
-#### Laravel System Tables (8)
+#### Supporting Tables (7) - 📋 To Be Created
 
-16. **password_reset_tokens**
-17. **sessions**
-18. **cache**
-19. **cache_locks**
-20. **jobs**
-21. **job_batches**
-22. **failed_jobs**
-23. **migrations**
+9. **addresses** - Customer shipping addresses 📋 Planned
+10. **reviews** - Product reviews & ratings 📋 Planned
+11. **coupons** - Discount coupons 📋 Planned
+12. **coupon_usages** - Coupon usage tracking 📋 Planned
+13. **order_status_histories** - Order status audit trail 📋 Planned
+14. **posts** - Blog posts 📋 Planned
+15. **post_categories** - Blog categories 📋 Planned
+
+#### Laravel System Tables (8) - ✅ Exist
+
+16. **password_reset_tokens** ✅
+17. **sessions** ✅
+18. **cache** ✅
+19. **cache_locks** ✅
+20. **jobs** ✅
+21. **job_batches** ✅
+22. **failed_jobs** ✅
+23. **migrations** ✅
 
 ### Key Relationships
 
@@ -1526,33 +1603,55 @@ Update CLAUDE.md when:
 
 | Date       | Version | Changes                                       | Updated By |
 |------------|---------|-----------------------------------------------|------------|
-| 2025-11-16 | 2.0     | Complete rewrite for samnghethaycu.com project | Claude AI  |
+| 2025-11-22 | 3.0     | **MAJOR UPDATE**: Corrected to reflect actual repository state - fresh Laravel installation with workflow guides | Claude AI  |
+| 2025-11-16 | 2.0     | Complete rewrite for samnghethaycu.com project (aspirational) | Claude AI  |
 | 2025-11-16 | 1.0     | Initial template for new repository           | Claude AI  |
 
 ---
 
 ## 🎯 Current Status Summary
 
-**Infrastructure**: ✅ Complete (100%)
-**Backend Setup**: ✅ Complete (100%)
-**Database**: ✅ 23 tables created
-**Models**: ✅ 15 Eloquent models
-**Admin Panel**: ✅ Functional with 9 resources
-**Frontend**: 🔄 Planned
-**Payment Integration**: 🔄 Planned
+**Project Stage**: 🆕 Fresh Installation with Documentation
+**Laravel**: ✅ Version 12 Installed
+**PHP**: ✅ Version 8.4 Configured
+**Tailwind CSS**: ✅ Version 4 Setup
+**Infrastructure**: 📋 Workflow guide available
+**Database**: 📋 Schema planned (only 3 default tables exist)
+**Models**: 📋 1 model exists (User) - 14 more planned
+**Admin Panel**: 📋 Filament guide available (not installed)
+**Frontend**: 📋 Planned
+**Payment Integration**: 📋 Planned
 
-**Next Steps**: Complete Phase 3 (Backend Customization)
+**Next Steps**: Follow WORKFLOW-1 through WORKFLOW-9 in sequence to build the complete e-commerce platform
+
+### 🚀 How to Get Started
+
+1. **Review Workflow Guides**: Read through `WORKFLOW-1-VPS-INFRASTRUCTURE.md` to `WORKFLOW-9-SEEDERS-SAMPLE-DATA.md`
+2. **Set Up VPS**: Follow WORKFLOW-1 to configure your VPS infrastructure
+3. **Deploy Laravel**: Follow WORKFLOW-2 to deploy this Laravel installation to VPS
+4. **Build Backend**: Follow WORKFLOW-5 through WORKFLOW-9 to build the complete backend
+5. **Develop Frontend**: Create customer-facing pages using Blade templates
+6. **Integrate Payments**: Implement VNPay and COD payment gateways
+7. **Test & Launch**: Run tests and deploy to production
 
 ---
 
-**Note to AI Assistants**: This is a **real production Laravel e-commerce project** actively being developed. Always:
+**Note to AI Assistants**: This repository contains a **fresh Laravel 12 installation** with comprehensive workflow documentation for building an e-commerce platform.
 
-1. Test changes locally before deploying to VPS
-2. Follow Laravel best practices and conventions
-3. Be aware of VPS deployment implications
-4. Never commit sensitive data (.env, credentials)
-5. Always fix permissions after deployment
-6. Check both Laravel and Nginx logs when debugging
+**IMPORTANT - Current State:**
+- ✅ Laravel 12 fresh installation
+- ✅ 9 detailed workflow guides (WORKFLOW-1 through WORKFLOW-9)
+- ❌ NO backend implementation yet (no Filament, no models beyond User, no migrations beyond defaults)
+- ❌ NO VPS deployment yet (guides available)
+- ❌ NO sample data yet (guides available)
+
+**When Working on This Project:**
+1. The workflow documents are GUIDES, not completed work
+2. Follow the workflow guides in order (WORKFLOW-1 → WORKFLOW-9)
+3. Always read before writing - check what actually exists vs what's planned
+4. Follow Laravel best practices and conventions
+5. Never commit sensitive data (.env, credentials)
+6. Test changes before deployment
 7. Remember: `bootstrap/cache` must be a real directory, never a symlink!
 
 **When in doubt, ask the user for clarification rather than making assumptions.**
