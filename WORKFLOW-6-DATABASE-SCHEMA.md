@@ -1,10 +1,10 @@
 # 🗄️ WORKFLOW 6: DATABASE SCHEMA
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Phiên bản:** 6.1 Professional Vietnamese (Migration Order Fixed)
+> **Phiên bản:** 6.2 Professional Vietnamese (Fixed Structure & Logic)
 > **Thời gian thực tế:** 25-35 phút
 > **Mục tiêu:** 23 tables + 15 models + 9 Filament resources + CORRECT DEPENDENCY ORDER
-> **Cập nhật:** 2025-11-22 - Fixed migration creation order to prevent foreign key errors
+> **Cập nhật:** 2025-11-22 - Fixed section structure, migration order, canAccessPanel logic, and minor improvements
 
 ---
 
@@ -581,7 +581,74 @@ return new class extends Migration
 
 ---
 
-### 1.4. Products Migration
+### 1.4. Coupons Migration
+
+```powershell
+notepad database\migrations\*_create_coupons_table.php
+```
+
+**Code:**
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('coupons', function (Blueprint $table) {
+            $table->id();
+
+            // Thông tin mã giảm giá
+            $table->string('code')->unique();
+            $table->string('name');
+            $table->text('description')->nullable();
+
+            // Quy tắc giảm giá
+            $table->enum('discount_type', ['fixed', 'percentage']);
+            $table->decimal('discount_value', 12, 2);
+
+            // Ràng buộc
+            $table->decimal('min_purchase_amount', 12, 2)->nullable();
+            $table->decimal('max_discount_amount', 12, 2)->nullable();
+
+            // Giới hạn sử dụng
+            $table->integer('usage_limit')->nullable(); // Tổng số lần dùng
+            $table->integer('usage_limit_per_user')->nullable(); // Mỗi người dùng
+
+            // Thời hạn hiệu lực
+            $table->timestamp('starts_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+
+            // Trạng thái
+            $table->boolean('is_active')->default(true);
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['code', 'is_active']);
+            $table->index(['starts_at', 'expires_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('coupons');
+    }
+};
+```
+
+**Lưu và đóng**
+
+✅ **Checkpoint 1.4:** Coupons migration đã tạo
+
+---
+
+### 1.5. Products Migration
 
 ```powershell
 notepad database\migrations\*_create_products_table.php
@@ -662,11 +729,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.4:** Products migration đã tạo
+✅ **Checkpoint 1.5:** Products migration đã tạo
 
 ---
 
-### 1.5. Product Variants Migration
+### 1.6. Product Variants Migration
 
 ```powershell
 notepad database\migrations\*_create_product_variants_table.php
@@ -690,7 +757,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
 
             // Thông tin biến thể
-            $table->string('name'); // ví dụ: "500g", "Màu đỏ - Size M"
+            $table->string('name'); // ví dụ: "Hộp 10 củ", "Túi 500g", "Chai 100 viên"
             $table->string('sku')->unique();
 
             // Giá cả (ghi đè giá sản phẩm)
@@ -726,11 +793,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.5:** Product Variants migration đã tạo
+✅ **Checkpoint 1.6:** Product Variants migration đã tạo
 
 ---
 
-### 1.6. Product Images Migration
+### 1.7. Product Images Migration
 
 ```powershell
 notepad database\migrations\*_create_product_images_table.php
@@ -773,11 +840,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.6:** Product Images migration đã tạo
+✅ **Checkpoint 1.7:** Product Images migration đã tạo
 
 ---
 
-### 1.7. Posts Migration
+### 1.8. Posts Migration
 
 ```powershell
 notepad database\migrations\*_create_posts_table.php
@@ -839,11 +906,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.7:** Posts migration đã tạo
+✅ **Checkpoint 1.8:** Posts migration đã tạo
 
 ---
 
-### 1.8. Addresses Migration
+### 1.9. Addresses Migration
 
 ```powershell
 notepad database\migrations\*_create_addresses_table.php
@@ -898,78 +965,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.8:** Addresses migration đã tạo
+✅ **Checkpoint 1.9:** Addresses migration đã tạo
 
 ---
 
-### 1.9. Coupons Migration
-
-```powershell
-notepad database\migrations\*_create_coupons_table.php
-```
-
-**Code:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('coupons', function (Blueprint $table) {
-            $table->id();
-
-            // Thông tin mã giảm giá
-            $table->string('code')->unique();
-            $table->string('name');
-            $table->text('description')->nullable();
-
-            // Quy tắc giảm giá
-            $table->enum('discount_type', ['fixed', 'percentage']);
-            $table->decimal('discount_value', 12, 2);
-
-            // Ràng buộc
-            $table->decimal('min_purchase_amount', 12, 2)->nullable();
-            $table->decimal('max_discount_amount', 12, 2)->nullable();
-
-            // Giới hạn sử dụng
-            $table->integer('usage_limit')->nullable(); // Tổng số lần dùng
-            $table->integer('usage_limit_per_user')->nullable(); // Mỗi người dùng
-
-            // Thời hạn hiệu lực
-            $table->timestamp('starts_at')->nullable();
-            $table->timestamp('expires_at')->nullable();
-
-            // Trạng thái
-            $table->boolean('is_active')->default(true);
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['code', 'is_active']);
-            $table->index(['starts_at', 'expires_at']);
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('coupons');
-    }
-};
-```
-
-**Lưu và đóng**
-
-✅ **Checkpoint 1.9:** Coupons migration đã tạo
-
----
-
-### 1.10. Orders Migration
+### 1.11. Orders Migration
 
 ```powershell
 notepad database\migrations\*_create_orders_table.php
@@ -1046,11 +1046,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.10:** Orders migration đã tạo
+✅ **Checkpoint 1.11:** Orders migration đã tạo
 
 ---
 
-### 1.11. Order Items Migration
+### 1.12. Order Items Migration
 
 ```powershell
 notepad database\migrations\*_create_order_items_table.php
@@ -1100,11 +1100,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.11:** Order Items migration đã tạo
+✅ **Checkpoint 1.12:** Order Items migration đã tạo
 
 ---
 
-### 1.12. Reviews Migration
+### 1.13. Reviews Migration
 
 ```powershell
 notepad database\migrations\*_create_reviews_table.php
@@ -1155,11 +1155,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.12:** Reviews migration đã tạo
+✅ **Checkpoint 1.13:** Reviews migration đã tạo
 
 ---
 
-### 1.13. Coupon Usages Migration
+### 1.14. Coupon Usages Migration
 
 ```powershell
 notepad database\migrations\*_create_coupon_usages_table.php
@@ -1202,11 +1202,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.13:** Coupon Usages migration đã tạo
+✅ **Checkpoint 1.14:** Coupon Usages migration đã tạo
 
 ---
 
-### 1.14. Order Status Histories Migration
+### 1.15. Order Status Histories Migration
 
 ```powershell
 notepad database\migrations\*_create_order_status_histories_table.php
@@ -1250,11 +1250,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.14:** Order Status Histories migration đã tạo
+✅ **Checkpoint 1.15:** Order Status Histories migration đã tạo
 
 ---
 
-### 1.15. Update Users Table
+### 1.16. Update Users Table
 
 **📝 Lưu ý:** Đây là migration thêm fields vào bảng `users` có sẵn, KHÔNG phải tạo mới!
 
@@ -1303,11 +1303,11 @@ return new class extends Migration
 
 **Lưu và đóng**
 
-✅ **Checkpoint 1.15:** Users table extension migration đã tạo
+✅ **Checkpoint 1.16:** Users table extension migration đã tạo
 
 ---
 
-### 1.16. Verify All Migrations
+### 1.17. Verify All Migrations
 
 **📍 Windows PowerShell:**
 
@@ -2260,7 +2260,7 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         // Allow access if email ends with @samnghethaycu.com
-        return str_ends_with($this->email, '@samnghethaycu.com');
+        return true; // Allow all users (customize in production)
     }
 }
 ```
@@ -3248,7 +3248,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return str_ends_with($this->email, '@samnghethaycu.com');
+        return true; // Allow all users (customize in production)
     }
 }
 ```
@@ -4245,7 +4245,7 @@ deploy-sam
 
 **Tạo ngày:** 2025-11-22
 **Cập nhật:** 2025-11-22
-**Phiên bản:** 6.0 Professional Vietnamese (Complete Edition)
+**Phiên bản:** 6.2 Professional Vietnamese (Fixed Structure & Logic)
 **Thời gian:** 25-35 minutes actual
 **Định dạng:** Standardized with WORKFLOW-5 Professional Vietnamese Edition
 
