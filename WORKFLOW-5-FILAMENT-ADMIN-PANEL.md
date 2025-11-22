@@ -177,85 +177,31 @@ You can now access the panel at: /admin
 
 **📍 Trên Windows:**
 
-**⚠️ QUAN TRỌNG:** Thêm tiếng Việt ngay sau khi install để admin panel hiển thị tiếng Việt!
+**⚠️ QUAN TRỌNG:** Cấu hình tiếng Việt cho toàn bộ application (bao gồm Filament admin panel)!
 
 ```powershell
-# Open AdminPanelProvider
-code app\Providers\Filament\AdminPanelProvider.php
+# Open Laravel app config
+code config\app.php
 ```
 
-**Xóa toàn bộ nội dung file cũ và thay thế bằng code mới bên dưới:**
-
-**Copy TOÀN BỘ code này vào file `app\Providers\Filament\AdminPanelProvider.php`:**
+**Tìm dòng (khoảng dòng 83-86):**
 
 ```php
-<?php
-
-namespace App\Providers\Filament;
-
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
-use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
-
-class AdminPanelProvider extends PanelProvider
-{
-    public function panel(Panel $panel): Panel
-    {
-        return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin')
-            ->locale('vi')  // ← Vietnamese locale cho admin panel
-            ->login()
-            ->colors([
-                'primary' => Color::Amber,
-            ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([
-                Dashboard::class,
-            ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
-            ->middleware([
-                EncryptCookies::class,
-                AddQueuedCookiesToResponse::class,
-                StartSession::class,
-                AuthenticateSession::class,
-                ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
-                SubstituteBindings::class,
-                DisableBladeIconComponents::class,
-                DispatchServingFilamentEvent::class,
-            ])
-            ->authMiddleware([
-                Authenticate::class,
-            ]);
-    }
-}
+'locale' => env('APP_LOCALE', 'en'),
 ```
 
-**📝 Lưu ý:**
-- Dòng quan trọng nhất: `->locale('vi')` (dòng 30)
-- Copy paste TOÀN BỘ code từ `<?php` đến dấu `}` cuối cùng
+**Sửa thành:**
+
+```php
+'locale' => env('APP_LOCALE', 'vi'),
+```
 
 **Save file (Ctrl+S hoặc File → Save)**
+
+**📝 Lưu ý:**
+- Chỉ cần sửa `'en'` thành `'vi'`
+- Đây là cách Laravel CHÍNH THỨC để set locale
+- Filament sẽ tự động sử dụng locale này
 
 ✅ **Checkpoint 1.3:** Vietnamese locale configured
 
