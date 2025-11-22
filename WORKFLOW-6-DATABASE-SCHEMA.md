@@ -1,9 +1,10 @@
 # 🗄️ WORKFLOW 6: DATABASE SCHEMA
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Phiên bản:** 6.0 Professional Vietnamese (Complete Edition)
+> **Phiên bản:** 6.1 Professional Vietnamese (Migration Order Fixed)
 > **Thời gian thực tế:** 25-35 phút
-> **Mục tiêu:** 23 tables + 15 models + 9 Filament resources + ROLLBACK guide
+> **Mục tiêu:** 23 tables + 15 models + 9 Filament resources + CORRECT DEPENDENCY ORDER
+> **Cập nhật:** 2025-11-22 - Fixed migration creation order to prevent foreign key errors
 
 ---
 
@@ -145,20 +146,40 @@ https://samnghethaycu.com/admin
 15 Eloquent Models + 9 Filament Resources
 ```
 
-**Migration order matters!** Parent tables trước, child tables sau:
+**⚠️ MIGRATION ORDER CRITICAL!** Foreign keys phải tạo SAU khi bảng tham chiếu đã tồn tại!
+
+**Dependency Levels:**
 ```
-1. categories, brands, post_categories (độc lập)
-2. products, posts (cần categories)
-3. product_variants, product_images (cần products)
-4. addresses (cần users)
-5. coupons (độc lập)
-6. orders (cần users, addresses, coupons)
-7. order_items (cần orders, products)
-8. reviews (cần products, users, orders)
-9. coupon_usages (cần coupons, users, orders)
-10. order_status_histories (cần orders)
-11. users (mở rộng fields)
+Level 0 (Laravel defaults - đã tồn tại):
+└── users ✅
+
+Level 1 (Bảng độc lập - không foreign key):
+├── categories (có self-reference parent_id)
+├── brands
+├── post_categories
+└── coupons
+
+Level 2 (Phụ thuộc Level 0 + Level 1):
+├── products        → cần: categories, brands
+├── posts           → cần: post_categories, users
+└── addresses       → cần: users
+
+Level 3 (Phụ thuộc Level 2):
+├── product_variants  → cần: products
+├── product_images    → cần: products
+└── orders            → cần: users, addresses, coupons
+
+Level 4 (Phụ thuộc Level 3):
+├── order_items            → cần: orders, products, product_variants
+├── reviews                → cần: products, users, orders
+├── coupon_usages          → cần: coupons, users, orders
+└── order_status_histories → cần: orders, users
+
+Level 5 (Mở rộng bảng có sẵn):
+└── add_fields_to_users_table
 ```
+
+**🔥 LƯU Ý QUAN TRỌNG:** Tạo migrations theo NHÓM với delay để đảm bảo timestamp khác nhau!
 
 ---
 
@@ -170,34 +191,72 @@ https://samnghethaycu.com/admin
 
 ```powershell
 cd C:\Projects\samnghethaycu
+```
 
-# Tạo tất cả migrations cùng lúc (sẽ có timestamp tự động)
+**🔥 QUAN TRỌNG:** Tạo migrations theo NHÓM (theo dependency level) với delay 2 giây giữa các nhóm để đảm bảo timestamp khác nhau và thứ tự đúng!
+
+### Nhóm 1: Level 1 - Bảng độc lập (4 migrations)
+
+```powershell
 php artisan make:migration create_categories_table
 php artisan make:migration create_brands_table
 php artisan make:migration create_post_categories_table
+php artisan make:migration create_coupons_table
+
+# Đợi 2 giây để timestamp khác nhau
+Start-Sleep -Seconds 2
+```
+
+### Nhóm 2: Level 2 - Phụ thuộc Level 1 (3 migrations)
+
+```powershell
 php artisan make:migration create_products_table
-php artisan make:migration create_product_variants_table
-php artisan make:migration create_product_images_table
 php artisan make:migration create_posts_table
 php artisan make:migration create_addresses_table
-php artisan make:migration create_coupons_table
+
+# Đợi 2 giây
+Start-Sleep -Seconds 2
+```
+
+### Nhóm 3: Level 3 - Phụ thuộc Level 2 (3 migrations)
+
+```powershell
+php artisan make:migration create_product_variants_table
+php artisan make:migration create_product_images_table
 php artisan make:migration create_orders_table
+
+# Đợi 2 giây
+Start-Sleep -Seconds 2
+```
+
+### Nhóm 4: Level 4 - Phụ thuộc Level 3 (4 migrations)
+
+```powershell
 php artisan make:migration create_order_items_table
 php artisan make:migration create_reviews_table
 php artisan make:migration create_coupon_usages_table
 php artisan make:migration create_order_status_histories_table
+
+# Đợi 2 giây
+Start-Sleep -Seconds 2
+```
+
+### Nhóm 5: Level 5 - Mở rộng bảng có sẵn (1 migration)
+
+```powershell
 php artisan make:migration add_fields_to_users_table
 ```
 
 **Kết quả mong đợi:**
 
 ```
-Đã tạo Migration: 2025_11_22_123456_create_categories_table
-Đã tạo Migration: 2025_11_22_123457_create_brands_table
+INFO  Migration [database/migrations/2025_11_22_120001_create_categories_table.php] created successfully.
+INFO  Migration [database/migrations/2025_11_22_120002_create_brands_table.php] created successfully.
 ...
+INFO  Migration [database/migrations/2025_11_22_120015_add_fields_to_users_table.php] created successfully.
 ```
 
-✅ **Checkpoint 1.0:** 15 file migration đã tạo
+✅ **Checkpoint 1.0:** 15 file migration đã tạo theo đúng thứ tự dependency
 
 ---
 
@@ -1120,7 +1179,71 @@ Count    : 14
 Count    : 1
 ```
 
-✅ **Checkpoint 1:** Tất cả 15 migrations đã tạo xong
+**🔥 CRITICAL: Verify Migration Order (Timestamp)**
+
+```powershell
+# List migrations theo thứ tự timestamp
+ls database\migrations\2025_* | Sort-Object Name | Select-Object -First 20 Name
+```
+
+**Kết quả phải theo thứ tự dependency:**
+
+```
+2025_11_22_HHMMSS_create_categories_table.php          ← Level 1 (độc lập)
+2025_11_22_HHMMSS_create_brands_table.php              ← Level 1
+2025_11_22_HHMMSS_create_post_categories_table.php     ← Level 1
+2025_11_22_HHMMSS_create_coupons_table.php             ← Level 1
+
+2025_11_22_HHMMSS_create_products_table.php            ← Level 2 (cần categories, brands)
+2025_11_22_HHMMSS_create_posts_table.php               ← Level 2 (cần post_categories, users)
+2025_11_22_HHMMSS_create_addresses_table.php           ← Level 2 (cần users)
+
+2025_11_22_HHMMSS_create_product_variants_table.php    ← Level 3 (cần products)
+2025_11_22_HHMMSS_create_product_images_table.php      ← Level 3 (cần products)
+2025_11_22_HHMMSS_create_orders_table.php              ← Level 3 (cần users, addresses, coupons)
+
+2025_11_22_HHMMSS_create_order_items_table.php         ← Level 4 (cần orders, products)
+2025_11_22_HHMMSS_create_reviews_table.php             ← Level 4 (cần products, users, orders)
+2025_11_22_HHMMSS_create_coupon_usages_table.php       ← Level 4 (cần coupons, users, orders)
+2025_11_22_HHMMSS_create_order_status_histories_table.php ← Level 4 (cần orders)
+
+2025_11_22_HHMMSS_add_fields_to_users_table.php        ← Level 5 (mở rộng users)
+```
+
+**⚠️ NẾU THỨ TỰ SAI:**
+
+Nếu timestamp không theo đúng thứ tự dependency (ví dụ: products trước categories), bạn PHẢI đổi tên file để sửa timestamp:
+
+```powershell
+# Ví dụ: Nếu products (timestamp 120002) trước categories (120003), đổi lại:
+# Rename products thành timestamp lớn hơn categories
+
+# Hoặc XÓA TẤT CẢ và tạo lại theo nhóm với delay (khuyến nghị!)
+```
+
+**🔍 Test Migration Locally (DRY RUN):**
+
+```powershell
+# Test chạy migration local để kiểm tra không có lỗi
+php artisan migrate
+
+# Nếu thành công, rollback lại để VPS có thể chạy lại sau
+php artisan migrate:rollback
+```
+
+**Kết quả mong đợi:**
+
+```
+INFO  Running migrations.
+
+2025_11_22_xxx_create_categories_table ................ 15ms DONE
+2025_11_22_xxx_create_brands_table .................... 12ms DONE
+... (15 migrations total)
+
+INFO  Migration completed successfully.
+```
+
+✅ **Checkpoint 1:** Tất cả 15 migrations đã tạo xong với thứ tự ĐÚNG!
 
 ---
 
