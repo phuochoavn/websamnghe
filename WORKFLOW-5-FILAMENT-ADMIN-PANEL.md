@@ -184,7 +184,26 @@ You can now access the panel at: /admin
 code app\Providers\Filament\AdminPanelProvider.php
 ```
 
-**Tìm method `panel()` và thêm `->locale('vi')`:**
+**Tìm dòng `->path('admin')` và thêm `->locale('vi')` NGAY SAU đó:**
+
+**TRƯỚC KHI SỬA (file mặc định):**
+
+```php
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->default()
+        ->id('admin')
+        ->path('admin')
+        ->login()  // ← Locale sẽ thêm TRƯỚC dòng này
+        ->colors([
+            'primary' => Color::Amber,
+        ])
+        // ... phần còn lại
+}
+```
+
+**SAU KHI THÊM `->locale('vi')`:**
 
 ```php
 public function panel(Panel $panel): Panel
@@ -201,12 +220,12 @@ public function panel(Panel $panel): Panel
         ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
         ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
         ->pages([
-            Pages\Dashboard::class,
+            Dashboard::class,
         ])
         ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
         ->widgets([
-            Widgets\AccountWidget::class,
-            Widgets\FilamentInfoWidget::class,
+            AccountWidget::class,
+            FilamentInfoWidget::class,
         ])
         ->middleware([
             EncryptCookies::class,
@@ -224,6 +243,8 @@ public function panel(Panel $panel): Panel
         ]);
 }
 ```
+
+**📝 Lưu ý:** Chỉ cần thêm 1 dòng `->locale('vi')` vào đúng vị trí (sau `->path('admin')`), giữ nguyên toàn bộ code còn lại!
 
 **Save file (Ctrl+S)**
 
