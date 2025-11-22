@@ -520,7 +520,9 @@ code app\Models\User.php
 # Or: notepad app\Models\User.php
 ```
 
-**Update User.php với Filament interface:**
+**Xóa toàn bộ nội dung file cũ và thay thế bằng code mới bên dưới:**
+
+**Copy TOÀN BỘ code này vào file `app\Models\User.php`:**
 
 ```php
 <?php
@@ -582,7 +584,13 @@ class User extends Authenticatable implements FilamentUser
 }
 ```
 
-**Save file (Ctrl+S)**
+**📝 Lưu ý:**
+- Dòng 6-7: Thêm 2 use statements cho Filament
+- Dòng 9: Thêm `implements FilamentUser`
+- Dòng 40-46: Thêm method `canAccessPanel()` (QUAN TRỌNG để tránh lỗi 403!)
+- Copy paste TOÀN BỘ code từ `<?php` đến dấu `}` cuối cùng
+
+**Save file (Ctrl+S hoặc File → Save)**
 
 ✅ **Checkpoint 4.1:** User model updated locally
 
