@@ -1,9 +1,9 @@
 # 🎨 WORKFLOW 5: QUẢN TRỊ FILAMENT
 
 > **Dự án:** samnghethaycu.com - E-Commerce Platform
-> **Version:** 4.2 Professional Vietnamese (Updated for Filament v4 + Asset Publishing)
-> **Thời gian thực tế:** 12-17 phút
-> **Mục tiêu:** Filament (latest) + Admin user + Dashboard working
+> **Version:** 5.0 Professional Vietnamese (FIXED: Correct Order + Vietnamese Locale + No 403 Error)
+> **Thời gian thực tế:** 14-20 phút
+> **Mục tiêu:** Filament (latest) + Vietnamese UI + User Model + Admin user + Dashboard working
 
 ---
 
@@ -173,7 +173,65 @@ You can now access the panel at: /admin
 
 ---
 
-### BƯỚC 1.3: Verify Installation
+### BƯỚC 1.3: Configure Vietnamese Locale
+
+**📍 Trên Windows:**
+
+**⚠️ QUAN TRỌNG:** Thêm tiếng Việt ngay sau khi install để admin panel hiển thị tiếng Việt!
+
+```powershell
+# Open AdminPanelProvider
+code app\Providers\Filament\AdminPanelProvider.php
+```
+
+**Tìm method `panel()` và thêm `->locale('vi')`:**
+
+```php
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->default()
+        ->id('admin')
+        ->path('admin')
+        ->locale('vi')  // ← THÊM DÒNG NÀY cho tiếng Việt
+        ->login()
+        ->colors([
+            'primary' => Color::Amber,
+        ])
+        ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+        ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+        ->pages([
+            Pages\Dashboard::class,
+        ])
+        ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+        ->widgets([
+            Widgets\AccountWidget::class,
+            Widgets\FilamentInfoWidget::class,
+        ])
+        ->middleware([
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            AuthenticateSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            DisableBladeIconComponents::class,
+            DispatchServingFilamentEvent::class,
+        ])
+        ->authMiddleware([
+            Authenticate::class,
+        ]);
+}
+```
+
+**Save file (Ctrl+S)**
+
+✅ **Checkpoint 1.3:** Vietnamese locale configured
+
+---
+
+### BƯỚC 1.4: Verify Installation
 
 **📍 Trên Windows:**
 
@@ -194,9 +252,14 @@ php artisan route:list | Select-String "admin"
 ls app\Providers\Filament\
 
 # Should show: AdminPanelProvider.php
+
+# Verify Vietnamese locale added
+Select-String -Path app\Providers\Filament\AdminPanelProvider.php -Pattern "locale\('vi'\)"
+
+# Should show:         ->locale('vi')
 ```
 
-✅ **Checkpoint 1.3:** Filament routes verified
+✅ **Checkpoint 1.4:** Filament routes and Vietnamese locale verified
 
 ---
 
@@ -222,7 +285,7 @@ git status
 git add .
 
 # Commit
-git commit -m "feat: install Filament v4 admin panel with default configuration"
+git commit -m "feat: install Filament v4 admin panel with Vietnamese locale"
 
 # Push to GitHub
 git push origin main
@@ -231,7 +294,7 @@ git push origin main
 **Expected output:**
 
 ```
-[main abc1234] feat: install Filament v4 admin panel with default configuration
+[main abc1234] feat: install Filament v4 admin panel with Vietnamese locale
  X files changed, XXX insertions(+), X deletions(-)
  create mode 100644 app/Providers/Filament/AdminPanelProvider.php
  create mode 100644 config/filament.php
@@ -242,7 +305,7 @@ To https://github.com/phuochoavn/websamnghe.git
    abc1234..def5678  main -> main
 ```
 
-✅ **Checkpoint 2.1:** Filament pushed to GitHub
+✅ **Checkpoint 2.1:** Filament with Vietnamese locale pushed to GitHub
 
 ---
 
@@ -409,164 +472,25 @@ content-type: application/javascript
 
 ---
 
-## PHẦN 4: TẠO ADMIN USER
-
-**Thời gian:** 2 phút
-
-### BƯỚC 4.1: Create Admin User
-
-**📍 Trên VPS:**
-
-```bash
-cd /var/www/samnghethaycu.com
-
-# Create Filament admin user
-php artisan make:filament-user
-```
-
-**Prompts and answers:**
-
-```
-Name:
-> Admin
-
-Email address:
-> admin@samnghethaycu.com
-
-Password:
-> Admin@123456
-
-(Nhập password 2 lần)
-```
-
-**Expected output:**
-
-```
-Success! admin@samnghethaycu.com may now log in at https://samnghethaycu.com/admin
-```
-
-✅ **Checkpoint 4.1:** Admin user created
-
----
-
-### BƯỚC 4.2: Verify User in Database
-
-**📍 Trên VPS:**
-
-```bash
-# Check user exists
-php artisan tinker
-```
-
-**In tinker:**
-
-```php
-User::where('email', 'admin@samnghethaycu.com')->first();
-# Should return User object
-
-exit
-```
-
-✅ **Checkpoint 4.2:** Admin user verified
-
----
-
-## PHẦN 5: TEST ADMIN PANEL
-
-**Thời gian:** 2 phút
-
-### BƯỚC 5.1: Access Admin Login Page
-
-**📍 Browser:**
-
-```
-https://samnghethaycu.com/admin
-```
-
-**Should see:**
-- Filament login page
-- "Sign in" heading
-- Email and Password fields
-- "Sign in" button
-- Professional Filament UI
-
-✅ **Checkpoint 5.1:** Login page accessible
-
----
-
-### BƯỚC 5.2: Login to Dashboard
-
-**📍 Browser - Login credentials:**
-
-```
-Email: admin@samnghethaycu.com
-Password: Admin@123456
-```
-
-**Click "Sign in"**
-
-**Should see:** 🎉 **Filament Dashboard!**
-
-- Dashboard heading
-- Sidebar navigation (empty for now)
-- User menu (top right with "Admin" name)
-- Dark mode toggle
-- Clean, professional interface
-
-✅ **Checkpoint 5.2:** Login successful
-
----
-
-### BƯỚC 5.3: Explore Dashboard Features
-
-**📍 Browser - Check these features:**
-
-```
-✅ Sidebar: Navigation menu (empty, will add resources in WF-6)
-✅ User Menu: Click your name (top right)
-   - Profile link
-   - Logout link
-✅ Dark Mode: Toggle dark/light mode (moon/sun icon)
-✅ Dashboard: Main content area (empty widgets for now)
-✅ Responsive: Resize browser window (mobile-friendly)
-```
-
-✅ **Checkpoint 5.3:** All features working
-
----
-
-### BƯỚC 5.4: Test Logout
-
-**📍 Browser:**
-
-```
-1. Click user menu (top right)
-2. Click "Sign out"
-3. Should redirect to login page
-4. Try login again - should work
-```
-
-✅ **Checkpoint 5.4:** Logout working
-
----
-
-## PHẦN 6: CẤU HÌNH USER MODEL (Optional but Recommended)
+## PHẦN 4: CẤU HÌNH USER MODEL (BẮT BUỘC!)
 
 **Thời gian:** 3 phút
 
-**Tại sao cần?** Add `canAccessPanel()` method để kiểm soát ai có thể truy cập admin panel.
+**⚠️ CRITICAL:** Bước này là **BẮT BUỘC** phải làm TRƯỚC KHI tạo admin user! Nếu không, login sẽ gặp lỗi **403 Forbidden**.
 
-### BƯỚC 6.1: Update User Model
+**Tại sao bắt buộc?** User model phải implement `FilamentUser` interface và có method `canAccessPanel()` để Filament kiểm tra quyền truy cập.
+
+### BƯỚC 4.1: Update User Model (Local)
 
 **📍 Trên Windows:**
 
 ```powershell
 # Open User model in your editor
-notepad app\Models\User.php
-# Or use VS Code: code app\Models\User.php
+code app\Models\User.php
+# Or: notepad app\Models\User.php
 ```
 
-**Update User.php with Filament interface:**
+**Update User.php với Filament interface:**
 
 ```php
 <?php
@@ -628,47 +552,229 @@ class User extends Authenticatable implements FilamentUser
 }
 ```
 
-**Save file**
+**Save file (Ctrl+S)**
 
-✅ **Checkpoint 6.1:** User model updated
+✅ **Checkpoint 4.1:** User model updated locally
 
 ---
 
-### BƯỚC 6.2: Commit & Deploy
+### BƯỚC 4.2: Commit & Push
 
 **📍 Trên Windows:**
 
 ```powershell
+# Check changes
+git status
+# Should show: modified: app/Models/User.php
+
+# Add and commit
 git add app\Models\User.php
 git commit -m "feat: configure User model for Filament admin panel access control"
+
+# Push to GitHub
 git push origin main
 ```
+
+**Expected output:**
+
+```
+[main abc1234] feat: configure User model for Filament admin panel access control
+ 1 file changed, XX insertions(+), X deletions(-)
+
+To https://github.com/phuochoavn/websamnghe.git
+   abc1234..def5678  main -> main
+```
+
+✅ **Checkpoint 4.2:** User model pushed to GitHub
+
+---
+
+### BƯỚC 4.3: Deploy to VPS
 
 **📍 Trên VPS:**
 
 ```bash
+# SSH if not already connected
+ssh deploy@69.62.82.145
+
+cd /var/www/samnghethaycu.com
+
+# Deploy with automation script
 deploy-sam
 ```
 
-**Expected:** Deploy completes successfully
+**Expected output:**
 
-✅ **Checkpoint 6.2:** User model deployed
+```
+🚀 Starting deployment...
+...
+📥 Step 1/8: Pulling latest code from GitHub...
+✅ Code updated
+def5678 feat: configure User model for Filament admin panel access control
+...
+🎉 Deployment completed successfully!
+```
+
+✅ **Checkpoint 4.3:** User model deployed to VPS
 
 ---
 
-### BƯỚC 6.3: Test Access Control
+## PHẦN 5: TẠO ADMIN USER
+
+**Thời gian:** 2 phút
+
+**⚠️ LƯU Ý:** Chỉ làm phần này SAU KHI đã hoàn thành PHẦN 4 (User model configured)!
+
+### BƯỚC 5.1: Create Admin User
+
+**📍 Trên VPS:**
+
+```bash
+cd /var/www/samnghethaycu.com
+
+# Create Filament admin user
+php artisan make:filament-user
+```
+
+**Prompts and answers:**
+
+```
+Name:
+> Admin
+
+Email address:
+> admin@samnghethaycu.com
+
+Password:
+> Admin@123456
+
+(Nhập password 2 lần)
+```
+
+**Expected output:**
+
+```
+   INFO  Success! admin@samnghethaycu.com may now log in at https://samnghethaycu.com/admin/login.
+```
+
+✅ **Checkpoint 5.1:** Admin user created
+
+---
+
+### BƯỚC 5.2: Verify User in Database
+
+**📍 Trên VPS:**
+
+```bash
+# Check user exists
+php artisan tinker
+```
+
+**In tinker:**
+
+```php
+User::where('email', 'admin@samnghethaycu.com')->first();
+# Should return User object with id, name, email
+
+exit
+```
+
+**Expected output:**
+
+```php
+> User::where('email', 'admin@samnghethaycu.com')->first();
+= App\Models\User {#6863
+    id: 1,
+    name: "Admin",
+    email: "admin@samnghethaycu.com",
+    ...
+  }
+```
+
+✅ **Checkpoint 5.2:** Admin user verified in database
+
+---
+
+## PHẦN 6: TEST ADMIN PANEL
+
+**Thời gian:** 3 phút
+
+### BƯỚC 6.1: Access Admin Login Page
 
 **📍 Browser:**
 
 ```
-1. Logout from admin panel
-2. Login with admin@samnghethaycu.com
-   - Should work ✅
-3. (Optional) Try creating user with different email domain
-   - Should be blocked from accessing /admin
+https://samnghethaycu.com/admin
 ```
 
-✅ **Checkpoint 6.3:** Access control working
+**Should see:**
+- ✅ Filament login page
+- ✅ "Đăng nhập" heading (Vietnamese)
+- ✅ Email and Password fields
+- ✅ "Đăng nhập" button
+- ✅ Professional Filament UI
+
+✅ **Checkpoint 6.1:** Login page accessible
+
+---
+
+### BƯỚC 6.2: Login to Dashboard
+
+**📍 Browser - Login credentials:**
+
+```
+Email: admin@samnghethaycu.com
+Password: Admin@123456
+```
+
+**Click "Đăng nhập"**
+
+**Should see:** 🎉 **Filament Dashboard!**
+
+- ✅ "Trang tổng quan" heading (Vietnamese)
+- ✅ Sidebar navigation (empty for now)
+- ✅ User menu (top right with "Admin" name)
+- ✅ Dark mode toggle
+- ✅ Clean, professional interface
+- ✅ NO 403 ERROR (because User model configured correctly)
+
+**⚠️ If you see 403 Forbidden:** You forgot PHẦN 4! Go back and configure User model first!
+
+✅ **Checkpoint 6.2:** Login successful (no 403 error!)
+
+---
+
+### BƯỚC 6.3: Explore Dashboard Features
+
+**📍 Browser - Check these features:**
+
+```
+✅ Sidebar: Navigation menu (empty, will add resources in WF-6)
+✅ User Menu: Click your name (top right)
+   - "Hồ sơ" (Profile)
+   - "Đăng xuất" (Logout)
+✅ Dark Mode: Toggle dark/light mode (moon/sun icon)
+✅ Dashboard: Main content area (empty widgets for now)
+✅ Responsive: Resize browser window (mobile-friendly)
+✅ Vietnamese interface
+```
+
+✅ **Checkpoint 6.3:** All features working
+
+---
+
+### BƯỚC 6.4: Test Logout
+
+**📍 Browser:**
+
+```
+1. Click user menu (top right)
+2. Click "Đăng xuất"
+3. Should redirect to login page
+4. Try login again - should work
+```
+
+✅ **Checkpoint 6.4:** Logout working
 
 ---
 
@@ -676,23 +782,37 @@ deploy-sam
 
 ### Full Workflow Checklist
 
-**✅ Checklist - Filament Admin Panel:**
+**✅ Checklist - Filament Admin Panel (Correct Order!):**
 
 ```
-✅ Filament v4 installed locally
-✅ AdminPanelProvider created
+PHẦN 1: CÀI ĐẶT FILAMENT (LOCAL)
+✅ Filament v4 installed locally (composer require filament/filament -W)
+✅ AdminPanelProvider created (php artisan filament:install --panels)
+✅ Vietnamese locale configured (->locale('vi') in AdminPanelProvider)
 ✅ Code committed and pushed to GitHub
+
+PHẦN 2 & 3: DEPLOY LÊN VPS
 ✅ Deployed to VPS with deploy-sam
-✅ Livewire & Filament assets published on VPS
+✅ Livewire & Filament assets published on VPS (php artisan livewire:publish --assets)
 ✅ Assets accessible (livewire.min.js returns HTTP 200)
+
+PHẦN 4: CẤU HÌNH USER MODEL (TRƯỚC KHI TẠO USER!)
+✅ User model implements FilamentUser interface
+✅ canAccessPanel() method added
+✅ User model committed & deployed to VPS
+
+PHẦN 5: TẠO ADMIN USER (SAU KHI CẤU HÌNH USER MODEL!)
 ✅ Admin user created (admin@samnghethaycu.com)
+✅ User verified in database
+
+PHẦN 6: TEST ADMIN PANEL
 ✅ Admin panel accessible at /admin
-✅ Can login successfully
+✅ Vietnamese interface displayed ("Đăng nhập", "Trang tổng quan")
+✅ Can login successfully WITHOUT 403 ERROR
 ✅ Dashboard loads without errors
-✅ User menu working
+✅ User menu working ("Hồ sơ", "Đăng xuất")
 ✅ Dark mode toggle working
 ✅ Logout function working
-✅ User model configured with canAccessPanel()
 ```
 
 **Final test:**
@@ -719,12 +839,14 @@ deploy-sam
 
 ```
 ✅ Filament v4.x installed and configured (latest stable)
-✅ Admin panel at /admin with professional UI
-✅ Admin user (admin@samnghethaycu.com)
-✅ User authentication working
+✅ Vietnamese interface (Đăng nhập, Trang tổng quan, Hồ sơ, Đăng xuất)
+✅ Admin panel at /admin with professional Vietnamese UI
+✅ User Model implemented FilamentUser (NO 403 ERROR!)
+✅ Access control via canAccessPanel() (@samnghethaycu.com domain only)
+✅ Admin user (admin@samnghethaycu.com) working
+✅ User authentication working without errors
 ✅ Dashboard accessible
 ✅ Dark mode toggle
-✅ Access control via canAccessPanel()
 ✅ Deployed via Git workflow
 ✅ Ready for CRUD resources (WF-6)
 ✅ Compatible with Laravel 12
