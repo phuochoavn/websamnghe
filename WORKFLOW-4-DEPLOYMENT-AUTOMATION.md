@@ -636,7 +636,7 @@ AFTER (Automated - 5-30 seconds):
 ✅ WORKFLOW-3: Git Workflow Setup (Passwordless SSH)
 ✅ WORKFLOW-4: Deployment Automation (One-command deployment)
 → WORKFLOW-5: FILAMENT ADMIN PANEL
-  Install Filament v3 admin panel
+  Install Filament v4 admin panel
   Create admin user
   Setup admin authentication
   Time: 10-15 minutes

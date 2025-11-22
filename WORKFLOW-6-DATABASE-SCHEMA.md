@@ -208,8 +208,8 @@ php artisan route:list | Select-String "admin"
 **📍 Trên Windows PowerShell:**
 
 ```powershell
-# Install Filament v3
-composer require filament/filament:"^3.2" -W
+# Install Filament v4
+composer require filament/filament:"^4.0" -W
 
 # ⏳ Chờ 1-2 phút...
 # ✅ Phải thấy: Package manifest generated successfully.

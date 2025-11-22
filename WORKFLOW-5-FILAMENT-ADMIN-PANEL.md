@@ -1935,7 +1935,7 @@ php artisan route:list | grep admin
 # Should show multiple /admin/* routes
 
 # If no routes, reinstall Filament
-composer require filament/filament:"^3.2" -W
+composer require filament/filament:"^4.0" -W
 php artisan filament:install --panels
 
 # Restart PHP-FPM
@@ -1957,7 +1957,7 @@ Class 'Filament\Models\Contracts\FilamentUser' not found
 
 ```bash
 # Install missing Filament dependencies
-composer require filament/filament:"^3.2" -W
+composer require filament/filament:"^4.0" -W
 
 # Rebuild autoloader
 composer dump-autoload
@@ -1967,7 +1967,7 @@ php artisan optimize:clear
 
 # Verify Filament installed
 composer show | grep filament
-# Should show: filament/filament v3.2.x
+# Should show: filament/filament v4.x
 ```
 
 ---

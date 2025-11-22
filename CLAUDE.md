@@ -76,7 +76,7 @@
 - Deployment workflow tested
 
 ✅ **Filament Admin Panel** - WORKFLOW-5 completed
-- Filament v3 installed
+- Filament v4 installed
 - Admin panel accessible at https://samnghethaycu.com/admin
 - User model with FilamentUser interface (on VPS)
 - Dashboard working
@@ -138,7 +138,7 @@ Password: Deploy@2025
 ### Backend
 
 - **Framework**: Laravel 12 ✅ Installed (Local + VPS)
-- **Admin Panel**: Filament v3 ✅ **INSTALLED on VPS** (local needs sync)
+- **Admin Panel**: Filament v4 ✅ **INSTALLED on VPS** (local needs sync)
 - **Real-time**: Livewire 3 ✅ **INSTALLED** (comes with Filament)
 - **Language**: PHP 8.4 ✅ Installed (Local + VPS)
 
@@ -192,7 +192,7 @@ This repository includes 9 comprehensive workflow guides that provide step-by-st
 | 2 | `WORKFLOW-2-LARAVEL-INSTALLATION.md` | Deploy Laravel to VPS with Nginx | 15-20 min |
 | 3 | `WORKFLOW-3-GIT-WORKFLOW-SETUP.md` | Configure Git workflow (Local → GitHub → VPS) | 15-20 min |
 | 4 | `WORKFLOW-4-DEPLOYMENT-AUTOMATION.md` | Automated deployment script | 10-15 min |
-| 5 | `WORKFLOW-5-FILAMENT-ADMIN-PANEL.md` | Install Filament v3 admin panel | 10-15 min |
+| 5 | `WORKFLOW-5-FILAMENT-ADMIN-PANEL.md` | Install Filament v4 admin panel | 10-15 min |
 | 6 | `WORKFLOW-6-DATABASE-SCHEMA.md` | Create 15 migrations and models | 25-35 min |
 | 7 | `WORKFLOW-7-MODEL-BUSINESS-LOGIC.md` | Add relationships and business logic | 30-40 min |
 | 8 | `WORKFLOW-8-FILAMENT-PROFESSIONAL.md` | Customize Filament resources | 35-45 min |
@@ -349,7 +349,7 @@ samnghethaycu.com/
 **Status:** ✅ Complete - `deploy-sam` command ready to use
 
 #### **WORKFLOW-5: Filament Admin Panel** ✅ **COMPLETED** (10-15 min)
-- [x] Filament v3 installation
+- [x] Filament v4 installation
 - [x] Admin panel at /admin
 - [x] Admin user creation (admin@samnghethaycu.com)
 - [x] User model with FilamentUser interface
@@ -415,7 +415,7 @@ samnghethaycu.com/
 ✅ Laravel Deployment COMPLETED (WORKFLOW-2)
 ✅ Git Workflow COMPLETED (WORKFLOW-3)
 ✅ Deployment Automation COMPLETED (WORKFLOW-4)
-✅ Filament v3 Admin Panel COMPLETED on VPS (WORKFLOW-5)
+✅ Filament v4 Admin Panel COMPLETED on VPS (WORKFLOW-5)
 ⚠️ Local Code Out of Sync - needs Filament installation locally
 📋 Database Schema READY TO START (WORKFLOW-6 - 23 tables planned)
 📋 Eloquent Models (15 models planned - WORKFLOW-6)
@@ -638,7 +638,7 @@ DB_USERNAME=root
 DB_PASSWORD=
 
 # Install Filament (to sync with VPS)
-composer require filament/filament:"^3.2" -W
+composer require filament/filament:"^4.0" -W
 php artisan filament:install --panels
 
 # Run migrations
@@ -1345,7 +1345,7 @@ Read: database/migrations/ (check naming, structure)
 #### 2. Understand Laravel Context
 
 - **Check Laravel version**: This project uses Laravel 12
-- **Filament version**: v3.2+ (admin panel framework)
+- **Filament version**: v4.0+ (admin panel framework)
 - **Follow Laravel conventions**: Don't reinvent the wheel
 - **Use Eloquent relationships**: Avoid manual joins
 - **Leverage Laravel features**: Events, Jobs, Policies, etc.
@@ -1734,7 +1734,7 @@ sudo certbot renew --dry-run
 ### Official Documentation
 
 - **Laravel**: https://laravel.com/docs/12.x
-- **Filament**: https://filamentphp.com/docs/3.x
+- **Filament**: https://filamentphp.com/docs/4.x
 - **Livewire**: https://livewire.laravel.com/docs/3.x
 - **Tailwind CSS**: https://tailwindcss.com/docs
 - **Alpine.js**: https://alpinejs.dev/start-here
